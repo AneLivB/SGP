@@ -1,0 +1,32 @@
+---
+title: "SGP"
+author: "Ane Liv Berthelsen"
+format: html
+editor: visual
+date: 11/20/2023
+toc: true
+number-sections: true
+---
+
+## Sustainable genetics project
+
+Description of the project
+
+```{r}
+#| label: packages
+#| echo: FALSE
+
+invisible(pacman::p_load(dplyr, tidyverse, here))
+```
+
+#### Data
+
+Description of the data
+
+```{r}
+#| label: data
+#| echo: FALSE
+
+```
+
+## 
