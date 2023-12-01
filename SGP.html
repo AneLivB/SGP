@@ -9,7 +9,7 @@
 <meta name="author" content="Ane Liv Berthelsen">
 <meta name="dcterms.date" content="2023-11-20">
 
-<title>SGP</title>
+<title>Sustainable genetics project</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -47,8 +47,12 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#sustainable-genetics-project" id="toc-sustainable-genetics-project" class="nav-link active" data-scroll-target="#sustainable-genetics-project"><span class="header-section-number">1</span> Sustainable genetics project</a></li>
-  <li><a href="#section" id="toc-section" class="nav-link" data-scroll-target="#section"><span class="header-section-number">2</span> </a></li>
+  <li><a href="#description" id="toc-description" class="nav-link active" data-scroll-target="#description"><span class="header-section-number">1</span> Description</a></li>
+  <li><a href="#methods" id="toc-methods" class="nav-link" data-scroll-target="#methods"><span class="header-section-number">2</span> Methods</a>
+  <ul class="collapse">
+  <li><a href="#data" id="toc-data" class="nav-link" data-scroll-target="#data"><span class="header-section-number">2.0.1</span> Data</a></li>
+  </ul></li>
+  <li><a href="#results" id="toc-results" class="nav-link" data-scroll-target="#results"><span class="header-section-number">3</span> Results</a></li>
   </ul>
 </nav>
 </div>
@@ -56,7 +60,7 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">SGP</h1>
+<h1 class="title">Sustainable genetics project</h1>
 </div>
 
 
@@ -83,16 +87,84 @@ ul.task-list li input[type="checkbox"] {
 
 </header>
 
-<section id="sustainable-genetics-project" class="level2" data-number="1">
-<h2 data-number="1" class="anchored" data-anchor-id="sustainable-genetics-project"><span class="header-section-number">1</span> Sustainable genetics project</h2>
-<p>Description of the project</p>
-<section id="data" class="level4" data-number="1.0.1">
-<h4 data-number="1.0.1" class="anchored" data-anchor-id="data"><span class="header-section-number">1.0.1</span> Data</h4>
+<section id="description" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> Description</h1>
+<p>Scientific research is a massive endeavor, consuming vast quantities of single-use plastics. The sustainable genetics project aim to empirically test the re-usability of lab plastic wear, specifically the plastic racks used for PCRs and detection. The project was based around the protocol for Antarctic fur seal genotyping using microsatellites. In this protocol, extracted DNA is first amplified using PCR and since transfered to detection plates for sequencing. The plates used for detection contain only a small diluted concentration of DNA, while the PCR plates have been used in the PCR process and therefore contain a high concentration of DNA. Therefore, we assume that the potential risk of contamination from a previously used plate would be higher in the PCR step.</p>
+</section>
+<section id="methods" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> Methods</h1>
+<p>The 274 samples were collected from Bird Island, South Georgia (54°00024.800 S, 38°03004.100 W) during the austral summer of 2020-2021. Tissue samples were collected from the flipper or umbilical cord of Antarctic fur seal pups and stored in 20% dimethyl sulphoxide saturated with sodium chloride at -20°C. The DNA was extracted using a standard chloroform-isoamylalcohol protocol and genotyped at 39 microsatellite loci. PCR amplification was performed using a Type It Kit (Qiagen) with the following program:</p>
+<table class="table">
+<thead>
+<tr class="header">
+<th>Stage</th>
+<th>No.&nbsp;of cycles</th>
+<th>Temperature (°C)</th>
+<th>Duration</th>
+<th>Process</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>1</td>
+<td>94</td>
+<td>5 minutes</td>
+<td>Heat up</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>28</td>
+<td>94</td>
+<td>30 seconds</td>
+<td>Denaturation</td>
+</tr>
+<tr class="odd">
+<td></td>
+<td></td>
+<td>60/53</td>
+<td>90 seconds</td>
+<td>Annealing</td>
+</tr>
+<tr class="even">
+<td></td>
+<td></td>
+<td>72</td>
+<td>30 seconds</td>
+<td>Extension</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>1</td>
+<td>60/53</td>
+<td>30 minutes</td>
+<td>Annealing</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>1</td>
+<td>10</td>
+<td>hold</td>
+<td>Cool down</td>
+</tr>
+</tbody>
+</table>
+<p><em>Note: Annealing temperatures are mastermix-specific.</em></p>
+<p>The PCR product was transferred to and diluted on detection plates before being resolved by electrophoresis on an ABI 3730xl capillary sequencer (Applied Biosystems, Waltham, MA, USA). Allele sizes were scored automatically using GeneMarker v. 2.6.2 (SoftGenetics, LLC., State College, PA, USA) and manually inspected and corrected when necessary. Each plate contains three positive controls to ensure standardisation of microsatellite scoring across plates.</p>
+<p>To assess the re-usability of both PCR plates and detection plates, the samples were placed on a master plate from which the samples were transferred to PCR plates. The samples were distributed on a total of 3 master plates. The samples were subjected to four treatments: standard procedure, internal control, re-used PCR plate and re-used detection plate. This is illustrated by <a href="#fig-Schematic">Figure&nbsp;1</a>. The re-used plates all originated from the ‘standard procedure’ round. Thereby, we could ensure knowledge of the sample previously contained within a specific well.</p>
+<div id="fig-Schematic" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="Results/Figures/SGP_setup.png" class="img-fluid figure-img" width="500"></p>
+<figcaption class="figure-caption">Figure&nbsp;1: Schematic overview</figcaption>
+</figure>
+</div>
+<section id="data" class="level3" data-number="2.0.1">
+<h3 data-number="2.0.1" class="anchored" data-anchor-id="data"><span class="header-section-number">2.0.1</span> Data</h3>
 <p>Description of the data</p>
 </section>
 </section>
-<section id="section" class="level2" data-number="2">
-<h2 data-number="2" class="anchored" data-anchor-id="section"><span class="header-section-number">2</span> </h2>
+<section id="results" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> Results</h1>
 </section>
 
 </main>

@@ -1,25 +1,66 @@
 ---
-title: "SGP"
+title: "Sustainable genetics project"
 author: "Ane Liv Berthelsen"
 format: html
 editor: visual
 date: 11/20/2023
 toc: true
 number-sections: true
+mainfont: Times New Roman
 ---
 
-## Sustainable genetics project
+```{r}
+#| label: setup
+#| echo: FALSE
 
-Description of the project
+#This code chunk is dedicated to variables containing the path to the folder related to the project. 
+figs_dir <- file.path("Results", "Figures")
+tabs_dir <- file.path("Results", "Tables")
+
+#remember to add a line that saves the figures and tables in the correct folder
+#e.g. write_csv(., file.path(tabs_dir, "name of table"))
+#e.g. ggsave(plot = name_of_plot, filename = file.path(figs_dir, "name of figure")), width = 19, height = 19, unit = "cm", dpi = 500)
+```
+
+# Description
+
+Scientific research is a massive endeavor, consuming vast quantities of single-use plastics. The sustainable genetics project aim to empirically test the re-usability of lab plastic wear, specifically the plastic racks used for PCRs and detection. The project was based around the protocol for Antarctic fur seal genotyping using microsatellites. In this protocol, extracted DNA is first amplified using PCR and since transfered to detection plates for sequencing. The plates used for detection contain only a small diluted concentration of DNA, while the PCR plates have been used in the PCR process and therefore contain a high concentration of DNA. Therefore, we assume that the potential risk of contamination from a previously used plate would be higher in the PCR step.
 
 ```{r}
 #| label: packages
 #| echo: FALSE
-
-invisible(pacman::p_load(dplyr, tidyverse, here))
+#here::here()
+invisible(pacman::p_load(dplyr, tidyverse, here, stringi, png, knitr))
 ```
 
-#### Data
+# Methods
+
+The 274 samples were collected from Bird Island, South Georgia (54°00024.800 S, 38°03004.100 W) during the austral summer of 2020-2021. Tissue samples were collected from the flipper or umbilical cord of Antarctic fur seal pups and stored in 20% dimethyl sulphoxide saturated with sodium chloride at -20°C. The DNA was extracted using a standard chloroform-isoamylalcohol protocol and genotyped at 39 microsatellite loci. PCR amplification was performed using a Type It Kit (Qiagen) with the following program:
+
+| Stage | No. of cycles | Temperature (°C) | Duration   | Process      |
+|-------|---------------|------------------|------------|--------------|
+| 1     | 1             | 94               | 5 minutes  | Heat up      |
+| 2     | 28            | 94               | 30 seconds | Denaturation |
+|       |               | 60/53            | 90 seconds | Annealing    |
+|       |               | 72               | 30 seconds | Extension    |
+| 3     | 1             | 60/53            | 30 minutes | Annealing    |
+| 4     | 1             | 10               | hold       | Cool down    |
+
+*Note: Annealing temperatures are mastermix-specific.*
+
+The PCR product was transferred to and diluted on detection plates before being resolved by electrophoresis on an ABI 3730xl capillary sequencer (Applied Biosystems, Waltham, MA, USA). Allele sizes were scored automatically using GeneMarker v. 2.6.2 (SoftGenetics, LLC., State College, PA, USA) and manually inspected and corrected when necessary. Each plate contains three positive controls to ensure standardisation of microsatellite scoring across plates.
+
+To assess the re-usability of both PCR plates and detection plates, the samples were placed on a master plate from which the samples were transferred to PCR plates. The samples were distributed on a total of 3 master plates. The samples were subjected to four treatments: standard procedure, internal control, re-used PCR plate and re-used detection plate. This is illustrated by @fig-Schematic. The re-used plates all originated from the 'standard procedure' round. Thereby, we could ensure knowledge of the sample previously contained within a specific well.
+
+![Schematic overview](Results/Figures/SGP_setup.png){#fig-Schematic fig-align="center" width="500"}
+
+```{r}
+#| label: Schematic overview
+#| echo: FALSE
+
+```
+
+### Data
 
 Description of the data
 
@@ -27,6 +68,13 @@ Description of the data
 #| label: data
 #| echo: FALSE
 
+#Rack 154 first round 
+R154.mix1.1 <- read.csv("Data/Working_data/Rack154/Round1/AP_AFS_Rack154_AFSmix1_11_04_23_AlleleReport.csv", sep = ";")
+R154.mix2.1 <- read.csv("Data/Working_data/Rack154/Round1/AP_AFS_Rack154_AFSmix2_1_21_04_23_AlleleReport.csv", sep = ";")
+R154.mix3.1 <- read.csv("Data/Working_data/Rack154/Round1/AP_AFS_Rack154_AFSmix3_1_21_04_23_AlleleReport.csv", sep = ";")
+R154.mix4.1 <- read.csv("Data/Working_data/Rack154/Round1/AP_AFS_Rack154_AFSmix4_1_21_04_23_AlleleReport.csv", sep = ";")
+R154.mix5.1 <- read.csv("Data/Working_data/Rack154/Round1/AP_AFS_Rack154_AFSmix5_1_21_04_23_AlleleReport.csv", sep = ";")
+R154.mangs.1 <- read.csv("Data/Working_data/Rack154/Round1/AP_AFS_Rack154_Mangs_05_06_23_AlleleReport.csv", sep = ";")
 ```
 
-## 
+# Results
