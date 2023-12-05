@@ -46,13 +46,10 @@ ul.task-list li input[type="checkbox"] {
   <nav id="TOC" role="doc-toc" class="toc-active">
     <h2 id="toc-title">Table of contents</h2>
    
-  <ul>
-  <li><a href="#description" id="toc-description" class="nav-link active" data-scroll-target="#description"><span class="header-section-number">1</span> Description</a></li>
-  <li><a href="#methods" id="toc-methods" class="nav-link" data-scroll-target="#methods"><span class="header-section-number">2</span> Methods</a>
   <ul class="collapse">
-  <li><a href="#data" id="toc-data" class="nav-link" data-scroll-target="#data"><span class="header-section-number">2.0.1</span> Data</a></li>
-  </ul></li>
-  <li><a href="#results" id="toc-results" class="nav-link" data-scroll-target="#results"><span class="header-section-number">3</span> Results</a></li>
+  <li><a href="#description" id="toc-description" class="nav-link active" data-scroll-target="#description">Description</a></li>
+  <li><a href="#methods" id="toc-methods" class="nav-link" data-scroll-target="#methods">Methods</a></li>
+  <li><a href="#results" id="toc-results" class="nav-link" data-scroll-target="#results">Results</a></li>
   </ul>
 </nav>
 </div>
@@ -87,12 +84,12 @@ ul.task-list li input[type="checkbox"] {
 
 </header>
 
-<section id="description" class="level1" data-number="1">
-<h1 data-number="1"><span class="header-section-number">1</span> Description</h1>
+<section id="description" class="level1">
+<h1>Description</h1>
 <p>Scientific research is a massive endeavor, consuming vast quantities of single-use plastics. The sustainable genetics project aim to empirically test the re-usability of lab plastic wear, specifically the plastic racks used for PCRs and detection. The project was based around the protocol for Antarctic fur seal genotyping using microsatellites. In this protocol, extracted DNA is first amplified using PCR and since transfered to detection plates for sequencing. The plates used for detection contain only a small diluted concentration of DNA, while the PCR plates have been used in the PCR process and therefore contain a high concentration of DNA. Therefore, we assume that the potential risk of contamination from a previously used plate would be higher in the PCR step.</p>
 </section>
-<section id="methods" class="level1" data-number="2">
-<h1 data-number="2"><span class="header-section-number">2</span> Methods</h1>
+<section id="methods" class="level1">
+<h1>Methods</h1>
 <p>The 274 samples were collected from Bird Island, South Georgia (54°00024.800 S, 38°03004.100 W) during the austral summer of 2020-2021. Tissue samples were collected from the flipper or umbilical cord of Antarctic fur seal pups and stored in 20% dimethyl sulphoxide saturated with sodium chloride at -20°C. The DNA was extracted using a standard chloroform-isoamylalcohol protocol and genotyped at 39 microsatellite loci. PCR amplification was performed using a Type It Kit (Qiagen) with the following program:</p>
 <table class="table">
 <thead>
@@ -150,7 +147,7 @@ ul.task-list li input[type="checkbox"] {
 </tbody>
 </table>
 <p><em>Note: Annealing temperatures are mastermix-specific.</em></p>
-<p>The PCR product was transferred to and diluted on detection plates before being resolved by electrophoresis on an ABI 3730xl capillary sequencer (Applied Biosystems, Waltham, MA, USA). Allele sizes were scored automatically using GeneMarker v. 2.6.2 (SoftGenetics, LLC., State College, PA, USA) and manually inspected and corrected when necessary. Each plate contains three positive controls to ensure standardisation of microsatellite scoring across plates.</p>
+<p>The PCR product was transferred to and diluted on detection plates before being resolved by electrophoresis on an ABI 3730xl capillary sequencer (Applied Biosystems, Waltham, MA, USA). Each plate contained three positive controls to ensure standardisation of microsatellite scoring across plates. Allele sizes were scored automatically using GeneMarker v. 2.6.2 (SoftGenetics, LLC., State College, PA, USA) and manually inspected and corrected when necessary.</p>
 <p>To assess the re-usability of both PCR plates and detection plates, the samples were placed on a master plate from which the samples were transferred to PCR plates. The samples were distributed on a total of 3 master plates. The samples were subjected to four treatments: standard procedure, internal control, re-used PCR plate and re-used detection plate. This is illustrated by <a href="#fig-Schematic">Figure&nbsp;1</a>. The re-used plates all originated from the ‘standard procedure’ round. Thereby, we could ensure knowledge of the sample previously contained within a specific well.</p>
 <div id="fig-Schematic" class="quarto-figure quarto-figure-center anchored">
 <figure class="figure">
@@ -158,13 +155,32 @@ ul.task-list li input[type="checkbox"] {
 <figcaption class="figure-caption">Figure&nbsp;1: Schematic overview</figcaption>
 </figure>
 </div>
-<section id="data" class="level3" data-number="2.0.1">
-<h3 data-number="2.0.1" class="anchored" data-anchor-id="data"><span class="header-section-number">2.0.1</span> Data</h3>
+<section id="washing-protocol" class="level4">
+<h4 class="anchored" data-anchor-id="washing-protocol">Washing protocol</h4>
+<p>After the initial use, the racks were washed using the following steps. First, each plate was individually rinsed with distilled water and emptied 10 times, before submerging in soap water for two hours. After soaking, each plate was again rinsed and emptied before left on a paper towel over night to dry.</p>
+</section>
+<section id="quantification-of-genotyping-errors" class="level4">
+<h4 class="anchored" data-anchor-id="quantification-of-genotyping-errors">Quantification of genotyping errors</h4>
+<p>To estimate the genotyping error rate, the ‘standard procedure’ treatment was first compared to the ‘internal control’ treatment to establish a baseline error rate. Any discrepancy between the two sets of genotypes was flagged as an error. The error rate was evaluated both for each allele and for the genotype on a locus-specific level and across all loci. After establishing a baseline error rate, the same comparision was preformed between the ‘standard procedure’ treatment and the two re-use treatments independently. In these cases, any discrepancy was first explored for the possibility of contamination, before flagged as an error, if no contamination was detectable.</p>
+</section>
+<section id="identification-of-contamination" class="level4">
+<h4 class="anchored" data-anchor-id="identification-of-contamination">Identification of contamination</h4>
+<p>The samples were each repeated for all four treatments. In the case of a discrepancy between the original genotype and the ‘re-used PCR plate’ or ‘re-used detection plate’ treatment, the new genotype was compared to the genotype of the individual previously genotyped in the same well. If the genotype matched the genotype of the original individual, the mis-matched was marked as contamination.</p>
+</section>
+<section id="data" class="level3">
+<h3 class="anchored" data-anchor-id="data">Data</h3>
 <p>Description of the data</p>
+<p>Before starting the error rate evaluation, the no. of failed samples in each round is tabulated.</p>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="SGP_files/figure-html/Failed%20samples-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
 </section>
 </section>
-<section id="results" class="level1" data-number="3">
-<h1 data-number="3"><span class="header-section-number">3</span> Results</h1>
+<section id="results" class="level1">
+<h1>Results</h1>
+<p>Will come later</p>
 </section>
 
 </main>

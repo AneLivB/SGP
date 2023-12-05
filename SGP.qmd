@@ -1,7 +1,18 @@
 ---
 title: "Sustainable genetics project"
 author: "Ane Liv Berthelsen"
-format: html
+format:
+  html: 
+  #pdf: 
+    toc: true
+    toc-depth: 2
+  #  toc-title: "Contents"
+    number-sections: FALSE
+  #  documentclass: article
+  #  geometry:
+  #    - top=30mm
+  #    - left=30mm
+  #    - heightrounded
 editor: visual
 date: 11/20/2023
 toc: true
@@ -48,11 +59,23 @@ The 274 samples were collected from Bird Island, South Georgia (54°00024.800 S,
 
 *Note: Annealing temperatures are mastermix-specific.*
 
-The PCR product was transferred to and diluted on detection plates before being resolved by electrophoresis on an ABI 3730xl capillary sequencer (Applied Biosystems, Waltham, MA, USA). Allele sizes were scored automatically using GeneMarker v. 2.6.2 (SoftGenetics, LLC., State College, PA, USA) and manually inspected and corrected when necessary. Each plate contains three positive controls to ensure standardisation of microsatellite scoring across plates.
+The PCR product was transferred to and diluted on detection plates before being resolved by electrophoresis on an ABI 3730xl capillary sequencer (Applied Biosystems, Waltham, MA, USA). Each plate contained three positive controls to ensure standardisation of microsatellite scoring across plates. Allele sizes were scored automatically using GeneMarker v. 2.6.2 (SoftGenetics, LLC., State College, PA, USA) and manually inspected and corrected when necessary.
 
 To assess the re-usability of both PCR plates and detection plates, the samples were placed on a master plate from which the samples were transferred to PCR plates. The samples were distributed on a total of 3 master plates. The samples were subjected to four treatments: standard procedure, internal control, re-used PCR plate and re-used detection plate. This is illustrated by @fig-Schematic. The re-used plates all originated from the 'standard procedure' round. Thereby, we could ensure knowledge of the sample previously contained within a specific well.
 
 ![Schematic overview](Results/Figures/SGP_setup.png){#fig-Schematic fig-align="center" width="500"}
+
+#### Washing protocol
+
+After the initial use, the racks were washed using the following steps. First, each plate was individually rinsed with distilled water and emptied 10 times, before submerging in soap water for two hours. After soaking, each plate was again rinsed and emptied before left on a paper towel over night to dry.
+
+#### Quantification of genotyping errors
+
+To estimate the genotyping error rate, the 'standard procedure' treatment was first compared to the 'internal control' treatment to establish a baseline error rate. Any discrepancy between the two sets of genotypes was flagged as an error. The error rate was evaluated both for each allele and for the genotype on a locus-specific level and across all loci. After establishing a baseline error rate, the same comparision was preformed between the 'standard procedure' treatment and the two re-use treatments independently. In these cases, any discrepancy was first explored for the possibility of contamination, before flagged as an error, if no contamination was detectable.
+
+#### Identification of contamination
+
+The samples were each repeated for all four treatments. In the case of a discrepancy between the original genotype and the 're-used PCR plate' or 're-used detection plate' treatment, the new genotype was compared to the genotype of the individual previously genotyped in the same well. If the genotype matched the genotype of the original individual, the mis-matched was marked as contamination.
 
 ```{r}
 #| label: Schematic overview
@@ -69,12 +92,93 @@ Description of the data
 #| echo: FALSE
 
 #Rack 154 first round 
-R154.mix1.1 <- read.csv("Data/Working_data/Rack154/Round1/AP_AFS_Rack154_AFSmix1_11_04_23_AlleleReport.csv", sep = ";")
-R154.mix2.1 <- read.csv("Data/Working_data/Rack154/Round1/AP_AFS_Rack154_AFSmix2_1_21_04_23_AlleleReport.csv", sep = ";")
-R154.mix3.1 <- read.csv("Data/Working_data/Rack154/Round1/AP_AFS_Rack154_AFSmix3_1_21_04_23_AlleleReport.csv", sep = ";")
-R154.mix4.1 <- read.csv("Data/Working_data/Rack154/Round1/AP_AFS_Rack154_AFSmix4_1_21_04_23_AlleleReport.csv", sep = ";")
-R154.mix5.1 <- read.csv("Data/Working_data/Rack154/Round1/AP_AFS_Rack154_AFSmix5_1_21_04_23_AlleleReport.csv", sep = ";")
-R154.mangs.1 <- read.csv("Data/Working_data/Rack154/Round1/AP_AFS_Rack154_Mangs_05_06_23_AlleleReport.csv", sep = ";")
+#make list with path to files
+R154_R1_files <- list.files(path = "Data/Working_data/Rack154/Round1", pattern = "*.csv", full.names = T) 
+
+R154_R1_list = list()
+remove_row <- c("E03_Empty")
+
+#for loop which ignores the mangs, removes the broken well and collected the dataframes in one list
+for(i in R154_R1_files) {
+  if(i == R154_R1_files[6]){
+    rm(i)
+  } else {
+  x <- read.csv(i, sep = ";")
+  x <- subset(x, ID != remove_row)
+  R154_R1_list[[i]] <- x
+  #assign(i,x)
+  }
+}
+
+#change the names to the mix name
+names(R154_R1_list) <- c("mix1", "mix2", "mix3", "mix4", "mix5")
+#bind the different mixes together
+R154_R1 = do.call(cbind, R154_R1_list)
+
+#remove repeated coloumns
+drop_columns <- c("mix2.Rack_location", "mix2.ID", "mix3.Rack_location", "mix3.ID", "mix4.Rack_location", "mix4.ID", "mix5.Rack_location", "mix5.ID")
+
+R154_R1 = R154_R1[,!(names(R154_R1) %in% drop_columns)]
+
+#Rack 154 second round 
+#make list with path to files
+R154_R2_files <- list.files(path = "Data/Working_data/Rack154/Round2", pattern = "*.csv", full.names = T) 
+
+R154_R2_list = list()
+
+#for loop which removes the broken well and collected the dataframes in one list
+for(i in R154_R2_files) {
+  x <- read.csv(i, sep = ";")
+  x <- subset(x, ID != remove_row)
+  R154_R2_list[[i]] <- x
+  #assign(i,x)
+}
+
+#change the names to the mix name
+names(R154_R2_list) <- c("mix1", "mix2", "mix3", "mix4", "mix5")
+#bind the different mixes together
+R154_R2 = do.call(cbind, R154_R2_list)
+
+#remove repeated coloumns
+R154_R2 = R154_R2[,!(names(R154_R2) %in% drop_columns)]
+
+#Rack 154 third round 
+#make list with path to files
+R154_R3_files <- list.files(path = "Data/Working_data/Rack154/Round3", pattern = "*.csv", full.names = T) 
+
+R154_R3_list = list()
+
+#for loop which removes the broken well and collected the dataframes in one list
+for(i in R154_R3_files) {
+  x <- read.csv(i, sep = ";")
+  x <- subset(x, ID != remove_row)
+  R154_R3_list[[i]] <- x
+  #assign(i,x)
+}
+
+#change the names to the mix name
+names(R154_R3_list) <- c("mix1", "mix2", "mix3", "mix4", "mix5")
+#bind the different mixes together
+R154_R3 = do.call(cbind, R154_R3_list)
+
+#remove repeated coloumns
+R154_R3 = R154_R3[,!(names(R154_R3) %in% drop_columns)]
+
+rm(R154_R1_files, R154_R1_list, R154_R2_files, R154_R2_list, R154_R3_files, R154_R3_list, x, i)
+```
+
+Before starting the error rate evaluation, the no. of failed samples in each round is tabulated.
+
+```{r}
+#| label: Failed samples
+#| echo: FALSE
+
+Failed_samples <- cbind(sum(is.na(R154_R1)), sum(is.na(R154_R2)), sum(is.na(R154_R3)))
+rownames(Failed_samples) <- "No. of failed samples"
+colnames(Failed_samples) <- c("R154_R1", "R154_R2", "R154_R3")
+barplot(Failed_samples, col = "#69b3a2")
 ```
 
 # Results
+
+Will come later
