@@ -46,7 +46,7 @@ invisible(pacman::p_load(dplyr, tidyverse, here, stringi, png, knitr))
 
 # Methods
 
-The 274 samples were collected from Bird Island, South Georgia (54°00024.800 S, 38°03004.100 W) during the austral summer of 2020-2021. Tissue samples were collected from the flipper or umbilical cord of Antarctic fur seal pups and stored in 20% dimethyl sulphoxide saturated with sodium chloride at -20°C. The DNA was extracted using a standard chloroform-isoamylalcohol protocol and genotyped at 39 microsatellite loci. PCR amplification was performed using a Type It Kit (Qiagen) with the following program:
+The 274 samples were collected from Bird Island, South Georgia (54°00024.800 S, 38°03004.100 W) during the austral summer of 2020-2021. Tissue samples were collected from the flipper or umbilical cord of Antarctic fur seal pups and stored in 20% dimethyl sulphoxide saturated with sodium chloride at -20°C. The DNA was extracted using a standard chloroform-isoamylalcohol protocol and genotyped at 39 microsatellite loci separated into 5 mixes for improved scoring. PCR amplification was performed using a Type It Kit (Qiagen) with the following program:
 
 | Stage | No. of cycles | Temperature (°C) | Duration   | Process      |
 |-------|---------------|------------------|------------|--------------|
@@ -56,6 +56,8 @@ The 274 samples were collected from Bird Island, South Georgia (54°00024.800 S,
 |       |               | 72               | 30 seconds | Extension    |
 | 3     | 1             | 60/53            | 30 minutes | Annealing    |
 | 4     | 1             | 10               | hold       | Cool down    |
+
+: PCR program {#tbl-PCR}
 
 *Note: Annealing temperatures are mastermix-specific.*
 
@@ -77,106 +79,79 @@ To estimate the genotyping error rate, the 'standard procedure' treatment was fi
 
 The samples were each repeated for all four treatments. In the case of a discrepancy between the original genotype and the 're-used PCR plate' or 're-used detection plate' treatment, the new genotype was compared to the genotype of the individual previously genotyped in the same well. If the genotype matched the genotype of the original individual, the mis-matched was marked as contamination.
 
-```{r}
-#| label: Schematic overview
-#| echo: FALSE
-
-```
-
 ### Data
 
-Description of the data
+The data for this project are the raw sequencing reads from the ABI 3730xl capillary sequencer. Each files is identified with the following name structure: RackX_mixY_Z. Where X gives the rack number, Y the mix and Z the treatment (1 = standard procedure, 2 = internal control, 3 = Re-used PCR plate and 4 = Re-used detection plate).
 
 ```{r}
 #| label: data
 #| echo: FALSE
 
-#Rack 154 first round 
-#make list with path to files
-R154_R1_files <- list.files(path = "Data/Working_data/Rack154/Round1", pattern = "*.csv", full.names = T) 
+#make list with path to all files
+Data_files <- list.files(path = "Data/Working_data", pattern = "*.csv", full.names = T) 
+Mix1_locate <- grep("mix1", Data_files)
+Mix1 <- Data_files[Mix1_locate]
 
-R154_R1_list = list()
+Data_list = list()
+#Broken well
 remove_row <- c("E03_Empty")
 
-#for loop which ignores the mangs, removes the broken well and collected the dataframes in one list
-for(i in R154_R1_files) {
-  if(i == R154_R1_files[6]){
-    rm(i)
-  } else {
+#for loop which reads the csv files, removes the broken well and collects the dataframes in one list for mix 1
+for(i in Data_files[Mix1_locate]) {
   x <- read.csv(i, sep = ";")
   x <- subset(x, ID != remove_row)
-  R154_R1_list[[i]] <- x
-  #assign(i,x)
-  }
+  Data_list[[i]] <- x
+  #The following lines tidies up the names of the files
+  names(Data_list) <- gsub("Data/Working_data/AP_AFS_", "", names(Data_list)) 
+  names(Data_list) <- gsub("AFS", "", names(Data_list))
+  names(Data_list) <- gsub("_\\d{2}", "", names(Data_list))
+  names(Data_list) <- gsub("_AlleleReport.csv", "", names(Data_list))
 }
 
-#change the names to the mix name
-names(R154_R1_list) <- c("mix1", "mix2", "mix3", "mix4", "mix5")
-#bind the different mixes together
-R154_R1 = do.call(cbind, R154_R1_list)
-
-#remove repeated coloumns
-drop_columns <- c("mix2.Rack_location", "mix2.ID", "mix3.Rack_location", "mix3.ID", "mix4.Rack_location", "mix4.ID", "mix5.Rack_location", "mix5.ID")
-
-R154_R1 = R154_R1[,!(names(R154_R1) %in% drop_columns)]
-
-#Rack 154 second round 
-#make list with path to files
-R154_R2_files <- list.files(path = "Data/Working_data/Rack154/Round2", pattern = "*.csv", full.names = T) 
-
-R154_R2_list = list()
-
-#for loop which removes the broken well and collected the dataframes in one list
-for(i in R154_R2_files) {
+#for loop which reads the csv files, removes the broken well and the columns 'rack_location' and 'id' and collects the dataframes in one list for other mixes than mix one. 
+for(i in Data_files[-Mix1_locate]) {
   x <- read.csv(i, sep = ";")
-  x <- subset(x, ID != remove_row)
-  R154_R2_list[[i]] <- x
-  #assign(i,x)
+  x <- subset(x, ID != remove_row, select = -c(Rack_location, ID))
+  Data_list[[i]] <- x
+  #The following lines tidies up the names of the files
+  names(Data_list) <- gsub("Data/Working_data/AP_AFS_", "", names(Data_list)) 
+  names(Data_list) <- gsub("AFS", "", names(Data_list))
+  names(Data_list) <- gsub("_\\d{2}", "", names(Data_list))
+  names(Data_list) <- gsub("_AlleleReport.csv", "", names(Data_list))
 }
 
-#change the names to the mix name
-names(R154_R2_list) <- c("mix1", "mix2", "mix3", "mix4", "mix5")
 #bind the different mixes together
-R154_R2 = do.call(cbind, R154_R2_list)
+Data_df = do.call(cbind, Data_list)
+#Separate the dataframe into Rack and treatment
+R154_R1 <- Data_df %>% select(contains("Rack154")) %>% select(contains("_1"))
+R154_R2 <- Data_df %>% select(contains("Rack154")) %>% select(contains("_2"))
+R154_R3 <- Data_df %>% select(contains("Rack154")) %>% select(contains("_3"))
+R155_R1 <- Data_df %>% select(contains("Rack155")) %>% select(contains("_1"))
+R155_R2 <- Data_df %>% select(contains("Rack155")) %>% select(contains("_2"))
 
-#remove repeated coloumns
-R154_R2 = R154_R2[,!(names(R154_R2) %in% drop_columns)]
-
-#Rack 154 third round 
-#make list with path to files
-R154_R3_files <- list.files(path = "Data/Working_data/Rack154/Round3", pattern = "*.csv", full.names = T) 
-
-R154_R3_list = list()
-
-#for loop which removes the broken well and collected the dataframes in one list
-for(i in R154_R3_files) {
-  x <- read.csv(i, sep = ";")
-  x <- subset(x, ID != remove_row)
-  R154_R3_list[[i]] <- x
-  #assign(i,x)
-}
-
-#change the names to the mix name
-names(R154_R3_list) <- c("mix1", "mix2", "mix3", "mix4", "mix5")
-#bind the different mixes together
-R154_R3 = do.call(cbind, R154_R3_list)
-
-#remove repeated coloumns
-R154_R3 = R154_R3[,!(names(R154_R3) %in% drop_columns)]
-
-rm(R154_R1_files, R154_R1_list, R154_R2_files, R154_R2_list, R154_R3_files, R154_R3_list, x, i)
+rm(Data_df, Data_list, x, Data_files, i, Mix1, Mix1_locate, remove_row)
 ```
 
-Before starting the error rate evaluation, the no. of failed samples in each round is tabulated.
+Before starting the error rate evaluation, the no. of genotypes that could no be scored for each round and mix per rack is tabulated (See @tbl-failed).
 
 ```{r}
 #| label: Failed samples
 #| echo: FALSE
+#| tbl-cap: Failed genotypes {#tbl-failed}
 
-Failed_samples <- cbind(sum(is.na(R154_R1)), sum(is.na(R154_R2)), sum(is.na(R154_R3)))
-rownames(Failed_samples) <- "No. of failed samples"
-colnames(Failed_samples) <- c("R154_R1", "R154_R2", "R154_R3")
-barplot(Failed_samples, col = "#69b3a2")
+Count_NAs <- function(DF) {
+  Mix1 <- sum(is.na(select(DF, contains("mix1"))))
+  Mix2 <- sum(is.na(select(DF, contains("mix2"))))
+  Mix3 <- sum(is.na(select(DF, contains("mix3"))))
+  Mix4 <- sum(is.na(select(DF, contains("mix4"))))
+  Mix5 <- sum(is.na(select(DF, contains("mix5"))))
+  Total <- sum(is.na(DF))
+  return(rbind(Mix1, Mix2, Mix3, Mix4, Mix5,Total))
+}
+
+Failed_samples <- cbind(Count_NAs(R154_R1), Count_NAs(R154_R2), Count_NAs(R154_R3), Count_NAs(R155_R1), Count_NAs(R155_R2))
+colnames(Failed_samples) <- c("R154_R1", "R154_R2", "R154_R3", "R155_R1", "R155_R2")
+knitr::kable(Failed_samples)
 ```
 
 # Results

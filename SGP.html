@@ -90,8 +90,10 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="methods" class="level1">
 <h1>Methods</h1>
-<p>The 274 samples were collected from Bird Island, South Georgia (54°00024.800 S, 38°03004.100 W) during the austral summer of 2020-2021. Tissue samples were collected from the flipper or umbilical cord of Antarctic fur seal pups and stored in 20% dimethyl sulphoxide saturated with sodium chloride at -20°C. The DNA was extracted using a standard chloroform-isoamylalcohol protocol and genotyped at 39 microsatellite loci. PCR amplification was performed using a Type It Kit (Qiagen) with the following program:</p>
+<p>The 274 samples were collected from Bird Island, South Georgia (54°00024.800 S, 38°03004.100 W) during the austral summer of 2020-2021. Tissue samples were collected from the flipper or umbilical cord of Antarctic fur seal pups and stored in 20% dimethyl sulphoxide saturated with sodium chloride at -20°C. The DNA was extracted using a standard chloroform-isoamylalcohol protocol and genotyped at 39 microsatellite loci separated into 5 mixes for improved scoring. PCR amplification was performed using a Type It Kit (Qiagen) with the following program:</p>
+<div id="tbl-PCR" class="anchored">
 <table class="table">
+<caption>Table&nbsp;1: PCR program</caption>
 <thead>
 <tr class="header">
 <th>Stage</th>
@@ -146,6 +148,7 @@ ul.task-list li input[type="checkbox"] {
 </tr>
 </tbody>
 </table>
+</div>
 <p><em>Note: Annealing temperatures are mastermix-specific.</em></p>
 <p>The PCR product was transferred to and diluted on detection plates before being resolved by electrophoresis on an ABI 3730xl capillary sequencer (Applied Biosystems, Waltham, MA, USA). Each plate contained three positive controls to ensure standardisation of microsatellite scoring across plates. Allele sizes were scored automatically using GeneMarker v. 2.6.2 (SoftGenetics, LLC., State College, PA, USA) and manually inspected and corrected when necessary.</p>
 <p>To assess the re-usability of both PCR plates and detection plates, the samples were placed on a master plate from which the samples were transferred to PCR plates. The samples were distributed on a total of 3 master plates. The samples were subjected to four treatments: standard procedure, internal control, re-used PCR plate and re-used detection plate. This is illustrated by <a href="#fig-Schematic">Figure&nbsp;1</a>. The re-used plates all originated from the ‘standard procedure’ round. Thereby, we could ensure knowledge of the sample previously contained within a specific well.</p>
@@ -169,11 +172,75 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="data" class="level3">
 <h3 class="anchored" data-anchor-id="data">Data</h3>
-<p>Description of the data</p>
-<p>Before starting the error rate evaluation, the no. of failed samples in each round is tabulated.</p>
+<p>The data for this project are the raw sequencing reads from the ABI 3730xl capillary sequencer. Each files is identified with the following name structure: RackX_mixY_Z. Where X gives the rack number, Y the mix and Z the treatment (1 = standard procedure, 2 = internal control, 3 = Re-used PCR plate and 4 = Re-used detection plate).</p>
+<p>Before starting the error rate evaluation, the no. of genotypes that could no be scored for each round and mix per rack is tabulated (See <a href="#tbl-failed">Table&nbsp;2</a>).</p>
 <div class="cell">
 <div class="cell-output-display">
-<p><img src="SGP_files/figure-html/Failed%20samples-1.png" class="img-fluid" width="672"></p>
+<div id="tbl-failed" class="anchored">
+<table class="table table-sm table-striped small">
+<caption>Table&nbsp;2: Failed genotypes</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: right;">R154_R1</th>
+<th style="text-align: right;">R154_R2</th>
+<th style="text-align: right;">R154_R3</th>
+<th style="text-align: right;">R155_R1</th>
+<th style="text-align: right;">R155_R2</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Mix1</td>
+<td style="text-align: right;">108</td>
+<td style="text-align: right;">88</td>
+<td style="text-align: right;">58</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">26</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Mix2</td>
+<td style="text-align: right;">60</td>
+<td style="text-align: right;">42</td>
+<td style="text-align: right;">61</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">42</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Mix3</td>
+<td style="text-align: right;">36</td>
+<td style="text-align: right;">58</td>
+<td style="text-align: right;">52</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">31</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Mix4</td>
+<td style="text-align: right;">40</td>
+<td style="text-align: right;">32</td>
+<td style="text-align: right;">42</td>
+<td style="text-align: right;">30</td>
+<td style="text-align: right;">22</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Mix5</td>
+<td style="text-align: right;">146</td>
+<td style="text-align: right;">110</td>
+<td style="text-align: right;">94</td>
+<td style="text-align: right;">62</td>
+<td style="text-align: right;">266</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Total</td>
+<td style="text-align: right;">390</td>
+<td style="text-align: right;">330</td>
+<td style="text-align: right;">307</td>
+<td style="text-align: right;">128</td>
+<td style="text-align: right;">387</td>
+</tr>
+</tbody>
+</table>
+</div>
 </div>
 </div>
 </section>
