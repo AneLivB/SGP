@@ -101,11 +101,8 @@ for(i in Data_files[Mix1_locate]) {
   x <- read.csv(i, sep = ";")
   x <- subset(x, ID != remove_row)
   Data_list[[i]] <- x
-  #The following lines tidies up the names of the files
-  names(Data_list) <- gsub("Data/Working_data/AP_AFS_", "", names(Data_list)) 
-  names(Data_list) <- gsub("AFS", "", names(Data_list))
-  names(Data_list) <- gsub("_\\d{2}", "", names(Data_list))
-  names(Data_list) <- gsub("_AlleleReport.csv", "", names(Data_list))
+  #The following line tidies up the names of the files
+   names(Data_list) <- gsub("Data/Working_data/AP_AFS_|AFS|_\\d{2}|_AlleleReport.csv", "", names(Data_list))
 }
 
 #for loop which reads the csv files, removes the broken well and the columns 'rack_location' and 'id' and collects the dataframes in one list for other mixes than mix one. 
@@ -113,21 +110,28 @@ for(i in Data_files[-Mix1_locate]) {
   x <- read.csv(i, sep = ";")
   x <- subset(x, ID != remove_row, select = -c(Rack_location, ID))
   Data_list[[i]] <- x
-  #The following lines tidies up the names of the files
-  names(Data_list) <- gsub("Data/Working_data/AP_AFS_", "", names(Data_list)) 
-  names(Data_list) <- gsub("AFS", "", names(Data_list))
-  names(Data_list) <- gsub("_\\d{2}", "", names(Data_list))
-  names(Data_list) <- gsub("_AlleleReport.csv", "", names(Data_list))
+  #The following line tidies up the names of the files
+  names(Data_list) <- gsub("Data/Working_data/AP_AFS_|AFS|_\\d{2}|_AlleleReport.csv", "", names(Data_list))
 }
 
 #bind the different mixes together
 Data_df = do.call(cbind, Data_list)
-#Separate the dataframe into Rack and treatment
-R154_R1 <- Data_df %>% select(contains("Rack154")) %>% select(contains("_1"))
-R154_R2 <- Data_df %>% select(contains("Rack154")) %>% select(contains("_2"))
-R154_R3 <- Data_df %>% select(contains("Rack154")) %>% select(contains("_3"))
-R155_R1 <- Data_df %>% select(contains("Rack155")) %>% select(contains("_1"))
-R155_R2 <- Data_df %>% select(contains("Rack155")) %>% select(contains("_2"))
+#Separate the dataframe into Rack and treatment and remove this info from column names
+R154_R1 <- Data_df %>% select(contains("Rack154")) %>% select(contains("_1")) %>%
+  rename_with(~sub("Rack154_", "", .), everything()) %>%
+  rename_with(~sub("_1", "", .), everything())
+R154_R2 <- Data_df %>% select(contains("Rack154")) %>% select(contains("_2")) %>%
+  rename_with(~sub("Rack154_", "", .), everything()) %>%
+  rename_with(~sub("_2", "", .), everything())
+R154_R3 <- Data_df %>% select(contains("Rack154")) %>% select(contains("_3")) %>%
+  rename_with(~sub("Rack154_", "", .), everything()) %>%
+  rename_with(~sub("_3", "", .), everything())
+R155_R1 <- Data_df %>% select(contains("Rack155")) %>% select(contains("_1")) %>%
+  rename_with(~sub("Rack155_", "", .), everything()) %>%
+  rename_with(~sub("_1", "", .), everything())
+R155_R2 <- Data_df %>% select(contains("Rack155")) %>% select(contains("_2")) %>%
+  rename_with(~sub("Rack155_", "", .), everything()) %>%
+  rename_with(~sub("_2", "", .), everything())
 
 rm(Data_df, Data_list, x, Data_files, i, Mix1, Mix1_locate, remove_row)
 ```
@@ -154,6 +158,60 @@ colnames(Failed_samples) <- c("R154_R1", "R154_R2", "R154_R3", "R155_R1", "R155_
 knitr::kable(Failed_samples)
 ```
 
+#### Error rate calculation
+
+The error rate is calculated by comparing all scored alleles and genotypes from the standard procedure within one rack with the other treatments starting with the internal control. The internal control is included as a baseline for error rates to have a comparable metric to evaluate if the reused plates inflate the error rate.
+
+```{r}
+#| label: Allelic errors
+#| echo: FALSE
+#| tbl-cap: Allelic mismatches {#tbl-allelemismatch}
+#Function to compare scored alleles between two rounds and find the mismatches
+Mismatch <- function(DF1, DF2){
+  mismatches <- which(DF1 != DF2, arr.ind = TRUE)
+  Total_mismatches <- length(mismatches[,1])
+  Rack_1 <- deparse(substitute(DF1))
+  Rack_2 <- deparse(substitute(DF2))
+  Total_comparisons <- sum(!is.na(R154_R1) & !is.na(R154_R2))
+  #cat("Total mismatches between", Rack_1 ,"and", Rack_2, "=", Total_mismatches)
+  Error_rate <- Total_mismatches/Total_comparisons  
+  return(as.data.frame(cbind(Rack_1, Rack_2, Total_mismatches, Error_rate)))
+  ID <- cbind(DF1$mix1.ID[mismatches[, 1]])
+  Loci <- cbind(colnames(DF1)[mismatches[, 2]])
+  Find_mismatch <- cbind(ID, Loci)
+  colnames(Find_mismatch) <- c("ID", "Loci")
+  #return(Find_mismatch)
+}
+
+Mismatches <- bind_rows(
+  Mismatch(R154_R1, R154_R2),
+  Mismatch(R154_R1, R154_R3),
+  Mismatch(R155_R1, R155_R2)) %>%
+         mutate(Total_mismatches = as.numeric(Total_mismatches),
+         Error_rate = as.numeric(Error_rate))
+
+Mismatches$Treatment <- rbind("Internal control", "Re-used PCR", "Internal control")
+knitr::kable(Mismatches)
+```
+
 # Results
 
 Will come later
+
+@fig-allelicerrors shows the total no. of mismatches observed when comparing the standard procedure treatment of each rack with the other treatments.
+
+```{r}
+#| label: fig-allelicerrors
+#| echo: FALSE
+#| warning: FALSE
+#| fig-cap: "Allelic mismatches"
+
+ggplot(data = Mismatches, aes(y=Total_mismatches, x = Treatment, fill = Rack_2)) +
+  geom_bar(stat = "identity", position = position_dodge(), width = 0.5) +
+  scale_fill_brewer(palette = "Greens") +
+  guides(fill = F, scale = "none") + #remove the legend
+  geom_text(aes(label = Rack_2), vjust = -0.4, position = position_dodge(0.5)) + #adds the rack name to the bar, vjust pushes the text above the bar
+  ylim(0,20) +
+  ggtitle("Total no. of mismatches") +
+  theme_bw()
+```
