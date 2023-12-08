@@ -150,11 +150,13 @@ Count_NAs <- function(DF) {
   Mix4 <- sum(is.na(select(DF, contains("mix4"))))
   Mix5 <- sum(is.na(select(DF, contains("mix5"))))
   Total <- sum(is.na(DF))
-  return(rbind(Mix1, Mix2, Mix3, Mix4, Mix5,Total))
+  Rack <- deparse(substitute(DF))
+  Output <- rbind(Mix1, Mix2, Mix3, Mix4, Mix5,Total)
+  colnames(Output) <- Rack
+  return(Output)
 }
 
 Failed_samples <- cbind(Count_NAs(R154_R1), Count_NAs(R154_R2), Count_NAs(R154_R3), Count_NAs(R155_R1), Count_NAs(R155_R2))
-colnames(Failed_samples) <- c("R154_R1", "R154_R2", "R154_R3", "R155_R1", "R155_R2")
 knitr::kable(Failed_samples)
 ```
 
@@ -167,22 +169,35 @@ The error rate is calculated by comparing all scored alleles and genotypes from 
 #| echo: FALSE
 #| tbl-cap: Allelic mismatches {#tbl-allelemismatch}
 #Function to compare scored alleles between two rounds and find the mismatches
+#The function has two output lines. These cannot work in tandem. 
+#The first return statement returns the total mismatches and error rate
+#The second return statement can be used with "Find_mismatches" to locate mismatch in Genemarker
 Mismatch <- function(DF1, DF2){
   mismatches <- which(DF1 != DF2, arr.ind = TRUE)
   Total_mismatches <- length(mismatches[,1])
   Rack_1 <- deparse(substitute(DF1))
   Rack_2 <- deparse(substitute(DF2))
-  Total_comparisons <- sum(!is.na(R154_R1) & !is.na(R154_R2))
+  Round <- gsub("R\\d{3}|_", "", Rack_2)
+  if (Round == "R2"){
+    Treatment <- "Internal control"
+  } else if (Round == "R3") {
+    Treatment <- "Re-used PCR"
+  } else {
+    Treatment <- "Re-used detection plate"
+  }
+  Total_comparisons <- sum(!is.na(DF1[3:82]) & !is.na(DF2[3:82]))
   #cat("Total mismatches between", Rack_1 ,"and", Rack_2, "=", Total_mismatches)
   Error_rate <- Total_mismatches/Total_comparisons  
-  return(as.data.frame(cbind(Rack_1, Rack_2, Total_mismatches, Error_rate)))
+  return(as.data.frame(cbind(Rack_1, Rack_2, Treatment, Total_mismatches, Error_rate)))
   ID <- cbind(DF1$mix1.ID[mismatches[, 1]])
   Loci <- cbind(colnames(DF1)[mismatches[, 2]])
-  Find_mismatch <- cbind(ID, Loci)
-  colnames(Find_mismatch) <- c("ID", "Loci")
+  Find_mismatch <- cbind(ID, Loci, Rack_2, Treatment)
+  colnames(Find_mismatch) <- c("ID", "Loci", "Rack", "Treatment")
   #return(Find_mismatch)
 }
 
+#The following applies the mismatch function to the chosen racks and binds the output together
+#The output contains the mismatches and the error rate
 Mismatches <- bind_rows(
   Mismatch(R154_R1, R154_R2),
   Mismatch(R154_R1, R154_R3),
@@ -190,8 +205,22 @@ Mismatches <- bind_rows(
          mutate(Total_mismatches = as.numeric(Total_mismatches),
          Error_rate = as.numeric(Error_rate))
 
-Mismatches$Treatment <- rbind("Internal control", "Re-used PCR", "Internal control")
 knitr::kable(Mismatches)
+
+#The following applies the mismatch function to the chosen racks and binds the output together
+#The output contains the location of the mismatches
+#Find_mismatches <- rbind(
+  #Mismatch(R154_R1, R154_R2),
+  #Mismatch(R154_R1, R154_R3),
+  #Mismatch(R155_R1, R155_R2)) 
+```
+
+#### Inspect mismatches for contamination
+
+The comparison between the different treatments and the standard procedure yielded a list of mismatches. To identify whether these mismatches in the case of the 're-used PCR plate' and 're-used detection plate' treatment was due to contamination from the samples previous found in the same well, the new genotype was compared to the original genotype scored from that well. If the genotype matched the original genotype, the mis-match was marked as contamination.
+
+```{r}
+
 ```
 
 # Results
