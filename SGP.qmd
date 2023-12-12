@@ -41,7 +41,7 @@ Scientific research is a massive endeavor, consuming vast quantities of single-u
 #| label: packages
 #| echo: FALSE
 #here::here()
-invisible(pacman::p_load(dplyr, tidyverse, here, stringi, png, knitr))
+invisible(pacman::p_load(dplyr, tidyverse, here, stringi, png, knitr, rstatix))
 ```
 
 # Methods
@@ -103,6 +103,7 @@ for(i in Data_files[Mix1_locate]) {
   Data_list[[i]] <- x
   #The following line tidies up the names of the files
    names(Data_list) <- gsub("Data/Working_data/AP_AFS_|AFS|_\\d{2}|_AlleleReport.csv", "", names(Data_list))
+   names(Data_list) <- gsub("Data/Working_data/ALB__|AFS_|_\\d{2}|_AlleleReport.csv", "", names(Data_list))
 }
 
 #for loop which reads the csv files, removes the broken well and the columns 'rack_location' and 'id' and collects the dataframes in one list for other mixes than mix one. 
@@ -112,6 +113,7 @@ for(i in Data_files[-Mix1_locate]) {
   Data_list[[i]] <- x
   #The following line tidies up the names of the files
   names(Data_list) <- gsub("Data/Working_data/AP_AFS_|AFS|_\\d{2}|_AlleleReport.csv", "", names(Data_list))
+  names(Data_list) <- gsub("Data/Working_data/ALB__|AFS_|_\\d{2}|_AlleleReport.csv", "", names(Data_list))
 }
 
 #bind the different mixes together
@@ -126,11 +128,23 @@ R154_R2 <- Data_df %>% select(contains("Rack154")) %>% select(contains("_2")) %>
 R154_R3 <- Data_df %>% select(contains("Rack154")) %>% select(contains("_3")) %>%
   rename_with(~sub("Rack154_", "", .), everything()) %>%
   rename_with(~sub("_3", "", .), everything())
+R154_R4 <- Data_df %>% select(contains("Rack154")) %>% select(contains("_4")) %>%
+  rename_with(~sub("Rack154_", "", .), everything()) %>%
+  rename_with(~sub("_4", "", .), everything())
 R155_R1 <- Data_df %>% select(contains("Rack155")) %>% select(contains("_1")) %>%
   rename_with(~sub("Rack155_", "", .), everything()) %>%
   rename_with(~sub("_1", "", .), everything())
 R155_R2 <- Data_df %>% select(contains("Rack155")) %>% select(contains("_2")) %>%
   rename_with(~sub("Rack155_", "", .), everything()) %>%
+  rename_with(~sub("_2", "", .), everything())
+R155_R3 <- Data_df %>% select(contains("Rack155")) %>% select(contains("_3")) %>%
+  rename_with(~sub("Rack155_", "", .), everything()) %>%
+  rename_with(~sub("_3", "", .), everything())
+R156_R1 <- Data_df %>% select(contains("Rack156")) %>% select(contains("_1")) %>%
+  rename_with(~sub("Rack156_", "", .), everything()) %>%
+  rename_with(~sub("_1", "", .), everything())
+R156_R2 <- Data_df %>% select(contains("Rack156")) %>% select(contains("_2")) %>%
+  rename_with(~sub("Rack156_", "", .), everything()) %>%
   rename_with(~sub("_2", "", .), everything())
 
 rm(Data_df, Data_list, x, Data_files, i, Mix1, Mix1_locate, remove_row)
@@ -158,7 +172,7 @@ Count_NAs <- function(DF) {
   return(Output)
 }
 
-Failed_samples <- as.data.frame(cbind(Count_NAs(R154_R1), Count_NAs(R154_R2), Count_NAs(R154_R3), Count_NAs(R155_R1), Count_NAs(R155_R2))) 
+Failed_samples <- as.data.frame(cbind(Count_NAs(R154_R1), Count_NAs(R154_R2), Count_NAs(R154_R3), Count_NAs(R154_R4), Count_NAs(R155_R1), Count_NAs(R155_R2), Count_NAs(R155_R3), Count_NAs(R156_R1), Count_NAs(R156_R2))) 
 Failed_samples <- tibble::rownames_to_column(Failed_samples, "Mix")
 
 #Save the table as a csv file
@@ -223,9 +237,12 @@ Mismatch <- function(DF1, DF2){
 Mismatches <- bind_rows(
   Mismatch(R154_R1, R154_R2),
   Mismatch(R154_R1, R154_R3),
-  Mismatch(R155_R1, R155_R2)) 
+  Mismatch(R154_R1, R154_R4),
+  Mismatch(R155_R1, R155_R2),
+  Mismatch(R155_R1, R155_R3),
+  Mismatch(R156_R1, R156_R2)) %>% arrange(factor(Treatment, levels = c("Internal control", "Re-used PCR", "Re-used detection plate")))
 
-knitr::kable(Mismatches[order(Mismatches$Treatment),], row.names = F)
+knitr::kable(Mismatches, row.names = F)
 
 Total_Mcases <- sum(Mismatches$`No. of mismatches`)
 #The following applies the mismatch function to the chosen racks and binds the output together
@@ -233,7 +250,10 @@ Total_Mcases <- sum(Mismatches$`No. of mismatches`)
 #Find_mismatches <- rbind(
   #Mismatch(R154_R1, R154_R2),
   #Mismatch(R154_R1, R154_R3),
-  #Mismatch(R155_R1, R155_R2)) 
+  #Mismatch(R154_R1, R154_R4),
+  #Mismatch(R155_R1, R155_R2),
+  #Mismatch(R155_R1, R155_R3),
+  #Mismatch(R156_R1, R156_R2))
 ```
 
 #### Inspect mismatches for contamination
@@ -270,10 +290,36 @@ Detect_contamination <- function(R1, Reused, Control){
   #return(Find_contamination)
 }
 
-Contamination_cases <- bind_rows(Detect_contamination(R154_R1, R154_R3, R155_R1), Detect_contamination(R154_R1, R154_R3, R155_R1))
+Contamination_cases <- bind_rows(Detect_contamination(R154_R1, R154_R3, R156_R1), Detect_contamination(R154_R1, R154_R4, R156_R1), Detect_contamination(R155_R1, R155_R3, R154_R1))
 knitr::kable(Contamination_cases, row.names = F)
 
 Total_Ccases <- sum(Contamination_cases$Cases)
+```
+
+### Analysis
+
+```{r}
+#| label: analysis
+#| echo: FALSE
+
+M.mismatches <- aov(`No. of mismatches` ~ Treatment, data = Mismatches)
+summary(M.mismatches)
+
+TukeyHSD(M.mismatches, conf.level=.95) 
+#Detection plate treatment significantly different from the other two
+
+M.errorrate <- aov(`Allelic error rate` ~ Treatment, data = Mismatches)
+summary(M.errorrate)
+
+TukeyHSD(M.errorrate, conf.level=.95)
+#Detection plate treatment significantly different from the other two
+
+#It is probably a good idea to further explore this relationship with a pairwise comparision 
+#or some other posthoc analysis
+Contamination_cases$Treatment <- c("Re-used PCR", "Re-used detection plate", "Re-used PCR")
+#Wilcox.test compares two non-parametric groups. 
+#Null-hypothesis is that the two medians are equal. Lacks the other cases to fully interpret
+wilcox.test(Cases ~ Treatment, data = Contamination_cases)
 ```
 
 # Results
@@ -287,15 +333,19 @@ Will come later
 #| echo: FALSE
 #| warning: FALSE
 #| fig-cap: "Allelic mismatches"
-
-ggplot(data = Mismatches, aes(y=`No. of mismatches`, x = Treatment, fill = `Rack 2`)) +
-  geom_bar(stat = "identity", position = position_dodge(), width = 0.5) +
-  scale_fill_brewer(palette = "Greens") +
+Mismatchplot <- Mismatches %>% 
+  mutate(Treatment = fct_relevel(Treatment, 
+            "Internal control", "Re-used PCR", "Re-used detection plate")) %>%
+  ggplot( aes(y=`No. of mismatches`, x = Treatment, fill = `Rack 2`)) +
+  geom_bar(stat = "identity", position = position_dodge(), width = 0.5, alpha = 0.8) +
+  scale_fill_brewer(palette = "YlGn") +
   guides(fill = F, scale = "none") + #remove the legend
-  geom_text(aes(label = `Rack 2`), vjust = -0.4, position = position_dodge(0.5)) + #adds the rack name to the bar, vjust pushes the text above the bar
-  ylim(0,20) +
+  geom_text(aes(label = `Rack 2`), vjust = -0.4, position = position_dodge(0.5), size = 2.5) + #adds the rack name to the bar, vjust pushes the text above the bar
+  ylim(0,140) +
   ggtitle("Total no. of mismatches") +
   theme_bw()
+
+Mismatchplot
 ```
 
 We found a total of `r Total_Mcases` mismatches between all treatments. A subset of these (`r Total_Ccases`) were potential contamination cases.
@@ -306,14 +356,16 @@ We found a total of `r Total_Mcases` mismatches between all treatments. A subset
 #| warning: FALSE
 #| fig-cap: "Potential contamination"
 
-ggplot(data = Contamination_cases, aes(y=Cases, x = Rack, fill = Rack)) +
-  geom_bar(stat = "identity", position = position_dodge(), width = 0.5) +
-  scale_fill_brewer(palette = "Greens") +
+Contaminationplot <- ggplot(data = Contamination_cases, aes(y=Cases, x = Rack, fill = Rack)) +
+  geom_bar(stat = "identity", position = position_dodge(), width = 0.5, alpha = 0.8) +
+  scale_fill_brewer(palette = "Greens") + 
   guides(fill = F, scale = "none") + #remove the legend
-  geom_text(aes(label = Cases), vjust = -0.4, position = position_dodge(0.5)) + #adds the rack name to the bar, vjust pushes the text above the bar
-  ylim(0,20) +
+  geom_text(aes(label = Cases), vjust = -0.4, position = position_dodge(0.5), size = 3.5) + #adds the rack name to the bar, vjust pushes the text above the bar
+  ylim(0,120) +
   ggtitle("Total no. of potential contamination cases") +
   theme_bw()
+
+Contaminationplot
 ```
 
 ```{r}
@@ -322,7 +374,13 @@ ggplot(data = Contamination_cases, aes(y=Cases, x = Rack, fill = Rack)) +
 #| warning: FALSE
 #| fig-cap: "Allelic error rate"
 
-ggplot(Mismatches, aes(x=Treatment, y=`Allelic error rate`)) + 
-  geom_boxplot()
+Errorrateplot <- Mismatches %>% 
+  mutate(Treatment = fct_relevel(Treatment, 
+            "Internal control", "Re-used PCR", "Re-used detection plate")) %>%
+ggplot( aes(x=Treatment, y=`Allelic error rate`, fill = Treatment)) + 
+  geom_boxplot(alpha = 0.8) +
+  scale_fill_brewer(palette = "Greens") +
+  theme(legend.position = "none")
 
+Errorrateplot
 ```

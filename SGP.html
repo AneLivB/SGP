@@ -182,14 +182,30 @@ ul.task-list li input[type="checkbox"] {
 <div id="tbl-failed" class="anchored">
 <table class="table table-sm table-striped small">
 <caption>Table&nbsp;2: Failed genotypes</caption>
+<colgroup>
+<col style="width: 7%">
+<col style="width: 10%">
+<col style="width: 10%">
+<col style="width: 10%">
+<col style="width: 10%">
+<col style="width: 10%">
+<col style="width: 10%">
+<col style="width: 10%">
+<col style="width: 10%">
+<col style="width: 10%">
+</colgroup>
 <thead>
 <tr class="header">
 <th style="text-align: left;">Mix</th>
 <th style="text-align: right;">R154_R1</th>
 <th style="text-align: right;">R154_R2</th>
 <th style="text-align: right;">R154_R3</th>
+<th style="text-align: right;">R154_R4</th>
 <th style="text-align: right;">R155_R1</th>
 <th style="text-align: right;">R155_R2</th>
+<th style="text-align: right;">R155_R3</th>
+<th style="text-align: right;">R156_R1</th>
+<th style="text-align: right;">R156_R2</th>
 </tr>
 </thead>
 <tbody>
@@ -198,48 +214,72 @@ ul.task-list li input[type="checkbox"] {
 <td style="text-align: right;">108</td>
 <td style="text-align: right;">88</td>
 <td style="text-align: right;">58</td>
+<td style="text-align: right;">1014</td>
 <td style="text-align: right;">8</td>
 <td style="text-align: right;">26</td>
+<td style="text-align: right;">50</td>
+<td style="text-align: right;">40</td>
+<td style="text-align: right;">44</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Mix2</td>
 <td style="text-align: right;">60</td>
 <td style="text-align: right;">42</td>
 <td style="text-align: right;">61</td>
+<td style="text-align: right;">164</td>
 <td style="text-align: right;">14</td>
 <td style="text-align: right;">42</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">46</td>
+<td style="text-align: right;">46</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Mix3</td>
 <td style="text-align: right;">36</td>
 <td style="text-align: right;">58</td>
 <td style="text-align: right;">52</td>
+<td style="text-align: right;">108</td>
 <td style="text-align: right;">14</td>
 <td style="text-align: right;">31</td>
+<td style="text-align: right;">26</td>
+<td style="text-align: right;">28</td>
+<td style="text-align: right;">26</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Mix4</td>
 <td style="text-align: right;">40</td>
 <td style="text-align: right;">32</td>
 <td style="text-align: right;">42</td>
+<td style="text-align: right;">548</td>
 <td style="text-align: right;">30</td>
 <td style="text-align: right;">22</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">42</td>
+<td style="text-align: right;">1140</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Mix5</td>
 <td style="text-align: right;">146</td>
 <td style="text-align: right;">110</td>
 <td style="text-align: right;">94</td>
+<td style="text-align: right;">228</td>
 <td style="text-align: right;">62</td>
 <td style="text-align: right;">266</td>
+<td style="text-align: right;">18</td>
+<td style="text-align: right;">153</td>
+<td style="text-align: right;">64</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Total</td>
 <td style="text-align: right;">390</td>
 <td style="text-align: right;">330</td>
 <td style="text-align: right;">307</td>
+<td style="text-align: right;">2062</td>
 <td style="text-align: right;">128</td>
 <td style="text-align: right;">387</td>
+<td style="text-align: right;">116</td>
+<td style="text-align: right;">309</td>
+<td style="text-align: right;">1320</td>
 </tr>
 </tbody>
 </table>
@@ -255,11 +295,11 @@ ul.task-list li input[type="checkbox"] {
 <table class="table table-sm table-striped small">
 <caption>Table&nbsp;3: Allelic mismatches</caption>
 <colgroup>
-<col style="width: 11%">
-<col style="width: 11%">
+<col style="width: 10%">
+<col style="width: 10%">
+<col style="width: 31%">
+<col style="width: 23%">
 <col style="width: 24%">
-<col style="width: 25%">
-<col style="width: 27%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -286,11 +326,32 @@ ul.task-list li input[type="checkbox"] {
 <td style="text-align: right;">0.0025080</td>
 </tr>
 <tr class="odd">
+<td style="text-align: left;">R156_R1</td>
+<td style="text-align: left;">R156_R2</td>
+<td style="text-align: left;">Internal control</td>
+<td style="text-align: right;">31</td>
+<td style="text-align: right;">0.0050284</td>
+</tr>
+<tr class="even">
 <td style="text-align: left;">R154_R1</td>
 <td style="text-align: left;">R154_R3</td>
 <td style="text-align: left;">Re-used PCR</td>
 <td style="text-align: right;">16</td>
 <td style="text-align: right;">0.0022634</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">R155_R1</td>
+<td style="text-align: left;">R155_R3</td>
+<td style="text-align: left;">Re-used PCR</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0.0013492</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">R154_R1</td>
+<td style="text-align: left;">R154_R4</td>
+<td style="text-align: left;">Re-used detection plate</td>
+<td style="text-align: right;">137</td>
+<td style="text-align: right;">0.0251931</td>
 </tr>
 </tbody>
 </table>
@@ -316,13 +377,18 @@ ul.task-list li input[type="checkbox"] {
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">R154_R3</td>
-<td style="text-align: left;">R155_R1</td>
-<td style="text-align: right;">4</td>
+<td style="text-align: left;">R156_R1</td>
+<td style="text-align: right;">6</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">R154_R3</td>
-<td style="text-align: left;">R155_R1</td>
-<td style="text-align: right;">4</td>
+<td style="text-align: left;">R154_R4</td>
+<td style="text-align: left;">R156_R1</td>
+<td style="text-align: right;">104</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">R155_R3</td>
+<td style="text-align: left;">R154_R1</td>
+<td style="text-align: right;">2</td>
 </tr>
 </tbody>
 </table>
@@ -346,7 +412,27 @@ ul.task-list li input[type="checkbox"] {
 </div>
 </div>
 </div>
-<p>We found a total of 43 mismatches between all treatments. A subset of these (8) were potential contamination cases.</p>
+<p>We found a total of 221 mismatches between all treatments. A subset of these (112) were potential contamination cases.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-contamination" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="SGP_files/figure-html/fig-contamination-1.png" class="img-fluid figure-img" width="672"></p>
+<figcaption class="figure-caption">Figure&nbsp;3: Potential contamination</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-errorrate" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="SGP_files/figure-html/fig-errorrate-1.png" class="img-fluid figure-img" width="672"></p>
+<figcaption class="figure-caption">Figure&nbsp;4: Allelic error rate</figcaption>
+</figure>
+</div>
+</div>
+</div>
 </section>
 
 </main>
