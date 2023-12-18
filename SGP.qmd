@@ -5,14 +5,14 @@ format:
   html: 
   #pdf: 
     toc: true
-  #  toc-depth: 2
-  #  toc-title: "Contents"
+    #toc-depth: 2
+    #toc-title: "Contents"
     number-sections: FALSE
-  #  documentclass: article
-  #  geometry:
-  #    - top=30mm
-  #    - left=30mm
-  #    - heightrounded
+    #documentclass: article
+    #geometry:
+    #  - top=30mm
+    #  - left=30mm
+    #  - heightrounded
 editor: visual
 date: 11/20/2023
 toc: true
@@ -63,7 +63,7 @@ The 274 samples were collected from Bird Island, South Georgia (54°00024.800 S,
 
 The PCR product was transferred to and diluted on detection plates before being resolved by electrophoresis on an ABI 3730xl capillary sequencer (Applied Biosystems, Waltham, MA, USA). Each plate contained three positive controls to ensure standardisation of microsatellite scoring across plates. Allele sizes were scored automatically using GeneMarker v. 2.6.2 (SoftGenetics, LLC., State College, PA, USA) and manually inspected and corrected when necessary.
 
-To assess the re-usability of both PCR plates and detection plates, the samples were placed on a master plate from which the samples were transferred to PCR plates. The samples were distributed on a total of 3 master plates. The samples were subjected to four treatments: standard procedure, internal control, re-used PCR plate and re-used detection plate. This is illustrated by @fig-Schematic. The re-used plates all originated from the 'standard procedure' round. Thereby, we could ensure knowledge of the sample previously contained within a specific well.
+To assess the re-usability of both PCR plates and detection plates, the samples were placed on a master plate from which the samples were transferred to PCR plates. The samples were distributed on a total of 3 master plates. The samples were subjected to four treatments: standard procedure, internal control, re-used PCR plate and re-used detection plate. This is illustrated by @fig-Schematic. The re-used plates all originated from the 'standard procedure' round. Thereby, we could ensure knowledge of the sample previously contained within a specific well. Following standard procedure, any locus with more than 20% missing data is gapfilled separately to minimize missing data.
 
 ![Schematic overview](Results/Figures/SGP_setup.png){#fig-Schematic fig-align="center" width="500"}
 
@@ -116,36 +116,46 @@ for(i in Data_files[-Mix1_locate]) {
   names(Data_list) <- gsub("Data/Working_data/ALB__|AFS_|_\\d{2}|_AlleleReport.csv", "", names(Data_list))
 }
 
+#The loci ZcwCO1 in mix 2 and ZcwCO3 in mix five is the same locus. Therefore, they need to be merged and the second version removed
+
+ZcwCO1_loci <- function(DF) {
+  change_a <- which(DF$mix2.ZcwCO1_a != DF$mix5.ZcwC03_a | is.na(DF$mix2.ZcwCO1_a) == T)
+  change_b <- which(DF$mix2.ZcwCO1_b != DF$mix5.ZcwC03_b | is.na(DF$mix2.ZcwCO1_b) == T)
+  DF$mix2.ZcwCO1_a[change_a] <- DF$mix5.ZcwC03_a[change_a]
+  DF$mix2.ZcwCO1_b[change_b] <- DF$mix5.ZcwC03_b[change_b]
+  DF <- subset(DF, select = -c(mix5.ZcwC03_a, mix5.ZcwC03_b))
+}
+
 #bind the different mixes together
 Data_df = do.call(cbind, Data_list)
 #Separate the dataframe into Rack and treatment and remove this info from column names
 R154_R1 <- Data_df %>% select(contains("Rack154")) %>% select(contains("_1")) %>%
-  rename_with(~sub("Rack154_", "", .), everything()) %>%
-  rename_with(~sub("_1", "", .), everything())
+  rename_with(~sub("Rack154_", "", .), everything()) %>% 
+  rename_with(~sub("_1", "", .), everything()) %>% ZcwCO1_loci()
 R154_R2 <- Data_df %>% select(contains("Rack154")) %>% select(contains("_2")) %>%
   rename_with(~sub("Rack154_", "", .), everything()) %>%
-  rename_with(~sub("_2", "", .), everything())
+  rename_with(~sub("_2", "", .), everything()) %>% ZcwCO1_loci()
 R154_R3 <- Data_df %>% select(contains("Rack154")) %>% select(contains("_3")) %>%
   rename_with(~sub("Rack154_", "", .), everything()) %>%
-  rename_with(~sub("_3", "", .), everything())
+  rename_with(~sub("_3", "", .), everything()) %>% ZcwCO1_loci()
 R154_R4 <- Data_df %>% select(contains("Rack154")) %>% select(contains("_4")) %>%
   rename_with(~sub("Rack154_", "", .), everything()) %>%
-  rename_with(~sub("_4", "", .), everything())
+  rename_with(~sub("_4", "", .), everything()) %>% ZcwCO1_loci()
 R155_R1 <- Data_df %>% select(contains("Rack155")) %>% select(contains("_1")) %>%
   rename_with(~sub("Rack155_", "", .), everything()) %>%
-  rename_with(~sub("_1", "", .), everything())
+  rename_with(~sub("_1", "", .), everything()) %>% ZcwCO1_loci()
 R155_R2 <- Data_df %>% select(contains("Rack155")) %>% select(contains("_2")) %>%
   rename_with(~sub("Rack155_", "", .), everything()) %>%
-  rename_with(~sub("_2", "", .), everything())
+  rename_with(~sub("_2", "", .), everything()) %>% ZcwCO1_loci()
 R155_R3 <- Data_df %>% select(contains("Rack155")) %>% select(contains("_3")) %>%
   rename_with(~sub("Rack155_", "", .), everything()) %>%
-  rename_with(~sub("_3", "", .), everything())
+  rename_with(~sub("_3", "", .), everything()) %>% ZcwCO1_loci()
 R156_R1 <- Data_df %>% select(contains("Rack156")) %>% select(contains("_1")) %>%
   rename_with(~sub("Rack156_", "", .), everything()) %>%
-  rename_with(~sub("_1", "", .), everything())
+  rename_with(~sub("_1", "", .), everything()) %>% ZcwCO1_loci()
 R156_R2 <- Data_df %>% select(contains("Rack156")) %>% select(contains("_2")) %>%
   rename_with(~sub("Rack156_", "", .), everything()) %>%
-  rename_with(~sub("_2", "", .), everything())
+  rename_with(~sub("_2", "", .), everything()) %>% ZcwCO1_loci()
 
 rm(Data_df, Data_list, x, Data_files, i, Mix1, Mix1_locate, remove_row)
 ```
@@ -176,7 +186,7 @@ Failed_samples <- as.data.frame(cbind(Count_NAs(R154_R1), Count_NAs(R154_R2), Co
 Failed_samples <- tibble::rownames_to_column(Failed_samples, "Mix")
 
 #Save the table as a csv file
-#write_csv(Failed_samples, file.path(tabs_dir, "Failed genotypes"))
+#write_csv(Failed_samples, file.path(tabs_dir, "Failed_genotypes.csv"))
 
 knitr::kable(Failed_samples)
 ```
@@ -212,7 +222,7 @@ Mismatch <- function(DF1, DF2){
   
   #The allelic error rate is calculated by dividing the number of errors with 
   #the total number of comparision made between the two dataframes
-  Total_comparisons <- sum(!is.na(DF1[3:82]) & !is.na(DF2[3:82]))
+  Total_comparisons <- sum(!is.na(DF1[3:80]) & !is.na(DF2[3:80]))
   #cat("Total mismatches between", Rack_1 ,"and", Rack_2, "=", Total_mismatches)
   Error_rate <- Total_mismatches/Total_comparisons  
   
@@ -271,7 +281,7 @@ The comparison between the different treatments and the standard procedure yield
 Detect_contamination <- function(R1, Reused, Control){
   mismatches <- which(R1 != Reused, arr.ind = TRUE)
   Potential_contamination <- mismatches[Reused[mismatches] == Control[mismatches],] 
-  Cases <- length(Potential_contamination[,1])
+  Cases <- length(Potential_contamination)/2
   
   #Get name of dataframes
   Rack_1 <- deparse(substitute(R1))
@@ -298,8 +308,10 @@ Total_Ccases <- sum(Contamination_cases$Cases)
 
 ### Analysis
 
+To determine if treatment had a significant effect on the following three measures; no. of mismatches, allelic error rate and potential cases of contamination, we performed ANOVAs followed by a post hoc test for pairwise comparisons for the three treatment groups measured against the standard procedure treatment.
+
 ```{r}
-#| label: analysis
+#| label: Mismatch_analysis
 #| echo: FALSE
 
 M.mismatches <- aov(`No. of mismatches` ~ Treatment, data = Mismatches)
@@ -307,15 +319,29 @@ summary(M.mismatches)
 
 TukeyHSD(M.mismatches, conf.level=.95) 
 #Detection plate treatment significantly different from the other two
+```
+
+The total no. of mismatches between the standard procedure and the additional treatments could be significantly determined by treatment. Further exploration using a Tukey pairwise comparison revealed that this treatment effect was driven by a significant difference in no. of mismatches in the 're-used detection plate' treatment when compared to both the internal control and the re-used PCR treatment. When comparing those two treatments to eachother, no significant difference could be found. The same was true for the error rate.
+
+```{r}
+#| label: errorrate_analysis
+#| echo: FALSE
 
 M.errorrate <- aov(`Allelic error rate` ~ Treatment, data = Mismatches)
 summary(M.errorrate)
 
 TukeyHSD(M.errorrate, conf.level=.95)
 #Detection plate treatment significantly different from the other two
+```
 
-#It is probably a good idea to further explore this relationship with a pairwise comparision 
-#or some other posthoc analysis
+To explore the effect of treatment on the number of potential contamination cases, a non-parametric wilcoxon test was used.
+
+*Note: the test is performed on only one case of the 're-used detection plate' treatment and therefore not yet considered informative.*
+
+```{r}
+#| label: contamination_analysis
+#| echo: FALSE
+
 Contamination_cases$Treatment <- c("Re-used PCR", "Re-used detection plate", "Re-used PCR")
 #Wilcox.test compares two non-parametric groups. 
 #Null-hypothesis is that the two medians are equal. Lacks the other cases to fully interpret
@@ -348,6 +374,26 @@ Mismatchplot <- Mismatches %>%
 Mismatchplot
 ```
 
+```{r}
+#| label: fig-errorrate
+#| echo: FALSE
+#| warning: FALSE
+#| fig-cap: "Allelic error rate"
+
+Errorrateplot <- Mismatches %>% 
+  mutate(Treatment = fct_relevel(Treatment, 
+            "Internal control", "Re-used PCR", "Re-used detection plate")) %>%
+ggplot( aes(x=Treatment, y=`Allelic error rate`, fill = Treatment)) + 
+  geom_boxplot(alpha = 0.8) +
+  scale_fill_brewer(palette = "Greens") +
+  theme(legend.position = "none") +
+  guides(fill = F, scale = "none") + #remove the legend
+  ggtitle("Allelic error rate") +
+  theme_bw()
+
+Errorrateplot
+```
+
 We found a total of `r Total_Mcases` mismatches between all treatments. A subset of these (`r Total_Ccases`) were potential contamination cases.
 
 ```{r}
@@ -369,18 +415,94 @@ Contaminationplot
 ```
 
 ```{r}
-#| label: fig-errorrate
+#| label: Gapfilling
 #| echo: FALSE
-#| warning: FALSE
-#| fig-cap: "Allelic error rate"
 
-Errorrateplot <- Mismatches %>% 
-  mutate(Treatment = fct_relevel(Treatment, 
-            "Internal control", "Re-used PCR", "Re-used detection plate")) %>%
-ggplot( aes(x=Treatment, y=`Allelic error rate`, fill = Treatment)) + 
-  geom_boxplot(alpha = 0.8) +
-  scale_fill_brewer(palette = "Greens") +
-  theme(legend.position = "none")
+#This function can be used to locate the plates that needs to be gapfilled
+Failed_loci <- function(DF1){
+  #mix 1
+  Pv9 <- sum(is.na(select(DF1, contains("Pv9"))))
+  Hg.6.3 <- sum(is.na(select(DF1, contains("Hg.6.3"))))
+  Hg.8.10 <- sum(is.na(select(DF1, contains("Hg.8.10"))))
+  Hg.1.3 <- sum(is.na(select(DF1, contains("Hg.1.3"))))
+  M11a <- sum(is.na(select(DF1, contains("M11a"))))
+  PvcA <- sum(is.na(select(DF1, contains("PvcA"))))
+  Zcwb07 <- sum(is.na(select(DF1, contains("Zcwb07"))))
+  Agaz2 <- sum(is.na(select(DF1, contains("Agaz2"))))
+  loci_m1 <- as.data.frame(rbind(Pv9, Hg.6.3, Hg.8.10, Hg.1.3, M11a, PvcA, Zcwb07, Agaz2))
+  loci_m1$Mix <- "Mix1"
+  #mix 2
+  Ag3 <- sum(is.na(select(DF1, contains("Ag3"))))
+  Agaz6 <- sum(is.na(select(DF1, contains("Agaz6"))))
+  OrrFCB7 <- sum(is.na(select(DF1, contains("OrrFCB7"))))
+  Ag2 <- sum(is.na(select(DF1, contains("Ag2"))))
+  OrrFCB2 <- sum(is.na(select(DF1, contains("OrrFCB2"))))
+  Lw10 <- sum(is.na(select(DF1, contains("Lw10"))))
+  ZcwCO1 <- sum(is.na(select(DF1, contains("ZcwCO1"))))
+  Agaz5 <- sum(is.na(select(DF1, contains("Agaz5"))))
+  ZcwDhB <- sum(is.na(select(DF1, contains("ZcwDhB"))))
+  loci_m2 <- as.data.frame(rbind(Ag3, Agaz6, OrrFCB7, Ag2, OrrFCB2, Lw10, ZcwCO1, Agaz5, ZcwDhB))
+  loci_m2$Mix <- "Mix2"
+  #mix 3
+  ZcwDz301 <- sum(is.na(select(DF1, contains("ZcwDz301"))))
+  Ag7 <- sum(is.na(select(DF1, contains("Ag7"))))
+  Ag.10 <- sum(is.na(select(DF1, contains("Ag.10"))))
+  ZcwDh4 <- sum(is.na(select(DF1, contains("ZcwDh4"))))
+  ZcwE05 <- sum(is.na(select(DF1, contains("ZcwE05"))))
+  Ag1 <- sum(is.na(select(DF1, contains("Ag1"))))
+  OrrFCB8 <- sum(is.na(select(DF1, contains("OrrFCB8"))))
+  Agt.47 <- sum(is.na(select(DF1, contains("Agt.47"))))
+  loci_m3 <- as.data.frame(rbind(ZcwDz301, Ag7, Ag.10, ZcwDh4, ZcwE05, Ag1, OrrFCB8, Agt.47))
+  loci_m3$Mix <- "Mix3"
+  #mix 4
+  ZcwF07 <- sum(is.na(select(DF1, contains("ZcwF07"))))
+  ZcwD02 <- sum(is.na(select(DF1, contains("ZcwD02"))))
+  ZcwCgDh1 <- sum(is.na(select(DF1, contains("ZcwCgDh1"))))
+  Aa4 <- sum(is.na(select(DF1, contains("Aa4"))))
+  ZcCgDH5.8 <- sum(is.na(select(DF1, contains("ZcCgDH5.8"))))
+  Agaz3 <- sum(is.na(select(DF1, contains("Agaz3"))))
+  loci_m4 <- as.data.frame(rbind(ZcwF07, ZcwD02, ZcwCgDh1, Aa4, ZcCgDH5.8, Agaz3))
+  loci_m4$Mix <- "Mix4"
+  #mix 5
+  X962.1 <- sum(is.na(select(DF1, contains("X962.1"))))
+  X554.6 <- sum(is.na(select(DF1, contains("X554.6"))))
+  ZcwA12 <- sum(is.na(select(DF1, contains("ZcwA12"))))
+  PvcE <- sum(is.na(select(DF1, contains("PvcE"))))
+  ZcwB09 <- sum(is.na(select(DF1, contains("ZcwB09"))))
+  Agaz10 <- sum(is.na(select(DF1, contains("Agaz10"))))
+  Mang44 <- sum(is.na(select(DF1, contains("Mang44"))))
+  Mang36 <- sum(is.na(select(DF1, contains("Mang36"))))
+  loci_m5 <- as.data.frame(rbind(X962.1, X554.6, ZcwA12, PvcE, ZcwB09, Agaz10, Mang44, Mang36))
+  loci_m5$Mix <- "Mix5"
+  #Create the output
+  Rack <- deparse(substitute(DF1))
+  Samples <- 95
+  Output <- as.data.frame(rbind(loci_m1,loci_m2, loci_m3, loci_m4, loci_m5))
+  colnames(Output) <- c("Unscored", "Mix")
+  Output$Unscored <- as.numeric(Output$Unscored)
+  Rack <- deparse(substitute(DF1))
+  Output$Rack <- Rack
+  Output$Percent <- as.numeric((Output$Unscored/Samples*0.5)*100)
+  Output$Loci <- rownames(Output)
+  #return(Output)
+  #alternatively if only interested in failed loci, loci with more than 20% NAs
+  Find_failed_loci <- subset(Output, Output$Percent > 20)
+  rownames(Find_failed_loci) <- NULL
+  return(Find_failed_loci)
+}
 
-Errorrateplot
+#apply failed_loci function to all racks to locate which plates needs gapfilling
+Gapfilling <- rbind(Failed_loci(R154_R1), 
+                          Failed_loci(R154_R2), 
+                          Failed_loci(R154_R3), 
+                          Failed_loci(R154_R4), 
+                          Failed_loci(R155_R1), 
+                          Failed_loci(R155_R2), 
+                          Failed_loci(R155_R3), 
+                          Failed_loci(R156_R1),
+                          Failed_loci(R156_R2))
+Gapfilling <- Gapfilling[order(Gapfilling$Rack,Gapfilling$Mix ),]
+
+#saves the table in the correct folder
+write_csv(Gapfilling, file.path(tabs_dir, "Gapfilling.csv"))
 ```
