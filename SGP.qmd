@@ -37,11 +37,13 @@ tabs_dir <- file.path("Results", "Tables")
 
 Scientific research is a massive endeavor, consuming vast quantities of single-use plastics. The sustainable genetics project aim to empirically test the re-usability of lab plastic wear, specifically the plastic racks used for PCRs and detection. The project was based around the protocol for Antarctic fur seal genotyping using microsatellites. In this protocol, extracted DNA is first amplified using PCR and since transfered to detection plates for sequencing. The plates used for detection contain only a small diluted concentration of DNA, while the PCR plates have been used in the PCR process and therefore contain a high concentration of DNA. Therefore, we assume that the potential risk of contamination from a previously used plate would be higher in the PCR step.
 
+### Packages
+
 ```{r}
 #| label: packages
 #| echo: FALSE
 #here::here()
-invisible(pacman::p_load(dplyr, tidyverse, here, stringi, png, knitr, rstatix))
+invisible(pacman::p_load(dplyr, tidyverse, here, stringi, png, knitr, rstatix, cowplot))
 ```
 
 # Methods
@@ -114,11 +116,12 @@ for(i in Data_files[-Mix1_locate]) {
   #The following line tidies up the names of the files
   names(Data_list) <- gsub("Data/Working_data/AP_AFS_|AFS|_\\d{2}|_AlleleReport.csv", "", names(Data_list))
   names(Data_list) <- gsub("Data/Working_data/ALB__|AFS_|_\\d{2}|_AlleleReport.csv", "", names(Data_list))
-}
+  }
 
 #The loci ZcwCO1 in mix 2 and ZcwCO3 in mix five is the same locus. Therefore, they need to be merged and the second version removed
 
 ZcwCO1_loci <- function(DF) {
+  #ZcwCO1
   change_a <- which(DF$mix2.ZcwCO1_a != DF$mix5.ZcwC03_a | is.na(DF$mix2.ZcwCO1_a) == T)
   change_b <- which(DF$mix2.ZcwCO1_b != DF$mix5.ZcwC03_b | is.na(DF$mix2.ZcwCO1_b) == T)
   DF$mix2.ZcwCO1_a[change_a] <- DF$mix5.ZcwC03_a[change_a]
@@ -126,12 +129,24 @@ ZcwCO1_loci <- function(DF) {
   DF <- subset(DF, select = -c(mix5.ZcwC03_a, mix5.ZcwC03_b))
 }
 
+Mangs_loci <- function(DF) {
+  #Mangs
+  Mangs44_a <- which(DF$mix5.Mang44_a != DF$Mangs.Mang44_a | is.na(DF$mix5.Mang44_a) == T)
+  Mangs44_b <- which(DF$mix5.Mang44_b != DF$Mangs.Mang44_b | is.na(DF$mix5.Mang44_b) == T)
+  Mangs36_a <- which(DF$mix5.Mang36_a != DF$Mangs.Mang36_a | is.na(DF$mix5.Mang36_a) == T)
+  Mangs36_b <- which(DF$mix5.Mang36_b != DF$Mangs.Mang36_b | is.na(DF$mix5.Mang36_b) == T)
+  DF$mix5.Mang44_a[Mangs44_a] <- DF$Mangs.Mang44_a[Mangs44_a]
+  DF$mix5.Mang44_b[Mangs44_b] <- DF$Mangs.Mang44_b[Mangs44_b]
+  DF$mix5.Mang36_a[Mangs36_a] <- DF$Mangs.Mang36_a[Mangs36_a]
+  DF$mix5.Mang36_b[Mangs36_b] <- DF$Mangs.Mang36_b[Mangs36_b]
+  DF <- subset(DF, select = -c(Mangs.Mang44_a, Mangs.Mang44_b, Mangs.Mang36_a, Mangs.Mang36_b))
+}
 #bind the different mixes together
 Data_df = do.call(cbind, Data_list)
 #Separate the dataframe into Rack and treatment and remove this info from column names
 R154_R1 <- Data_df %>% select(contains("Rack154")) %>% select(contains("_1")) %>%
   rename_with(~sub("Rack154_", "", .), everything()) %>% 
-  rename_with(~sub("_1", "", .), everything()) %>% ZcwCO1_loci()
+  rename_with(~sub("_1", "", .), everything()) %>% ZcwCO1_loci() %>% Mangs_loci()
 R154_R2 <- Data_df %>% select(contains("Rack154")) %>% select(contains("_2")) %>%
   rename_with(~sub("Rack154_", "", .), everything()) %>%
   rename_with(~sub("_2", "", .), everything()) %>% ZcwCO1_loci()
@@ -143,19 +158,28 @@ R154_R4 <- Data_df %>% select(contains("Rack154")) %>% select(contains("_4")) %>
   rename_with(~sub("_4", "", .), everything()) %>% ZcwCO1_loci()
 R155_R1 <- Data_df %>% select(contains("Rack155")) %>% select(contains("_1")) %>%
   rename_with(~sub("Rack155_", "", .), everything()) %>%
-  rename_with(~sub("_1", "", .), everything()) %>% ZcwCO1_loci()
+  rename_with(~sub("_1", "", .), everything()) %>% ZcwCO1_loci() %>% Mangs_loci()
 R155_R2 <- Data_df %>% select(contains("Rack155")) %>% select(contains("_2")) %>%
   rename_with(~sub("Rack155_", "", .), everything()) %>%
   rename_with(~sub("_2", "", .), everything()) %>% ZcwCO1_loci()
 R155_R3 <- Data_df %>% select(contains("Rack155")) %>% select(contains("_3")) %>%
   rename_with(~sub("Rack155_", "", .), everything()) %>%
   rename_with(~sub("_3", "", .), everything()) %>% ZcwCO1_loci()
+R155_R4 <- Data_df %>% select(contains("Rack155")) %>% select(contains("_4")) %>%
+  rename_with(~sub("Rack155_", "", .), everything()) %>%
+  rename_with(~sub("_4", "", .), everything()) %>% ZcwCO1_loci()
 R156_R1 <- Data_df %>% select(contains("Rack156")) %>% select(contains("_1")) %>%
   rename_with(~sub("Rack156_", "", .), everything()) %>%
-  rename_with(~sub("_1", "", .), everything()) %>% ZcwCO1_loci()
+  rename_with(~sub("_1", "", .), everything()) %>% ZcwCO1_loci() %>% Mangs_loci()
 R156_R2 <- Data_df %>% select(contains("Rack156")) %>% select(contains("_2")) %>%
   rename_with(~sub("Rack156_", "", .), everything()) %>%
   rename_with(~sub("_2", "", .), everything()) %>% ZcwCO1_loci()
+R156_R3 <- Data_df %>% select(contains("Rack156")) %>% select(contains("_3")) %>%
+  rename_with(~sub("Rack156_", "", .), everything()) %>%
+  rename_with(~sub("_3", "", .), everything()) %>% ZcwCO1_loci()
+R156_R4 <- Data_df %>% select(contains("Rack156")) %>% select(contains("_4")) %>%
+  rename_with(~sub("Rack156_", "", .), everything()) %>%
+  rename_with(~sub("_4", "", .), everything()) %>% ZcwCO1_loci()
 
 rm(Data_df, Data_list, x, Data_files, i, Mix1, Mix1_locate, remove_row)
 ```
@@ -182,14 +206,80 @@ Count_NAs <- function(DF) {
   return(Output)
 }
 
-Failed_samples <- as.data.frame(cbind(Count_NAs(R154_R1), Count_NAs(R154_R2), Count_NAs(R154_R3), Count_NAs(R154_R4), Count_NAs(R155_R1), Count_NAs(R155_R2), Count_NAs(R155_R3), Count_NAs(R156_R1), Count_NAs(R156_R2))) 
+Failed_samples <- as.data.frame(cbind(Count_NAs(R154_R1), Count_NAs(R154_R2), Count_NAs(R154_R3), Count_NAs(R154_R4), Count_NAs(R155_R1), Count_NAs(R155_R2), Count_NAs(R155_R3), Count_NAs(R155_R4), Count_NAs(R156_R1), Count_NAs(R156_R2), Count_NAs(R156_R3), Count_NAs(R156_R4))) 
 Failed_samples <- tibble::rownames_to_column(Failed_samples, "Mix")
 
 #Save the table as a csv file
-#write_csv(Failed_samples, file.path(tabs_dir, "Failed_genotypes.csv"))
+write_csv(Failed_samples, file.path(tabs_dir, "Failed_genotypes.csv"))
 
 knitr::kable(Failed_samples)
 ```
+
+In @fig-Heatmap, the location of the missing data on the plate is visualized. More purple hues correspond to more missing loci for that particular samples, and we can conclude that certain samples seem to have failed almost completely. This could hint at poor DNA quality. The data is arranged in the plot to match the layout of the actual plate. Through visual inspection, there might be a slight tendency for the missing loci to be located more towards the edges of the plates compared to the center.
+
+```{r}
+#| label: fig-Heatmap
+#| echo: FALSE
+#| warning: FALSE
+#| fig-cap: "Heatmap of missing data"
+
+#Fix this in initial read in
+R156_R1$mix5.Mang44_a <- as.integer(R156_R1$mix5.Mang44_a)
+R156_R3$mix3.ZcwDz301_a <- as.integer(R156_R3$mix3.ZcwDz301_a)
+R156_R3$mix3.ZcwDh4.7_a <- as.integer(R156_R3$mix3.ZcwDh4.7_a)
+
+#The replace functions locates NAs and replaces them with 0 and all other entries with 1
+Replace <- function(DF) {
+  mix <- DF %>% replace(!is.na(.), 1) %>% replace(is.na(.), 0) %>%
+  mutate(Row_Sums = rowSums(across(everything())))
+  Sum <- mix$Row_Sums
+  return(Sum)
+}
+
+#The heatmap function generates a heatmap for the dataframe provided
+Heatmap <- function(DF) {
+  #using the replace function, the sum per ID of scored loci is calculated
+  Sum <- as.data.frame(cbind(Replace(DF[3:18]), Replace(DF[19:36]), Replace(DF[37:52]), Replace(DF[53:64]), Replace(DF[65:80]))) %>% mutate(Sums = rowSums(across(everything())))
+  
+  #Name
+  Rack <- deparse(substitute(DF))
+  
+  #In some of the racks, a couple of samples have been repeated (_1 and _2), cleans name
+  DF$mix1.ID <- gsub("_(\\d)$", "", as.character(DF$mix1.ID))
+  
+  #Creates the table needed for ggplot to generate the heatmap
+  Heat <- as.data.frame(cbind(Sum$Sums, DF$mix1.ID, DF$mix1.ID)) 
+  colnames(Heat) <- c("Sum", "Column", "Row")
+  Heat <- Heat %>%
+    mutate(Row = gsub("\\d{2}_[A-Z]{3}\\d{5}", "", as.character(Row)),
+         Column = gsub("[A-Z]|_[A-Z]{3}\\d{5}", "", as.character(Column))) %>%
+    mutate(Row = as.factor(Row), Sum = as.numeric(Sum))
+  
+  #The actual plot, data entered to represent the layout of the actual plate
+  #More purple hues means more missing data
+  Heatmap.plot <- ggplot(data = Heat, aes(x=factor(Column, level=c('01','02','03','04','05','06','07','08','09','10','11','12')), y=Row, fill=Sum)) +
+  geom_tile() +
+  scale_y_discrete(limits = rev(levels(Heat$Row))) +
+  scale_fill_gradient(low = "purple", high = "orange", limits = c(0,80)) +
+  theme_minimal() +
+  theme(axis.title.x = element_blank(),
+        axis.title.y = element_blank()) +
+  ggtitle(Rack)
+  return(Heatmap.plot)
+}
+
+#Applying the heatmap funtion to all datasets and arranging them 
+Heatmap.plot <- plot_grid(Heatmap(R154_R1), Heatmap(R155_R1), Heatmap(R156_R1), 
+                          Heatmap(R154_R2), Heatmap(R155_R2), Heatmap(R156_R2),
+                          Heatmap(R154_R3), Heatmap(R155_R3), Heatmap(R156_R3), 
+                          Heatmap(R154_R4), Heatmap(R155_R4), Heatmap(R156_R4), 
+                          labels = NULL, nrow = 4)
+
+#Heatmap.plot 
+ggsave(plot = Heatmap.plot, filename = file.path(figs_dir, "Heatmap.png"), width = 30, height = 21, unit = "cm", dpi = 500)
+```
+
+![Heatmap of missing data](Results/Figures/Heatmap.png){#fig-Heatmap}
 
 #### Error rate calculation
 
@@ -250,7 +340,10 @@ Mismatches <- bind_rows(
   Mismatch(R154_R1, R154_R4),
   Mismatch(R155_R1, R155_R2),
   Mismatch(R155_R1, R155_R3),
-  Mismatch(R156_R1, R156_R2)) %>% arrange(factor(Treatment, levels = c("Internal control", "Re-used PCR", "Re-used detection plate")))
+  Mismatch(R155_R1, R155_R4),
+  Mismatch(R156_R1, R156_R2),
+  Mismatch(R156_R1, R156_R3),
+  Mismatch(R156_R1, R156_R4)) %>% arrange(factor(Treatment, levels = c("Internal control", "Re-used PCR", "Re-used detection plate")))
 
 knitr::kable(Mismatches, row.names = F)
 
@@ -263,7 +356,10 @@ Total_Mcases <- sum(Mismatches$`No. of mismatches`)
   #Mismatch(R154_R1, R154_R4),
   #Mismatch(R155_R1, R155_R2),
   #Mismatch(R155_R1, R155_R3),
-  #Mismatch(R156_R1, R156_R2))
+  #Mismatch(R155_R1, R155_R4),
+  #Mismatch(R156_R1, R156_R2),
+  #Mismatch(R156_R1, R156_R3),
+  #Mismatch(R156_R1, R156_R4))
 ```
 
 #### Inspect mismatches for contamination
@@ -300,7 +396,7 @@ Detect_contamination <- function(R1, Reused, Control){
   #return(Find_contamination)
 }
 
-Contamination_cases <- bind_rows(Detect_contamination(R154_R1, R154_R3, R156_R1), Detect_contamination(R154_R1, R154_R4, R156_R1), Detect_contamination(R155_R1, R155_R3, R154_R1))
+Contamination_cases <- bind_rows(Detect_contamination(R154_R1, R154_R3, R156_R1), Detect_contamination(R154_R1, R154_R4, R156_R1), Detect_contamination(R155_R1, R155_R3, R154_R1), Detect_contamination(R155_R1, R155_R4, R154_R1), Detect_contamination(R156_R1, R156_R3, R155_R1), Detect_contamination(R156_R1, R156_R4, R155_R1))
 knitr::kable(Contamination_cases, row.names = F)
 
 Total_Ccases <- sum(Contamination_cases$Cases)
@@ -417,92 +513,162 @@ Contaminationplot
 ```{r}
 #| label: Gapfilling
 #| echo: FALSE
+# 
+# #This function can be used to locate the plates that needs to be gapfilled
+# Failed_loci <- function(DF1){
+#   #mix 1
+#   Pv9 <- sum(is.na(select(DF1, contains("Pv9"))))
+#   Hg.6.3 <- sum(is.na(select(DF1, contains("Hg.6.3"))))
+#   Hg.8.10 <- sum(is.na(select(DF1, contains("Hg.8.10"))))
+#   Hg.1.3 <- sum(is.na(select(DF1, contains("Hg.1.3"))))
+#   M11a <- sum(is.na(select(DF1, contains("M11a"))))
+#   PvcA <- sum(is.na(select(DF1, contains("PvcA"))))
+#   Zcwb07 <- sum(is.na(select(DF1, contains("Zcwb07"))))
+#   Agaz2 <- sum(is.na(select(DF1, contains("Agaz2"))))
+#   loci_m1 <- as.data.frame(rbind(Pv9, Hg.6.3, Hg.8.10, Hg.1.3, M11a, PvcA, Zcwb07, Agaz2))
+#   loci_m1$Mix <- "Mix1"
+#   #mix 2
+#   Ag3 <- sum(is.na(select(DF1, contains("Ag3"))))
+#   Agaz6 <- sum(is.na(select(DF1, contains("Agaz6"))))
+#   OrrFCB7 <- sum(is.na(select(DF1, contains("OrrFCB7"))))
+#   Ag2 <- sum(is.na(select(DF1, contains("Ag2"))))
+#   OrrFCB2 <- sum(is.na(select(DF1, contains("OrrFCB2"))))
+#   Lw10 <- sum(is.na(select(DF1, contains("Lw10"))))
+#   ZcwCO1 <- sum(is.na(select(DF1, contains("ZcwCO1"))))
+#   Agaz5 <- sum(is.na(select(DF1, contains("Agaz5"))))
+#   ZcwDhB <- sum(is.na(select(DF1, contains("ZcwDhB"))))
+#   loci_m2 <- as.data.frame(rbind(Ag3, Agaz6, OrrFCB7, Ag2, OrrFCB2, Lw10, ZcwCO1, Agaz5, ZcwDhB))
+#   loci_m2$Mix <- "Mix2"
+#   #mix 3
+#   ZcwDz301 <- sum(is.na(select(DF1, contains("ZcwDz301"))))
+#   Ag7 <- sum(is.na(select(DF1, contains("Ag7"))))
+#   Ag.10 <- sum(is.na(select(DF1, contains("Ag.10"))))
+#   ZcwDh4 <- sum(is.na(select(DF1, contains("ZcwDh4"))))
+#   ZcwE05 <- sum(is.na(select(DF1, contains("ZcwE05"))))
+#   Ag1 <- sum(is.na(select(DF1, contains("Ag1"))))
+#   OrrFCB8 <- sum(is.na(select(DF1, contains("OrrFCB8"))))
+#   Agt.47 <- sum(is.na(select(DF1, contains("Agt.47"))))
+#   loci_m3 <- as.data.frame(rbind(ZcwDz301, Ag7, Ag.10, ZcwDh4, ZcwE05, Ag1, OrrFCB8, Agt.47))
+#   loci_m3$Mix <- "Mix3"
+#   #mix 4
+#   ZcwF07 <- sum(is.na(select(DF1, contains("ZcwF07"))))
+#   ZcwD02 <- sum(is.na(select(DF1, contains("ZcwD02"))))
+#   ZcwCgDh1 <- sum(is.na(select(DF1, contains("ZcwCgDh1"))))
+#   Aa4 <- sum(is.na(select(DF1, contains("Aa4"))))
+#   ZcCgDH5.8 <- sum(is.na(select(DF1, contains("ZcCgDH5.8"))))
+#   Agaz3 <- sum(is.na(select(DF1, contains("Agaz3"))))
+#   loci_m4 <- as.data.frame(rbind(ZcwF07, ZcwD02, ZcwCgDh1, Aa4, ZcCgDH5.8, Agaz3))
+#   loci_m4$Mix <- "Mix4"
+#   #mix 5
+#   X962.1 <- sum(is.na(select(DF1, contains("X962.1"))))
+#   X554.6 <- sum(is.na(select(DF1, contains("X554.6"))))
+#   ZcwA12 <- sum(is.na(select(DF1, contains("ZcwA12"))))
+#   PvcE <- sum(is.na(select(DF1, contains("PvcE"))))
+#   ZcwB09 <- sum(is.na(select(DF1, contains("ZcwB09"))))
+#   Agaz10 <- sum(is.na(select(DF1, contains("Agaz10"))))
+#   Mang44 <- sum(is.na(select(DF1, contains("Mang44"))))
+#   Mang36 <- sum(is.na(select(DF1, contains("Mang36"))))
+#   loci_m5 <- as.data.frame(rbind(X962.1, X554.6, ZcwA12, PvcE, ZcwB09, Agaz10, Mang44, Mang36))
+#   loci_m5$Mix <- "Mix5"
+#   #Create the output
+#   Rack <- deparse(substitute(DF1))
+#   Samples <- 95
+#   Output <- as.data.frame(rbind(loci_m1,loci_m2, loci_m3, loci_m4, loci_m5))
+#   colnames(Output) <- c("Unscored", "Mix")
+#   Rack <- deparse(substitute(DF1))
+#   Output$Rack <- Rack
+#   #Calculates the percentage of unscored loci rounded to 2 digits
+#   Output$Percent <- as.numeric((as.numeric(Output$Unscored)/Samples*0.5)*100) %>%
+#     round(., 2)
+#   Output$Loci <- rownames(Output)
+#   #return(Output)
+#   #alternatively if only interested in failed loci, loci with more than 20% NAs
+#   Find_failed_loci <- subset(Output, Output$Percent > 20)
+#   rownames(Find_failed_loci) <- NULL
+#   return(Find_failed_loci)
+# }
+# 
+# #apply failed_loci function to all racks to locate which plates needs gapfilling
+# Gapfilling <- rbind(Failed_loci(R154_R1), 
+#                           Failed_loci(R154_R2), 
+#                           Failed_loci(R154_R3), 
+#                           Failed_loci(R154_R4), 
+#                           Failed_loci(R155_R1), 
+#                           Failed_loci(R155_R2), 
+#                           Failed_loci(R155_R3),
+#                           Failed_loci(R155_R4),
+#                           Failed_loci(R156_R1),
+#                           Failed_loci(R156_R2),
+#                           Failed_loci(R156_R3),
+#                           Failed_loci(R156_R4))
+# Gapfilling <- Gapfilling[order(Gapfilling$Rack,Gapfilling$Mix ),]
+# 
+# #saves the table in the correct folder
+# write_csv(Gapfilling, file.path(tabs_dir, "Gapfilling.csv"))
+```
 
-#This function can be used to locate the plates that needs to be gapfilled
-Failed_loci <- function(DF1){
-  #mix 1
-  Pv9 <- sum(is.na(select(DF1, contains("Pv9"))))
-  Hg.6.3 <- sum(is.na(select(DF1, contains("Hg.6.3"))))
-  Hg.8.10 <- sum(is.na(select(DF1, contains("Hg.8.10"))))
-  Hg.1.3 <- sum(is.na(select(DF1, contains("Hg.1.3"))))
-  M11a <- sum(is.na(select(DF1, contains("M11a"))))
-  PvcA <- sum(is.na(select(DF1, contains("PvcA"))))
-  Zcwb07 <- sum(is.na(select(DF1, contains("Zcwb07"))))
-  Agaz2 <- sum(is.na(select(DF1, contains("Agaz2"))))
-  loci_m1 <- as.data.frame(rbind(Pv9, Hg.6.3, Hg.8.10, Hg.1.3, M11a, PvcA, Zcwb07, Agaz2))
-  loci_m1$Mix <- "Mix1"
-  #mix 2
-  Ag3 <- sum(is.na(select(DF1, contains("Ag3"))))
-  Agaz6 <- sum(is.na(select(DF1, contains("Agaz6"))))
-  OrrFCB7 <- sum(is.na(select(DF1, contains("OrrFCB7"))))
-  Ag2 <- sum(is.na(select(DF1, contains("Ag2"))))
-  OrrFCB2 <- sum(is.na(select(DF1, contains("OrrFCB2"))))
-  Lw10 <- sum(is.na(select(DF1, contains("Lw10"))))
-  ZcwCO1 <- sum(is.na(select(DF1, contains("ZcwCO1"))))
-  Agaz5 <- sum(is.na(select(DF1, contains("Agaz5"))))
-  ZcwDhB <- sum(is.na(select(DF1, contains("ZcwDhB"))))
-  loci_m2 <- as.data.frame(rbind(Ag3, Agaz6, OrrFCB7, Ag2, OrrFCB2, Lw10, ZcwCO1, Agaz5, ZcwDhB))
-  loci_m2$Mix <- "Mix2"
-  #mix 3
-  ZcwDz301 <- sum(is.na(select(DF1, contains("ZcwDz301"))))
-  Ag7 <- sum(is.na(select(DF1, contains("Ag7"))))
-  Ag.10 <- sum(is.na(select(DF1, contains("Ag.10"))))
-  ZcwDh4 <- sum(is.na(select(DF1, contains("ZcwDh4"))))
-  ZcwE05 <- sum(is.na(select(DF1, contains("ZcwE05"))))
-  Ag1 <- sum(is.na(select(DF1, contains("Ag1"))))
-  OrrFCB8 <- sum(is.na(select(DF1, contains("OrrFCB8"))))
-  Agt.47 <- sum(is.na(select(DF1, contains("Agt.47"))))
-  loci_m3 <- as.data.frame(rbind(ZcwDz301, Ag7, Ag.10, ZcwDh4, ZcwE05, Ag1, OrrFCB8, Agt.47))
-  loci_m3$Mix <- "Mix3"
-  #mix 4
-  ZcwF07 <- sum(is.na(select(DF1, contains("ZcwF07"))))
-  ZcwD02 <- sum(is.na(select(DF1, contains("ZcwD02"))))
-  ZcwCgDh1 <- sum(is.na(select(DF1, contains("ZcwCgDh1"))))
-  Aa4 <- sum(is.na(select(DF1, contains("Aa4"))))
-  ZcCgDH5.8 <- sum(is.na(select(DF1, contains("ZcCgDH5.8"))))
-  Agaz3 <- sum(is.na(select(DF1, contains("Agaz3"))))
-  loci_m4 <- as.data.frame(rbind(ZcwF07, ZcwD02, ZcwCgDh1, Aa4, ZcCgDH5.8, Agaz3))
-  loci_m4$Mix <- "Mix4"
-  #mix 5
-  X962.1 <- sum(is.na(select(DF1, contains("X962.1"))))
-  X554.6 <- sum(is.na(select(DF1, contains("X554.6"))))
-  ZcwA12 <- sum(is.na(select(DF1, contains("ZcwA12"))))
-  PvcE <- sum(is.na(select(DF1, contains("PvcE"))))
-  ZcwB09 <- sum(is.na(select(DF1, contains("ZcwB09"))))
-  Agaz10 <- sum(is.na(select(DF1, contains("Agaz10"))))
-  Mang44 <- sum(is.na(select(DF1, contains("Mang44"))))
-  Mang36 <- sum(is.na(select(DF1, contains("Mang36"))))
-  loci_m5 <- as.data.frame(rbind(X962.1, X554.6, ZcwA12, PvcE, ZcwB09, Agaz10, Mang44, Mang36))
-  loci_m5$Mix <- "Mix5"
-  #Create the output
-  Rack <- deparse(substitute(DF1))
-  Samples <- 95
-  Output <- as.data.frame(rbind(loci_m1,loci_m2, loci_m3, loci_m4, loci_m5))
-  colnames(Output) <- c("Unscored", "Mix")
-  Output$Unscored <- as.numeric(Output$Unscored)
-  Rack <- deparse(substitute(DF1))
-  Output$Rack <- Rack
-  Output$Percent <- as.numeric((Output$Unscored/Samples*0.5)*100)
-  Output$Loci <- rownames(Output)
-  #return(Output)
-  #alternatively if only interested in failed loci, loci with more than 20% NAs
-  Find_failed_loci <- subset(Output, Output$Percent > 20)
-  rownames(Find_failed_loci) <- NULL
-  return(Find_failed_loci)
-}
-
-#apply failed_loci function to all racks to locate which plates needs gapfilling
-Gapfilling <- rbind(Failed_loci(R154_R1), 
-                          Failed_loci(R154_R2), 
-                          Failed_loci(R154_R3), 
-                          Failed_loci(R154_R4), 
-                          Failed_loci(R155_R1), 
-                          Failed_loci(R155_R2), 
-                          Failed_loci(R155_R3), 
-                          Failed_loci(R156_R1),
-                          Failed_loci(R156_R2))
-Gapfilling <- Gapfilling[order(Gapfilling$Rack,Gapfilling$Mix ),]
-
-#saves the table in the correct folder
-write_csv(Gapfilling, file.path(tabs_dir, "Gapfilling.csv"))
+```{r}
+#| label: Maybeusablecode
+#| echo: FALSE
+# Row1 <- R154_R1[grep('A\\d', R154_R1$mix1.ID), ] %>% 
+#   select(contains("Mix1")) %>%
+#   replace(is.na(.), 0) %>%
+#   as.data.frame() %>%
+#   mutate_all(~ ifelse(. == '0', 0, 1)) %>%
+#   mutate(Row_Sums = rowSums(.[3:18])) %>%
+#   pull(Row_Sums)
+# Row2 <- R154_R1[grep('B\\d', R154_R1$mix1.ID), ] %>% 
+#   select(contains("Mix1")) %>%
+#   replace(is.na(.), 0) %>%
+#   as.data.frame() %>%
+#   mutate_all(~ ifelse(. == '0', 0, 1)) %>%
+#   mutate(Row_Sums = rowSums(across(everything()))) %>%
+#   pull(Row_Sums)
+# Row3 <- R154_R1[grep('C\\d', R154_R1$mix1.ID), ] %>%   
+#   select(contains("Mix1")) %>%
+#   replace(is.na(.), 0) %>%
+#   as.data.frame() %>%
+#   mutate_all(~ ifelse(. == '0', 0, 1)) %>%
+#   mutate(Row_Sums = rowSums(across(everything()))) %>%
+#   pull(Row_Sums)
+# Row4 <- R154_R1[grep('D\\d', R154_R1$mix1.ID), ] %>%   
+#   select(contains("Mix1")) %>%
+#   replace(is.na(.), 0) %>%
+#   as.data.frame() %>%
+#   mutate_all(~ ifelse(. == '0', 0, 1)) %>%
+#   mutate(Row_Sums = rowSums(across(everything()))) %>%
+#   pull(Row_Sums)
+# Row5 <- R154_R1[grep('E\\d', R154_R1$mix1.ID), ] %>%   
+#   select(contains("Mix1")) %>%
+#   replace(is.na(.), 0) %>%
+#   as.data.frame() %>%
+#   mutate_all(~ ifelse(. == '0', 0, 1)) %>%
+#   mutate(Row_Sums = rowSums(across(everything()))) %>%
+#   pull(Row_Sums)
+# Row6 <- R154_R1[grep('F\\d', R154_R1$mix1.ID), ] %>%   
+#   select(contains("Mix1")) %>%
+#   replace(is.na(.), 0) %>%
+#   as.data.frame() %>%
+#   mutate_all(~ ifelse(. == '0', 0, 1)) %>%
+#   mutate(Row_Sums = rowSums(across(everything()))) %>%
+#   pull(Row_Sums)
+# Row7 <- R154_R1[grep('G\\d', R154_R1$mix1.ID), ] %>%   
+#   select(contains("Mix1")) %>%
+#   replace(is.na(.), 0) %>%
+#   as.data.frame() %>%
+#   mutate_all(~ ifelse(. == '0', 0, 1)) %>%
+#   mutate(Row_Sums = rowSums(across(everything()))) %>%
+#   pull(Row_Sums)
+# Row8 <- R154_R1[grep('H\\d', R154_R1$mix1.ID), ] %>%
+#   select(contains("Mix1")) %>%
+#   replace(is.na(.), 0) %>%
+#   as.data.frame() %>%
+#   mutate_all(~ ifelse(. == '0', 0, 1)) %>%
+#   mutate(Row_Sums = rowSums(across(everything()))) %>%
+#   pull(Row_Sums)
+# 
+# Missing_data <- as.data.frame(rbind(Row1, Row2, Row3, Row4, Row5, Row6, Row7, Row8))
+# #Missing_data <- matrix(as.numeric(unlist(Missing_data)),nrow=nrow(Missing_data))
+# #heatmap(Missing_data, Rowv = NA, Colv = NA)
+# Missing_data$row <- rbind("row1", "row2", "row3", "row4", "row5", "row6", "row7", "row8")
 ```
