@@ -46,16 +46,9 @@ ul.task-list li input[type="checkbox"] {
   <nav id="TOC" role="doc-toc" class="toc-active">
     <h2 id="toc-title">Table of contents</h2>
    
-  <ul>
-  <li><a href="#description" id="toc-description" class="nav-link active" data-scroll-target="#description">Description</a>
   <ul class="collapse">
-  <li><a href="#packages" id="toc-packages" class="nav-link" data-scroll-target="#packages">Packages</a></li>
-  </ul></li>
-  <li><a href="#methods" id="toc-methods" class="nav-link" data-scroll-target="#methods">Methods</a>
-  <ul class="collapse">
-  <li><a href="#data" id="toc-data" class="nav-link" data-scroll-target="#data">Data</a></li>
-  <li><a href="#analysis" id="toc-analysis" class="nav-link" data-scroll-target="#analysis">Analysis</a></li>
-  </ul></li>
+  <li><a href="#description" id="toc-description" class="nav-link active" data-scroll-target="#description">Description</a></li>
+  <li><a href="#methods" id="toc-methods" class="nav-link" data-scroll-target="#methods">Methods</a></li>
   <li><a href="#results" id="toc-results" class="nav-link" data-scroll-target="#results">Results</a></li>
   </ul>
 </nav>
@@ -65,6 +58,7 @@ ul.task-list li input[type="checkbox"] {
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
 <h1 class="title">Sustainable genetics project</h1>
+<p class="subtitle lead">Script</p>
 </div>
 
 
@@ -94,9 +88,6 @@ ul.task-list li input[type="checkbox"] {
 <section id="description" class="level1">
 <h1>Description</h1>
 <p>Scientific research is a massive endeavor, consuming vast quantities of single-use plastics. The sustainable genetics project aim to empirically test the re-usability of lab plastic wear, specifically the plastic racks used for PCRs and detection. The project was based around the protocol for Antarctic fur seal genotyping using microsatellites. In this protocol, extracted DNA is first amplified using PCR and since transfered to detection plates for sequencing. The plates used for detection contain only a small diluted concentration of DNA, while the PCR plates have been used in the PCR process and therefore contain a high concentration of DNA. Therefore, we assume that the potential risk of contamination from a previously used plate would be higher in the PCR step.</p>
-<section id="packages" class="level3">
-<h3 class="anchored" data-anchor-id="packages">Packages</h3>
-</section>
 </section>
 <section id="methods" class="level1">
 <h1>Methods</h1>
@@ -184,41 +175,21 @@ ul.task-list li input[type="checkbox"] {
 <h3 class="anchored" data-anchor-id="data">Data</h3>
 <p>The data for this project are the raw sequencing reads from the ABI 3730xl capillary sequencer. Each files is identified with the following name structure: RackX_mixY_Z. Where X gives the rack number, Y the mix and Z the treatment (1 = standard procedure, 2 = internal control, 3 = Re-used PCR plate and 4 = Re-used detection plate).</p>
 <p>Before starting the error rate evaluation, the no. of genotypes that could no be scored for each round and mix per rack is tabulated (See <a href="#tbl-failed">Table&nbsp;2</a>).</p>
-<div class="cell">
-<div class="cell-output-display">
-<div id="tbl-failed" class="anchored">
-<table class="table table-sm table-striped small">
-<caption>Table&nbsp;2: Failed genotypes</caption>
-<colgroup>
-<col style="width: 5%">
-<col style="width: 7%">
-<col style="width: 7%">
-<col style="width: 7%">
-<col style="width: 7%">
-<col style="width: 7%">
-<col style="width: 7%">
-<col style="width: 7%">
-<col style="width: 7%">
-<col style="width: 7%">
-<col style="width: 7%">
-<col style="width: 7%">
-<col style="width: 7%">
-</colgroup>
+<div id="tbl-failed" class="cell tbl-parent quarto-layout-panel anchored">
+<div class="panel-caption table-caption">
+<p>Table&nbsp;2: Failed genotypes</p>
+</div>
+<div class="quarto-layout-row quarto-layout-valign-top">
+<div id="tbl-failed-1" class="quarto-layout-cell quarto-layout-cell-subref anchored" data-ref-parent="tbl-failed" style="flex-basis: 100.0%;justify-content: center;">
+<table data-quarto-postprocess="true" class="table table-sm table-striped small">
+<caption>(a) Rack 154</caption>
 <thead>
 <tr class="header">
-<th style="text-align: left;">Mix</th>
-<th style="text-align: right;">R154_R1</th>
-<th style="text-align: right;">R154_R2</th>
-<th style="text-align: right;">R154_R3</th>
-<th style="text-align: right;">R154_R4</th>
-<th style="text-align: right;">R155_R1</th>
-<th style="text-align: right;">R155_R2</th>
-<th style="text-align: right;">R155_R3</th>
-<th style="text-align: right;">R155_R4</th>
-<th style="text-align: right;">R156_R1</th>
-<th style="text-align: right;">R156_R2</th>
-<th style="text-align: right;">R156_R3</th>
-<th style="text-align: right;">R156_R4</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">Mix</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">R154_R1</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">R154_R2</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">R154_R3</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">R154_R4</th>
 </tr>
 </thead>
 <tbody>
@@ -228,14 +199,6 @@ ul.task-list li input[type="checkbox"] {
 <td style="text-align: right;">88</td>
 <td style="text-align: right;">58</td>
 <td style="text-align: right;">1014</td>
-<td style="text-align: right;">8</td>
-<td style="text-align: right;">26</td>
-<td style="text-align: right;">50</td>
-<td style="text-align: right;">66</td>
-<td style="text-align: right;">40</td>
-<td style="text-align: right;">44</td>
-<td style="text-align: right;">52</td>
-<td style="text-align: right;">66</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Mix2</td>
@@ -243,14 +206,6 @@ ul.task-list li input[type="checkbox"] {
 <td style="text-align: right;">40</td>
 <td style="text-align: right;">60</td>
 <td style="text-align: right;">162</td>
-<td style="text-align: right;">14</td>
-<td style="text-align: right;">40</td>
-<td style="text-align: right;">12</td>
-<td style="text-align: right;">158</td>
-<td style="text-align: right;">46</td>
-<td style="text-align: right;">44</td>
-<td style="text-align: right;">60</td>
-<td style="text-align: right;">102</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Mix3</td>
@@ -258,14 +213,6 @@ ul.task-list li input[type="checkbox"] {
 <td style="text-align: right;">58</td>
 <td style="text-align: right;">52</td>
 <td style="text-align: right;">108</td>
-<td style="text-align: right;">14</td>
-<td style="text-align: right;">31</td>
-<td style="text-align: right;">26</td>
-<td style="text-align: right;">112</td>
-<td style="text-align: right;">28</td>
-<td style="text-align: right;">26</td>
-<td style="text-align: right;">50</td>
-<td style="text-align: right;">84</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Mix4</td>
@@ -273,14 +220,6 @@ ul.task-list li input[type="checkbox"] {
 <td style="text-align: right;">32</td>
 <td style="text-align: right;">42</td>
 <td style="text-align: right;">548</td>
-<td style="text-align: right;">30</td>
-<td style="text-align: right;">22</td>
-<td style="text-align: right;">10</td>
-<td style="text-align: right;">96</td>
-<td style="text-align: right;">42</td>
-<td style="text-align: right;">1140</td>
-<td style="text-align: right;">44</td>
-<td style="text-align: right;">52</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Mix5</td>
@@ -288,14 +227,6 @@ ul.task-list li input[type="checkbox"] {
 <td style="text-align: right;">78</td>
 <td style="text-align: right;">76</td>
 <td style="text-align: right;">186</td>
-<td style="text-align: right;">10</td>
-<td style="text-align: right;">224</td>
-<td style="text-align: right;">16</td>
-<td style="text-align: right;">430</td>
-<td style="text-align: right;">52</td>
-<td style="text-align: right;">52</td>
-<td style="text-align: right;">70</td>
-<td style="text-align: right;">406</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Total</td>
@@ -303,10 +234,134 @@ ul.task-list li input[type="checkbox"] {
 <td style="text-align: right;">296</td>
 <td style="text-align: right;">288</td>
 <td style="text-align: right;">2018</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="quarto-layout-row quarto-layout-valign-top">
+<div class="quarto-layout-cell" style="flex-basis: 100.0%;justify-content: center;">
+
+
+</div>
+</div>
+<div class="quarto-layout-row quarto-layout-valign-top">
+<div id="tbl-failed-2" class="quarto-layout-cell quarto-layout-cell-subref anchored" data-ref-parent="tbl-failed" style="flex-basis: 100.0%;justify-content: center;">
+<table data-quarto-postprocess="true" class="table table-sm table-striped small">
+<caption>(b) Rack 155</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">Mix</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">R155_R1</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">R155_R2</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">R155_R3</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">R155_R4</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Mix1</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">26</td>
+<td style="text-align: right;">50</td>
+<td style="text-align: right;">66</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Mix2</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">40</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">158</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Mix3</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">31</td>
+<td style="text-align: right;">26</td>
+<td style="text-align: right;">112</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Mix4</td>
+<td style="text-align: right;">30</td>
+<td style="text-align: right;">22</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">96</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Mix5</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">224</td>
+<td style="text-align: right;">16</td>
+<td style="text-align: right;">430</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Total</td>
 <td style="text-align: right;">76</td>
 <td style="text-align: right;">343</td>
 <td style="text-align: right;">114</td>
 <td style="text-align: right;">862</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="quarto-layout-row quarto-layout-valign-top">
+<div class="quarto-layout-cell" style="flex-basis: 100.0%;justify-content: center;">
+
+
+</div>
+</div>
+<div class="quarto-layout-row quarto-layout-valign-top">
+<div id="tbl-failed-3" class="quarto-layout-cell quarto-layout-cell-subref anchored" data-ref-parent="tbl-failed" style="flex-basis: 100.0%;justify-content: center;">
+<table data-quarto-postprocess="true" class="table table-sm table-striped small">
+<caption>(c) Rack 156</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">Mix</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">R156_R1</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">R156_R2</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">R156_R3</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">R156_R4</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Mix1</td>
+<td style="text-align: right;">40</td>
+<td style="text-align: right;">44</td>
+<td style="text-align: right;">52</td>
+<td style="text-align: right;">66</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Mix2</td>
+<td style="text-align: right;">46</td>
+<td style="text-align: right;">44</td>
+<td style="text-align: right;">60</td>
+<td style="text-align: right;">102</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Mix3</td>
+<td style="text-align: right;">28</td>
+<td style="text-align: right;">26</td>
+<td style="text-align: right;">50</td>
+<td style="text-align: right;">84</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Mix4</td>
+<td style="text-align: right;">42</td>
+<td style="text-align: right;">1140</td>
+<td style="text-align: right;">44</td>
+<td style="text-align: right;">52</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Mix5</td>
+<td style="text-align: right;">52</td>
+<td style="text-align: right;">52</td>
+<td style="text-align: right;">70</td>
+<td style="text-align: right;">406</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Total</td>
 <td style="text-align: right;">208</td>
 <td style="text-align: right;">1306</td>
 <td style="text-align: right;">276</td>
@@ -314,6 +369,12 @@ ul.task-list li input[type="checkbox"] {
 </tr>
 </tbody>
 </table>
+</div>
+</div>
+<div class="quarto-layout-row quarto-layout-valign-top">
+<div class="quarto-layout-cell" style="flex-basis: 100.0%;justify-content: center;">
+
+
 </div>
 </div>
 </div>
@@ -330,22 +391,15 @@ ul.task-list li input[type="checkbox"] {
 <div class="cell">
 <div class="cell-output-display">
 <div id="tbl-allelemismatch" class="anchored">
-<table class="table table-sm table-striped small">
+<table data-quarto-postprocess="true" class="table table-sm table-striped small">
 <caption>Table&nbsp;3: Allelic mismatches</caption>
-<colgroup>
-<col style="width: 10%">
-<col style="width: 10%">
-<col style="width: 31%">
-<col style="width: 23%">
-<col style="width: 24%">
-</colgroup>
 <thead>
 <tr class="header">
-<th style="text-align: left;">Rack 1</th>
-<th style="text-align: left;">Rack 2</th>
-<th style="text-align: left;">Treatment</th>
-<th style="text-align: right;">No.&nbsp;of mismatches</th>
-<th style="text-align: right;">Allelic error rate</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">Rack 1</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">Rack 2</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">Treatment</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">No. of mismatches</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Allelic error rate</th>
 </tr>
 </thead>
 <tbody>
@@ -415,6 +469,8 @@ ul.task-list li input[type="checkbox"] {
 </tbody>
 </table>
 </div>
+
+
 </div>
 </div>
 </section>
@@ -424,13 +480,13 @@ ul.task-list li input[type="checkbox"] {
 <div class="cell">
 <div class="cell-output-display">
 <div id="tbl-contamination" class="anchored">
-<table class="table table-sm table-striped small">
+<table data-quarto-postprocess="true" class="table table-sm table-striped small">
 <caption>Table&nbsp;4: Potential contamination cases</caption>
 <thead>
 <tr class="header">
-<th style="text-align: left;">Rack</th>
-<th style="text-align: left;">Control</th>
-<th style="text-align: right;">Cases</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">Rack</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">Control</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Cases</th>
 </tr>
 </thead>
 <tbody>
@@ -467,6 +523,8 @@ ul.task-list li input[type="checkbox"] {
 </tbody>
 </table>
 </div>
+
+
 </div>
 </div>
 </section>
