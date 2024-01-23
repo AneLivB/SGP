@@ -571,12 +571,16 @@ Detect_contamination <- function(R1, Reused, Control){
 }
 
 Contamination_cases <- bind_rows(Detect_contamination(R154_R1, R154_R3, R156_R1), Detect_contamination(R154_R1, R154_R4, R156_R1), Detect_contamination(R155_R1, R155_R3, R154_R1), Detect_contamination(R155_R1, R155_R4, R154_R1), Detect_contamination(R156_R1, R156_R3, R155_R1), Detect_contamination(R156_R1, R156_R4, R155_R1))
+Contamination_cases$Treatment <- c("Re-used PCR", "Re-used detection plate", "Re-used PCR", "Re-used detection plate", "Re-used PCR", "Re-used detection plate")
+Contamination_cases[order(Contamination_cases$Treatment, decreasing = T),]
 knitr::kable(Contamination_cases, row.names = F)
 
 Total_Ccases <- sum(Contamination_cases$Cases)
 ```
 
 ### Analysis
+
+
 
 To determine if treatment had a significant effect on the following three measures; no. of mismatches, allelic error rate and potential cases of contamination, we performed ANOVAs followed by a post hoc test for pairwise comparisons for the three treatment groups measured against the standard procedure treatment.
 
@@ -608,7 +612,6 @@ The total no. of mismatches between the standard procedure and the additional tr
 #| label: contamination_analysis
 #| echo: FALSE
 #To explore the effect of treatment on the number of potential contamination cases, a non-parametric wilcoxon test was used.
-# Contamination_cases$Treatment <- c("Re-used PCR", "Re-used detection plate", "Re-used PCR")
 # #Wilcox.test compares two non-parametric groups. 
 # #Null-hypothesis is that the two medians are equal. Lacks the other cases to fully interpret
 # wilcox.test(Cases ~ Treatment, data = Contamination_cases)
@@ -627,15 +630,15 @@ Will come later
 #| echo: FALSE
 #| warning: FALSE
 #| fig-cap: "Allelic mismatches"
+Mismatches$Rackno <- c("R154", "R155", "R156", "R154", "R155", "R156","R154", "R155", "R156")
 Mismatchplot <- Mismatches %>% 
-  mutate(Treatment = fct_relevel(Treatment, 
-            "Internal control", "Re-used PCR", "Re-used detection plate")) %>%
-  ggplot( aes(y=`No. of mismatches`, x = Treatment, fill = `Rack 2`)) +
-  geom_bar(stat = "identity", position = position_dodge(), width = 0.5, alpha = 0.8) +
-  scale_fill_brewer(palette = "YlGn") +
+  mutate(Treatment = factor(Treatment, levels = c("Internal control", "Re-used PCR", "Re-used detection plate"))) %>%
+  ggplot( aes(y=`No. of mismatches`, x = Treatment, fill = Rackno)) +
+  geom_bar(stat = "identity", position = position_dodge(0.7), width = 0.5, alpha = 0.8) +
+  scale_fill_brewer(palette = "Purples") +
   guides(fill = F, scale = "none") + #remove the legend
-  geom_text(aes(label = `Rack 2`), vjust = -0.4, position = position_dodge(0.5), size = 2.5) + #adds the rack name to the bar, vjust pushes the text above the bar
-  ylim(0,140) +
+  geom_text(aes(label = `Rack 2`), vjust = -0.4, position = position_dodge(0.7), size = 3) + #adds the rack name to the bar, vjust pushes the text above the bar
+  ylim(0,120) +
   ggtitle("Total no. of mismatches") +
   theme_bw()
 ```
@@ -647,25 +650,27 @@ Mismatchplot <- Mismatches %>%
 #| fig-cap: "Allelic error rate"
 
 Errorrateplot <- Mismatches %>% 
-  mutate(Treatment = fct_relevel(Treatment, 
-            "Internal control", "Re-used PCR", "Re-used detection plate")) %>%
+  mutate(Treatment = factor(Treatment, levels = c("Internal control", "Re-used PCR", "Re-used detection plate"))) %>%
 ggplot( aes(x=Treatment, y=`Allelic error rate`, fill = Treatment)) + 
   geom_boxplot(alpha = 0.8) +
-  scale_fill_brewer(palette = "Greens") +
+  scale_fill_brewer(palette = "Oranges") +
   theme(legend.position = "none") +
   guides(fill = F, scale = "none") + #remove the legend
+  ylim(0,0.032) +
   ggtitle("Genotype error rate per allele") +
+  ylab("Per allele genotype error rate") +
   theme_bw()
 
 Errorrategenotypeplot <- Mismatches %>% 
-  mutate(Treatment = fct_relevel(Treatment, 
-            "Internal control", "Re-used PCR", "Re-used detection plate")) %>%
+  mutate(Treatment = factor(Treatment, levels = c("Internal control", "Re-used PCR", "Re-used detection plate"))) %>%
 ggplot( aes(x=Treatment, y=`Genotype error rate`, fill = Treatment)) + 
   geom_boxplot(alpha = 0.8) +
-  scale_fill_brewer(palette = "Greens") +
+  scale_fill_brewer(palette = "Oranges") +
   theme(legend.position = "none") +
   guides(fill = F, scale = "none") + #remove the legend
+  ylim(0,0.032) +
   ggtitle("Genotype error rate per locus") +
+  ylab("Per locus genotype error rate") +
   theme_bw()
 ```
 
@@ -676,14 +681,17 @@ We found a total of `r Total_Mcases` mismatches between all treatments. A subset
 #| echo: FALSE
 #| warning: FALSE
 #| fig-cap: "Potential contamination"
-
-Contaminationplot <- ggplot(data = Contamination_cases, aes(y=Cases, x = Rack, fill = Rack)) +
-  geom_bar(stat = "identity", position = position_dodge(), width = 0.5, alpha = 0.8) +
-  scale_fill_brewer(palette = "Greens") + 
+Contaminationplot <- Contamination_cases %>%
+  mutate(Treatment=factor(Treatment, levels = c("Re-used PCR", "Re-used detection plate"))) %>%
+  mutate(Control=factor(Control, levels = c("R156_R1", "R154_R1", "R155_R1"))) %>%
+  ggplot( aes(y=Cases, x = Treatment, fill = Control)) +
+  geom_bar(stat = "identity", position = position_dodge(0.7), width = 0.5, alpha = 0.8) +
+  scale_fill_brewer(palette = "Purples") + 
   guides(fill = F, scale = "none") + #remove the legend
-  geom_text(aes(label = Cases), vjust = -0.4, position = position_dodge(0.5), size = 3.5) + #adds the rack name to the bar, vjust pushes the text above the bar
+  geom_text(aes(label = Rack), vjust = -0.4, position = position_dodge(0.7), size = 3) + #adds the rack name to the bar, vjust pushes the text above the bar
   ylim(0,120) +
   ggtitle("Total no. of potential contamination cases") +
+  ylab("No. of potential cases") +
   theme_bw()
 ```
 
