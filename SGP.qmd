@@ -439,11 +439,15 @@ Before starting the error rate evaluation, the no. of genotypes that could not b
 #                           Heatmap(R154_R4), Heatmap(R155_R4), Heatmap(R156_R4),
 #                           labels = NULL, nrow = 4)
 # 
+#Single heatmap
+#
+#SingleHeatmap.plot <- Heatmap(R154_R1)
+#ggsave(plot = SingleHeatmap.plot, filename = file.path(figs_dir, "SingleHeatmap.png"), width = 15, height = 10, unit = "cm", dpi = 500)
 # #Heatmap.plot
 # ggsave(plot = Heatmap.plot, filename = file.path(figs_dir, "Heatmap2.png"), width = 30, height = 21, unit = "cm", dpi = 500)
 ```
 
-![Heatmap of missing data before gapfilling](Results/Figures/Heatmap.png){#fig-Heatmap fig-align="center"} 
+![Heatmap of missing data before gapfilling](Results/Figures/Heatmap.png){#fig-Heatmap fig-align="center"}
 
 ![Heatmap of missing data after gapfilling](Results/Figures/Heatmap2.png){#fig-Heatmap2 fig-align="center"}
 
@@ -463,13 +467,24 @@ The error rate is calculated by comparing all scored alleles and genotypes from 
 #The second return statement can be used with "Find_mismatches" to locate mismatch in Genemarker
 
 Mismatch <- function(DF1, DF2){
-  #locate the mismatches by comparing the two data frames and count them
-  mismatches <- which(DF1 != DF2, arr.ind = TRUE)
-  Total_mismatches <- length(mismatches[,1])
-  
-  #To recognize treatment, simplify the 'name' of the DF to the round number (R*)
+  #Name of the plates 
   Rack_1 <- deparse(substitute(DF1))
   Rack_2 <- deparse(substitute(DF2))
+  
+  if (Rack_1 == "R154_R1") {
+    #On plate R154 the samples in 4th and 5th row are not part of the analysis
+     DF1 <- DF1[-(4:5),]
+     DF2 <- DF2[-(4:5),]
+  } else if (Rack_1 == "R156_R1"){
+      #The repeats are not consistent across all plates, so we remove them
+      DF1 <- DF1[-(1:2),]
+      DF2 <- DF2[-(1:2),]
+  } else {
+    DF1 <- DF1
+    DF2 <- DF2
+  }
+  
+  #To recognize treatment, simplify the 'name' of the DF to the round number (R*)
   Round <- gsub("R\\d{3}|_", "", Rack_2)
   if (Round == "R2"){
     Treatment <- "Internal control"
@@ -478,6 +493,10 @@ Mismatch <- function(DF1, DF2){
   } else {
     Treatment <- "Re-used detection plate"
   }
+  
+  #locate the mismatches by comparing the two data frames and count them
+  mismatches <- which(DF1 != DF2, arr.ind = TRUE)
+  Total_mismatches <- length(mismatches[,1])
   
   #The allelic error rate is calculated by dividing the number of errors with 
   #the total number of comparision made between the two dataframes
@@ -525,15 +544,15 @@ Total_Mcases <- sum(Mismatches$`No. of mismatches`)
 #The following applies the mismatch function to the chosen racks and binds the output together
 #The output contains the location of the mismatches
 #Find_mismatches <- rbind(
-  #Mismatch(R154_R1, R154_R2),
-  #Mismatch(R154_R1, R154_R3),
-  #Mismatch(R154_R1, R154_R4),
-  #Mismatch(R155_R1, R155_R2),
-  #Mismatch(R155_R1, R155_R3),
-  #Mismatch(R155_R1, R155_R4),
-  #Mismatch(R156_R1, R156_R2),
-  #Mismatch(R156_R1, R156_R3),
-  #Mismatch(R156_R1, R156_R4))
+#  Mismatch(R154_R1, R154_R2),
+#  Mismatch(R154_R1, R154_R3),
+#  Mismatch(R154_R1, R154_R4),
+#  Mismatch(R155_R1, R155_R2),
+#  Mismatch(R155_R1, R155_R3),
+#  Mismatch(R155_R1, R155_R4),
+#  Mismatch(R156_R1, R156_R2),
+#  Mismatch(R156_R1, R156_R3),
+#  Mismatch(R156_R1, R156_R4))
 ```
 
 #### Inspect mismatches for contamination
@@ -549,15 +568,34 @@ The comparison between the different treatments and the standard procedure yield
 #Reused is either the reused PCR or reused detection plate treatment 
 #Control is the outcome of the standard procedure plate that was cleaned (and later reused) to the corresponding rack number. 
 Detect_contamination <- function(R1, Reused, Control){
-  mismatches <- which(R1 != Reused, arr.ind = TRUE)
-  Potential_contamination <- mismatches[Reused[mismatches] == Control[mismatches],] 
-  Cases <- length(Potential_contamination)/2
-  
-  #Get name of dataframes
+    #Get name of dataframes
   Rack_1 <- deparse(substitute(R1))
   Rack_2 <- deparse(substitute(Reused))
   Rack_3 <- deparse(substitute(Control))
   #cat("The total no. of mismatches between", Rack_1 ,"and", Rack_2, "is", length(mismatches[,1]), "whereof", Cases, "cases match with the control plate:", Rack_3)
+  
+    if (Rack_1 == "R154_R1") {
+    #On plate R154 the samples in 4th and 5th row are not part of the analysis
+     R1 <- R1[-(4:5),]
+     Reused <- Reused[-(4:5),]
+     Control <- Control[-(4:5),]
+  } else if (Rack_1 == "R156_R1"){
+      #The repeats are not consistent across all plates, so we remove them
+      R1 <- R1[-(1:2),]
+      Reused <- Reused[-(1:2),]
+      Control <- Control[-(1:2),]
+  } else {
+        R1 <- R1
+        Reused <- Reused
+        Control <- Control
+  }
+  
+  mismatches <- which(R1 != Reused, arr.ind = TRUE)
+  Potential_contamination <- mismatches[Reused[mismatches] == Control[mismatches],] 
+  Cases <- length(Potential_contamination)/2
+  
+
+  
   
   #Output 
   Output <- as.data.frame(cbind(Rack_2, Rack_3, Cases)) %>% mutate(Cases = as.numeric(Cases))
@@ -570,7 +608,12 @@ Detect_contamination <- function(R1, Reused, Control){
   #return(Find_contamination)
 }
 
-Contamination_cases <- bind_rows(Detect_contamination(R154_R1, R154_R3, R156_R1), Detect_contamination(R154_R1, R154_R4, R156_R1), Detect_contamination(R155_R1, R155_R3, R154_R1), Detect_contamination(R155_R1, R155_R4, R154_R1), Detect_contamination(R156_R1, R156_R3, R155_R1), Detect_contamination(R156_R1, R156_R4, R155_R1))
+Contamination_cases <- bind_rows(Detect_contamination(R154_R1, R154_R3, R156_R1), 
+                                 Detect_contamination(R154_R1, R154_R4, R156_R1), 
+                                 Detect_contamination(R155_R1, R155_R3, R154_R1), 
+                                 Detect_contamination(R155_R1, R155_R4, R154_R1), 
+                                 Detect_contamination(R156_R1, R156_R3, R155_R1), 
+                                 Detect_contamination(R156_R1, R156_R4, R155_R1))
 Contamination_cases$Treatment <- c("Re-used PCR", "Re-used detection plate", "Re-used PCR", "Re-used detection plate", "Re-used PCR", "Re-used detection plate")
 Contamination_cases[order(Contamination_cases$Treatment, decreasing = T),]
 knitr::kable(Contamination_cases, row.names = F)
@@ -580,7 +623,32 @@ Total_Ccases <- sum(Contamination_cases$Cases)
 
 ### Analysis
 
+```{r}
+Analysisformat <- function(DF) {
+  Base <- DF[1:2]
+  colnames(Base) <- c("Well", "ID")
+  Base$Row <- substring(Base$ID, 1, 1)
+  Base$Column <- substring(Base$ID, 2, 3) 
+  Base$Column <- as.integer(Base$Column)
+  Base$ID <- gsub("^\\w{3}_", "", Base$ID)
+  Base$Rack <- deparse(substitute(DF))
+  Round <- gsub("R\\d{3}|_", "", deparse(substitute(DF)))
+  if (Round == "R1"){
+    Treatment <- "Standard procedure"
+  } else if (Round == "R2") {
+      "Internal control"
+  } else if (Round == "R3") {
+    Treatment <- "Re-used PCR"
+  } else {
+    Treatment <- "Re-used detection plate"
+  }
+  Base$Treatment <- Treatment
+  return(Base)
+}
 
+test <- Analysisformat(R154_R1)
+
+```
 
 To determine if treatment had a significant effect on the following three measures; no. of mismatches, allelic error rate and potential cases of contamination, we performed ANOVAs followed by a post hoc test for pairwise comparisons for the three treatment groups measured against the standard procedure treatment.
 
@@ -639,7 +707,7 @@ Mismatchplot <- Mismatches %>%
   guides(fill = F, scale = "none") + #remove the legend
   geom_text(aes(label = `Rack 2`), vjust = -0.4, position = position_dodge(0.7), size = 3) + #adds the rack name to the bar, vjust pushes the text above the bar
   ylim(0,120) +
-  ggtitle("Total no. of mismatches") +
+  ggtitle("Total no. of mismatches per allele") +
   theme_bw()
 ```
 
@@ -705,6 +773,11 @@ errorrates.plot <- plot_grid(Mismatchplot, Contaminationplot,
 
 
 #ggsave(plot = errorrates.plot, filename = file.path(figs_dir, "Errorrates.png"), width = 30, height = 30, unit = "cm", dpi = 500)
+
+#ggsave(plot = Mismatchplot, filename = file.path(figs_dir, "Mismatchplot.png"), width = 15, height = 10, unit = "cm", dpi = 500)
+#ggsave(plot = Contaminationplot, filename = file.path(figs_dir, "Contaminationplot.png"), width = 15, height = 10, unit = "cm", dpi = 500)
+#ggsave(plot = Errorrateplot, filename = file.path(figs_dir, "AlleleErrorrateplot.png"), width = 15, height = 10, unit = "cm", dpi = 500)
+#ggsave(plot = Errorrategenotypeplot, filename = file.path(figs_dir, "Errorrategenotypeplot.png"), width = 15, height = 10, unit = "cm", dpi = 500)
 ```
 
 ```{r}
