@@ -97,9 +97,9 @@ The data for this project are the raw sequencing reads from the ABI 3730xl capil
 ```{r}
 #| label: rawdata
 #| echo: FALSE
-# 
+
 # #make list with path to all files
-# Data_files <- list.files(path = "Data/Working_data", pattern = "*.csv", full.names = T) 
+# Data_files <- list.files(path = "Data/Working_data", pattern = "*.csv", full.names = T)
 # Mix1_locate <- grep("mix1", Data_files)
 # Mix1 <- Data_files[Mix1_locate]
 # 
@@ -117,7 +117,7 @@ The data for this project are the raw sequencing reads from the ABI 3730xl capil
 #    names(Data_list) <- gsub("Data/Working_data/ALB__|AFS_|_\\d{2}|_AlleleReport.csv", "", names(Data_list))
 # }
 # 
-# #for loop which reads the csv files, removes the broken well and the columns 'rack_location' and 'id' and collects the dataframes in one list for other mixes than mix one. 
+# #for loop which reads the csv files, removes the broken well and the columns 'rack_location' and 'id' and collects the dataframes in one list for other mixes than mix one.
 # for(i in Data_files[-Mix1_locate]) {
 #   x <- read.csv(i, sep = ";")
 #   x <- subset(x, ID != remove_row, select = -c(Rack_location, ID))
@@ -218,7 +218,7 @@ The data for this project are the raw sequencing reads from the ABI 3730xl capil
 #   Zcwb07_b <- which(DF$mix1.Zcwb07_b != DF$mix1gap.Zcwb07_b | is.na(DF$mix1.Zcwb07_b) == T)
 #   Agaz.2_a <- which(DF$mix1.Agaz.2_a != DF$mix1gap.Agaz.2_a | is.na(DF$mix1.Agaz.2_a) == T)
 #   Agaz.2_b <- which(DF$mix1.Agaz.2_b != DF$mix1gap.Agaz.2_b | is.na(DF$mix1.Agaz.2_b) == T)
-#   
+# 
 #   DF$mix1.Pv9_a[Pv9_a] <- DF$mix1gap.Pv9_a[Pv9_a]
 #   DF$mix1.Pv9_b[Pv9_b] <- DF$mix1gap.Pv9_b[Pv9_b]
 #   DF$mix1.Hg.6.3_a[Hg.6.3_a] <- DF$mix1gap.Hg.6.3_a[Hg.6.3_a]
@@ -235,7 +235,7 @@ The data for this project are the raw sequencing reads from the ABI 3730xl capil
 #   DF$mix1.Zcwb07_b[Zcwb07_b] <- DF$mix1gap.Zcwb07_b[Zcwb07_b]
 #   DF$mix1.Agaz.2_a[Agaz.2_a] <- DF$mix1gap.Agaz.2_a[Agaz.2_a]
 #   DF$mix1.Agaz.2_b[Agaz.2_b] <- DF$mix1gap.Agaz.2_b[Agaz.2_b]
-#   
+# 
 #   DF <- subset(DF, select = -c(mix1gap.Rack_location, mix1gap.ID, mix1gap.Pv9_a, mix1gap.Pv9_b, mix1gap.Hg.6.3_a, mix1gap.Hg.6.3_b, mix1gap.Hg.8.10_a, mix1gap.Hg.8.10_b, mix1gap.Hg.1.3_a, mix1gap.Hg.1.3_b, mix1gap.M11a_a, mix1gap.M11a_b, mix1gap.PvcA_a, mix1gap.PvcA_b, mix1gap.Zcwb07_a, mix1gap.Zcwb07_b, mix1gap.Agaz.2_a, mix1gap.Agaz.2_b))
 # }
 # 
@@ -252,7 +252,7 @@ The data for this project are the raw sequencing reads from the ABI 3730xl capil
 #   ZcCgDh5.8_b <- which(DF$mix4.ZcCgDh5.8_b != DF$mix4gap.ZcCgDh5.8_b | is.na(DF$mix4.ZcCgDh5.8_b) == T)
 #   Agaz3_a <- which(DF$mix4.Agaz3_a != DF$mix4gap.Agaz3_a | is.na(DF$mix4.Agaz3_a) == T)
 #   Agaz3_b <- which(DF$mix4.Agaz3_b != DF$mix4gap.Agaz3_b | is.na(DF$mix4.Agaz3_b) == T)
-#   
+# 
 #   DF$mix4.ZcwF07_a[ZcwF07_a] <- DF$mix4gap.ZcwF07_a[ZcwF07_a]
 #   DF$mix4.ZcwF07_b[ZcwF07_b] <- DF$mix4gap.ZcwF07_b[ZcwF07_b]
 #   DF$mix4.ZcwD02_a[ZcwD02_a] <- DF$mix4gap.ZcwD02_a[ZcwD02_a]
@@ -265,7 +265,7 @@ The data for this project are the raw sequencing reads from the ABI 3730xl capil
 #   DF$mix4.ZcCgDh5.8_b[ZcCgDh5.8_b] <- DF$mix4gap.ZcCgDh5.8_b[ZcCgDh5.8_b]
 #   DF$mix4.Agaz3_a[Agaz3_a] <- DF$mix4gap.Agaz3_a[Agaz3_a]
 #   DF$mix4.Agaz3_b[Agaz3_b] <- DF$mix4gap.Agaz3_b[Agaz3_b]
-#   
+# 
 #   DF <- subset(DF, select = -c(mix4gap.ZcwF07_a, mix4gap.ZcwF07_b, mix4gap.ZcwD02_a, mix4gap.ZcwD02_b, mix4gap.ZcwCgDh1.8_a, mix4gap.ZcwCgDh1.8_b, mix4gap.Aa4_a, mix4gap.Aa4_b, mix4gap.ZcCgDh5.8_a, mix4gap.ZcCgDh5.8_b, mix4gap.Agaz3_a, mix4gap.Agaz3_b))
 # }
 # 
@@ -319,6 +319,8 @@ The data for this project are the raw sequencing reads from the ABI 3730xl capil
 Processed_data_files <- list.files(path = working_dir, pattern = "*.csv", full.names = T) 
 list2env(
   lapply(setNames(Processed_data_files, make.names(gsub("Data/Working_data/Processed_data/|.csv", "", Processed_data_files))), read.csv), envir = .GlobalEnv)
+R156_R3$mix3.ZcwDz301_a <- as.integer(R156_R3$mix3.ZcwDz301_a)
+R156_R3$mix3.ZcwDh4.7_a <- as.integer(R156_R3$mix3.ZcwDh4.7_a)
 ```
 
 ## Missing data
@@ -389,8 +391,6 @@ Before starting the error rate evaluation, the no. of genotypes that could not b
 # #Fix this in initial read in
 # R154_R4$mix1.M11a_a <- as.integer(R154_R4$mix1.M11a_a)
 # R156_R1$mix5.Mang44_a <- as.integer(R156_R1$mix5.Mang44_a)
-# R156_R3$mix3.ZcwDz301_a <- as.integer(R156_R3$mix3.ZcwDz301_a)
-# R156_R3$mix3.ZcwDh4.7_a <- as.integer(R156_R3$mix3.ZcwDh4.7_a)
 # 
 # #The replace functions locates NAs and replaces them with 0 and all other entries with 1
 # Replace <- function(DF) {
@@ -543,7 +543,7 @@ knitr::kable(Mismatches, row.names = F)
 Total_Mcases <- sum(Mismatches$`No. of mismatches`)
 #The following applies the mismatch function to the chosen racks and binds the output together
 #The output contains the location of the mismatches
-#Find_mismatches <- rbind(
+# Find_mismatches <- rbind(
 #  Mismatch(R154_R1, R154_R2),
 #  Mismatch(R154_R1, R154_R3),
 #  Mismatch(R154_R1, R154_R4),
@@ -553,6 +553,31 @@ Total_Mcases <- sum(Mismatches$`No. of mismatches`)
 #  Mismatch(R156_R1, R156_R2),
 #  Mismatch(R156_R1, R156_R3),
 #  Mismatch(R156_R1, R156_R4))
+
+# Find_mismatches <- as.data.frame(Find_mismatches)
+# Lociwmismatch <- length(unique(Find_mismatches$V2)) #36
+# #Alleles.mismatches was 65 
+# Find_mismatches$V2 <- gsub("_a", "", Find_mismatches$V2)
+# Find_mismatches$V2 <- gsub("_b", "", Find_mismatches$V2)
+# Count.loci <- as.data.frame(table(Find_mismatches$V2))
+# Count.loci$Mix <- substring(Count.loci$Var1, 1, 4)
+# Count.loci$Var1 <- gsub("mix\\d{1}.", "", Count.loci$Var1)
+# 
+# OrangePurple <- c("#FF6600", "#FF9900", "#FF9999", "#CC33FF", "#9900CC")
+# Mismatchloci <- Count.loci %>%
+#   mutate(Var1 = fct_reorder(Var1, Mix)) %>%
+#   ggplot( aes(y=Freq, x = Var1, fill = Mix)) +
+#   geom_bar(stat = "identity", position = position_dodge(0.7), width = 0.5, alpha = 0.8) +
+#   #scale_fill_brewer(palette = "PuOr") +
+#   scale_fill_manual(values=OrangePurple) +
+#   scale_x_discrete(guide = guide_axis(angle = 90)) + #turns the x axis label names
+#   #guides(fill = F, scale = "none") + #remove the legend
+#   ylim(0,65) +
+#   ggtitle("Total no. of mismatches per locus") +
+#   ylab("Frequency") +
+#   xlab("Locus") +
+#   theme_bw()
+# ggsave(plot = Mismatchloci, filename = file.path(figs_dir, "Mismatchloci.png"), width = 15, height = 10, unit = "cm", dpi = 500)
 ```
 
 #### Inspect mismatches for contamination
@@ -594,9 +619,6 @@ Detect_contamination <- function(R1, Reused, Control){
   Potential_contamination <- mismatches[Reused[mismatches] == Control[mismatches],] 
   Cases <- length(Potential_contamination)/2
   
-
-  
-  
   #Output 
   Output <- as.data.frame(cbind(Rack_2, Rack_3, Cases)) %>% mutate(Cases = as.numeric(Cases))
   colnames(Output) <- c("Rack", "Control", "Cases")
@@ -624,29 +646,77 @@ Total_Ccases <- sum(Contamination_cases$Cases)
 ### Analysis
 
 ```{r}
-Analysisformat <- function(DF) {
-  Base <- DF[1:2]
-  colnames(Base) <- c("Well", "ID")
-  Base$Row <- substring(Base$ID, 1, 1)
-  Base$Column <- substring(Base$ID, 2, 3) 
-  Base$Column <- as.integer(Base$Column)
-  Base$ID <- gsub("^\\w{3}_", "", Base$ID)
-  Base$Rack <- deparse(substitute(DF))
-  Round <- gsub("R\\d{3}|_", "", deparse(substitute(DF)))
-  if (Round == "R1"){
-    Treatment <- "Standard procedure"
-  } else if (Round == "R2") {
-      "Internal control"
-  } else if (Round == "R3") {
-    Treatment <- "Re-used PCR"
-  } else {
-    Treatment <- "Re-used detection plate"
-  }
-  Base$Treatment <- Treatment
-  return(Base)
+#| label: Analysisformat
+#| echo: FALSE
+#| 
+#The function sets up the data for further analysis
+Analysisformat <- function(DF1, DF2) {
+   #Base is the underlying format
+   Base <- DF1[1:2]
+   colnames(Base) <- c("Well", "ID")
+   Base$Row <- substring(Base$ID, 1, 1)
+   Base$Column <- substring(Base$ID, 2, 3) 
+   Base$Column <- as.integer(Base$Column)
+   Base$ID <- gsub("^\\w{3}_", "", Base$ID)
+   Base$Rack <- substring(deparse(substitute(DF2)), 1, 4) 
+   Round <- gsub("R\\d{3}|_", "", deparse(substitute(DF2)))
+   if (Round == "R2") {
+     Treatment <- "Internal control"
+   } else if (Round == "R3") {
+     Treatment <- "Re-used PCR"
+   } else {
+     Treatment <- "Re-used detection plate"
+   }
+   Base$Treatment <- Treatment
+  
+   #locate the mismatches
+   mismatches <- which(DF1 != DF2, arr.ind = TRUE)
+   #Match coded as 1, mismatch as 0
+   Base$Match <- ifelse(Base$Well %in% mismatches[,1], 0, 1)
+   
+   #Mismatch should also include NA values
+   NaDF1 <- DF1[3:80] %>% replace(!is.na(.), 0) %>% replace(is.na(.), 1) %>%
+  mutate(Row_Sums = rowSums(across(everything())))
+   NaDF2 <- DF2[3:80] %>% replace(!is.na(.), 0) %>% replace(is.na(.), 1) %>%
+  mutate(Row_Sums = rowSums(across(everything())))
+   #sum is no. of times NA occurs in that row
+   Base$Sum <- as.numeric(NaDF1$Row_Sums) + as.numeric(NaDF2$Row_Sums)
+   
+   #NAdetected coded as 1 for no NAs and 0 for NA values
+   Base$NAdetected <- ifelse(Base$Sum > 0, 0, 1)
+   #Added with the match information, we can asses complete matches
+   Base$Match.na <- Base$NAdetected + Base$Match 
+   Base$Match.na <- ifelse(Base$Match.na != 2, 0, 1)
+   
+   Base <- as.data.frame(Base)
+   Rack_1 <- deparse(substitute(DF1))
+   Rack_2 <- deparse(substitute(DF2))
+  #Make sure to add NA values for the rows that should be excluded from further analysis
+  if (Rack_1 == "R154_R1") {
+    #On plate R154 the samples in 4th and 5th row are not part of the analysis
+    Base$Match[4:5] <- NA
+    Base$Match.na[4:5] <- NA
+  } else if (Rack_1 == "R156_R1"){
+      #The repeats are not consistent across all plates, so we remove them
+      Base$Match[1:2] <- NA
+      Base$Match.na[1:2] <- NA
+  } 
+   return(Base)
 }
 
-test <- Analysisformat(R154_R1)
+
+
+
+
+Analysis.data <- rbind(Analysisformat(R154_R1, R154_R2),
+              Analysisformat(R154_R1, R154_R3),
+              Analysisformat(R154_R1, R154_R4),
+              Analysisformat(R155_R1, R155_R2),
+              Analysisformat(R155_R1, R155_R3),
+              Analysisformat(R155_R1, R155_R4),
+              Analysisformat(R156_R1, R156_R2),
+              Analysisformat(R156_R1, R156_R3),
+              Analysisformat(R156_R1, R156_R4))
 
 ```
 
@@ -729,13 +799,19 @@ ggplot( aes(x=Treatment, y=`Allelic error rate`, fill = Treatment)) +
   ylab("Per allele genotype error rate") +
   theme_bw()
 
+# Following code can be used to add significant / ns lines in box plots
+# install.packages("ggsignif")
+# library(ggsignif)
+# geom_signif(comparisons = list(c("versicolor", "virginica")), 
+#               map_signif_level=TRUE)
+
 Errorrategenotypeplot <- Mismatches %>% 
   mutate(Treatment = factor(Treatment, levels = c("Internal control", "Re-used PCR", "Re-used detection plate"))) %>%
 ggplot( aes(x=Treatment, y=`Genotype error rate`, fill = Treatment)) + 
   geom_boxplot(alpha = 0.8) +
   scale_fill_brewer(palette = "Oranges") +
   theme(legend.position = "none") +
-  guides(fill = F, scale = "none") + #remove the legend
+  guides(fill = F, scale = "none") + #remove the legend 
   ylim(0,0.032) +
   ggtitle("Genotype error rate per locus") +
   ylab("Per locus genotype error rate") +
