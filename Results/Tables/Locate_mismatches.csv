@@ -1,0 +1,370 @@
+V1,V2,Rack_2,Treatment
+F06_AGP20062,mix2.ZcwCO1_a,R154_R2,Internal control
+F10_AGP20066,mix2.Agaz5_a,R154_R2,Internal control
+A07_AGP20002,mix3.Ag.10_a,R154_R2,Internal control
+A07_AGP20002,mix3.Ag.10_b,R154_R2,Internal control
+A07_AGP20002,mix3.OrrFCB8_a,R154_R2,Internal control
+A07_AGP20002,mix3.OrrFCB8_b,R154_R2,Internal control
+C10_AGP20030,mix5.PvcE_a,R154_R2,Internal control
+H11_AGP20091,mix5.PvcE_a,R154_R2,Internal control
+H07_AGP20087,mix5.Mang44_b,R154_R2,Internal control
+C02_AGP20021,mix1.Hg.8.10_a,R154_R3,Re-used PCR
+E09_AGP20053,mix2.ZcwCO1_a,R154_R3,Re-used PCR
+F06_AGP20062,mix2.ZcwCO1_a,R154_R3,Re-used PCR
+G06_AGP20074,mix2.ZcwCO1_a,R154_R3,Re-used PCR
+H07_AGP20087,mix2.ZcwCO1_a,R154_R3,Re-used PCR
+E06_AGP20050,mix2.Agaz5_a,R154_R3,Re-used PCR
+F10_AGP20066,mix2.Agaz5_a,R154_R3,Re-used PCR
+H04_AGP20084,mix2.Agaz5_a,R154_R3,Re-used PCR
+D03_AGP20035,mix2.Agaz5_b,R154_R3,Re-used PCR
+H10_AGP20090,mix2.Agaz5_b,R154_R3,Re-used PCR
+G03_AGP20071,mix3.Ag7_a,R154_R3,Re-used PCR
+G03_AGP20071,mix3.Ag7_b,R154_R3,Re-used PCR
+G03_AGP20071,mix3.Ag1_a,R154_R3,Re-used PCR
+G03_AGP20071,mix3.Ag1_b,R154_R3,Re-used PCR
+G03_AGP20071,mix3.OrrFCB8_a,R154_R3,Re-used PCR
+G03_AGP20071,mix3.OrrFCB8_b,R154_R3,Re-used PCR
+H07_AGP20087,mix5.Mang44_b,R154_R3,Re-used PCR
+B04_AGP20011,mix2.OrrFCB2_a,R154_R4,Re-used detection plate
+E11_AGP20055,mix2.OrrFCB2_a,R154_R4,Re-used detection plate
+F10_AGP20066,mix2.OrrFCB2_a,R154_R4,Re-used detection plate
+E11_AGP20055,mix2.OrrFCB2_b,R154_R4,Re-used detection plate
+F10_AGP20066,mix2.OrrFCB2_b,R154_R4,Re-used detection plate
+A02_AGP16296,mix2.ZcwCO1_a,R154_R4,Re-used detection plate
+A09_AGP20004,mix2.ZcwCO1_a,R154_R4,Re-used detection plate
+B07_AGP20014,mix2.ZcwCO1_a,R154_R4,Re-used detection plate
+C01_AGP20020,mix2.ZcwCO1_a,R154_R4,Re-used detection plate
+C02_AGP20021,mix2.ZcwCO1_a,R154_R4,Re-used detection plate
+C10_AGP20030,mix2.ZcwCO1_a,R154_R4,Re-used detection plate
+D01_AGP20033,mix2.ZcwCO1_a,R154_R4,Re-used detection plate
+D04_AGP20036,mix2.ZcwCO1_a,R154_R4,Re-used detection plate
+D08_AGP20041,mix2.ZcwCO1_a,R154_R4,Re-used detection plate
+E07_AGP20051,mix2.ZcwCO1_a,R154_R4,Re-used detection plate
+E10_AGP20054,mix2.ZcwCO1_a,R154_R4,Re-used detection plate
+F08_AGP20064,mix2.ZcwCO1_a,R154_R4,Re-used detection plate
+G09_AGP20077,mix2.ZcwCO1_a,R154_R4,Re-used detection plate
+H10_AGP20090,mix2.ZcwCO1_a,R154_R4,Re-used detection plate
+H11_AGP20091,mix2.ZcwCO1_a,R154_R4,Re-used detection plate
+H12_AGP20092,mix2.ZcwCO1_a,R154_R4,Re-used detection plate
+B03_AGP20010,mix2.ZcwCO1_b,R154_R4,Re-used detection plate
+C04_AGP20024,mix2.ZcwCO1_b,R154_R4,Re-used detection plate
+C11_AGP20031,mix2.ZcwCO1_b,R154_R4,Re-used detection plate
+C12_AGP20032,mix2.ZcwCO1_b,R154_R4,Re-used detection plate
+E10_AGP20054,mix2.ZcwCO1_b,R154_R4,Re-used detection plate
+E06_AGP20050,mix2.Agaz5_a,R154_R4,Re-used detection plate
+F10_AGP20066,mix2.Agaz5_a,R154_R4,Re-used detection plate
+H04_AGP20084,mix2.Agaz5_a,R154_R4,Re-used detection plate
+D03_AGP20035,mix2.Agaz5_b,R154_R4,Re-used detection plate
+D09_AGP20042,mix2.Agaz5_b,R154_R4,Re-used detection plate
+E11_AGP20055,mix2.Agaz5_b,R154_R4,Re-used detection plate
+G03_AGP20071,mix3.Ag7_a,R154_R4,Re-used detection plate
+G03_AGP20071,mix3.Ag7_b,R154_R4,Re-used detection plate
+F11_AGP20067,mix3.Ag1_a,R154_R4,Re-used detection plate
+G03_AGP20071,mix3.Ag1_a,R154_R4,Re-used detection plate
+G03_AGP20071,mix3.Ag1_b,R154_R4,Re-used detection plate
+F09_AGP20065,mix3.OrrFCB8_a,R154_R4,Re-used detection plate
+G03_AGP20071,mix3.OrrFCB8_a,R154_R4,Re-used detection plate
+G03_AGP20071,mix3.OrrFCB8_b,R154_R4,Re-used detection plate
+B03_AGP20010,mix5.X962.1_a,R154_R4,Re-used detection plate
+C10_AGP20030,mix5.X962.1_a,R154_R4,Re-used detection plate
+D03_AGP20035,mix5.X962.1_a,R154_R4,Re-used detection plate
+D08_AGP20041,mix5.X962.1_a,R154_R4,Re-used detection plate
+D09_AGP20042,mix5.X962.1_a,R154_R4,Re-used detection plate
+E06_AGP20050,mix5.X962.1_a,R154_R4,Re-used detection plate
+E10_AGP20054,mix5.X962.1_a,R154_R4,Re-used detection plate
+F06_AGP20062,mix5.X962.1_a,R154_R4,Re-used detection plate
+G04_AGP20072,mix5.X962.1_a,R154_R4,Re-used detection plate
+H05_AGP20085,mix5.X962.1_a,R154_R4,Re-used detection plate
+H06_AGP20086,mix5.X962.1_a,R154_R4,Re-used detection plate
+H07_AGP20087,mix5.X962.1_a,R154_R4,Re-used detection plate
+B03_AGP20010,mix5.X962.1_b,R154_R4,Re-used detection plate
+C08_AGP20028,mix5.X962.1_b,R154_R4,Re-used detection plate
+E10_AGP20054,mix5.X962.1_b,R154_R4,Re-used detection plate
+E11_AGP20055,mix5.X962.1_b,R154_R4,Re-used detection plate
+A11_AGP20006,mix5.X554.6_a,R154_R4,Re-used detection plate
+C07_AGP20027,mix5.ZcwA12_a,R154_R4,Re-used detection plate
+G12_AGP20080,mix5.ZcwA12_a,R154_R4,Re-used detection plate
+H12_AGP20092,mix5.ZcwA12_a,R154_R4,Re-used detection plate
+A11_AGP20006,mix5.PvcE_a,R154_R4,Re-used detection plate
+C07_AGP20027,mix5.PvcE_a,R154_R4,Re-used detection plate
+C10_AGP20030,mix5.PvcE_a,R154_R4,Re-used detection plate
+D07_AGP20040,mix5.PvcE_a,R154_R4,Re-used detection plate
+D08_AGP20041,mix5.PvcE_b,R154_R4,Re-used detection plate
+F09_AGP20065,mix5.PvcE_b,R154_R4,Re-used detection plate
+E10_AGP20054,mix5.Agaz10_a,R154_R4,Re-used detection plate
+F05_AGP20061,mix5.Agaz10_a,R154_R4,Re-used detection plate
+E10_AGP20054,mix5.Agaz10_b,R154_R4,Re-used detection plate
+D05_AGP20130,mix2.ZcwCO1_a,R155_R2,Internal control
+E06_AGP20143,mix2.ZcwCO1_a,R155_R2,Internal control
+G01_AGP20165,mix2.ZcwCO1_a,R155_R2,Internal control
+D08_AGP20134,mix2.ZcwCO1_b,R155_R2,Internal control
+F11_AGP20163,mix2.ZcwCO1_b,R155_R2,Internal control
+B08_AGP20109,mix2.Agaz5_a,R155_R2,Internal control
+B09_AGP20110,mix2.Agaz5_a,R155_R2,Internal control
+D03_AGP20128,mix2.Agaz5_a,R155_R2,Internal control
+G10_AGP20174,mix2.Agaz5_a,R155_R2,Internal control
+A05_AGP20094,mix2.Agaz5_b,R155_R2,Internal control
+F02_AGP20153,mix2.Agaz5_b,R155_R2,Internal control
+F06_AGP20157,mix3.Ag.10_a,R155_R2,Internal control
+F06_AGP20157,mix3.Ag.10_b,R155_R2,Internal control
+F06_AGP20157,mix3.ZcwE05_a,R155_R2,Internal control
+F06_AGP20157,mix3.ZcwE05_b,R155_R2,Internal control
+F06_AGP20157,mix3.OrrFCB8_a,R155_R2,Internal control
+F06_AGP20157,mix3.OrrFCB8_b,R155_R2,Internal control
+H07_AGP20185,mix4.ZcwCgDh1.8_a,R155_R2,Internal control
+D11_AGP20137,mix5.Mang36_a,R155_R2,Internal control
+C02_AGP20115,mix5.Mang36_b,R155_R2,Internal control
+D05_AGP20130,mix2.ZcwCO1_a,R155_R3,Re-used PCR
+E06_AGP20143,mix2.ZcwCO1_a,R155_R3,Re-used PCR
+G01_AGP20165,mix2.ZcwCO1_a,R155_R3,Re-used PCR
+D08_AGP20134,mix2.ZcwCO1_b,R155_R3,Re-used PCR
+H03_AGP20179,mix3.Ag7_b,R155_R3,Re-used PCR
+B12_AGP20113,mix3.Ag.10_a,R155_R3,Re-used PCR
+B12_AGP20113,mix3.Ag.10_b,R155_R3,Re-used PCR
+C04_AGP20117,mix5.Mang44_b,R155_R3,Re-used PCR
+C07_AGP20120,mix5.Mang44_b,R155_R3,Re-used PCR
+H01_AGP20177,mix1.Pv9_a,R155_R4,Re-used detection plate
+F03_AGP20154,mix1.Hg.8.10_a,R155_R4,Re-used detection plate
+D04_AGP20129,mix1.Hg.8.10_b,R155_R4,Re-used detection plate
+D04_AGP20129,mix2.Ag3_a,R155_R4,Re-used detection plate
+H01_AGP20177,mix2.Ag3_a,R155_R4,Re-used detection plate
+H07_AGP20185,mix2.Agaz6_b,R155_R4,Re-used detection plate
+A07_AGP20096,mix2.ZcwCO1_a,R155_R4,Re-used detection plate
+C05_AGP20118,mix2.ZcwCO1_a,R155_R4,Re-used detection plate
+C09_AGP20122,mix2.ZcwCO1_a,R155_R4,Re-used detection plate
+D09_AGP20135,mix2.ZcwCO1_a,R155_R4,Re-used detection plate
+E06_AGP20143,mix2.ZcwCO1_a,R155_R4,Re-used detection plate
+G01_AGP20165,mix2.ZcwCO1_a,R155_R4,Re-used detection plate
+F11_AGP20163,mix2.ZcwCO1_b,R155_R4,Re-used detection plate
+A05_AGP20094,mix2.Agaz5_b,R155_R4,Re-used detection plate
+A12_AGP20101,mix2.Agaz5_b,R155_R4,Re-used detection plate
+D04_AGP20129,mix2.Agaz5_b,R155_R4,Re-used detection plate
+D08_AGP20134,mix2.Agaz5_b,R155_R4,Re-used detection plate
+D11_AGP20137,mix2.Agaz5_b,R155_R4,Re-used detection plate
+F02_AGP20153,mix2.Agaz5_b,R155_R4,Re-used detection plate
+G09_AGP20173,mix2.Agaz5_b,R155_R4,Re-used detection plate
+H11_AGP20189_2,mix2.Agaz5_b,R155_R4,Re-used detection plate
+H01_AGP20177,mix2.ZcwDhB.14_a,R155_R4,Re-used detection plate
+H03_AGP20179,mix3.Ag7_b,R155_R4,Re-used detection plate
+F06_AGP20157,mix3.Ag.10_a,R155_R4,Re-used detection plate
+G12_AGP20176,mix3.Ag.10_a,R155_R4,Re-used detection plate
+F06_AGP20157,mix3.Ag.10_b,R155_R4,Re-used detection plate
+G12_AGP20176,mix3.Ag.10_b,R155_R4,Re-used detection plate
+F06_AGP20157,mix3.ZcwE05_a,R155_R4,Re-used detection plate
+F06_AGP20157,mix3.ZcwE05_b,R155_R4,Re-used detection plate
+A04_AGP20093,mix3.Ag1_a,R155_R4,Re-used detection plate
+A08_AGP20097,mix3.Ag1_a,R155_R4,Re-used detection plate
+F11_AGP20163,mix3.Ag1_a,R155_R4,Re-used detection plate
+H01_AGP20177,mix3.Ag1_a,R155_R4,Re-used detection plate
+H07_AGP20185,mix3.Ag1_a,R155_R4,Re-used detection plate
+F06_AGP20157,mix3.OrrFCB8_a,R155_R4,Re-used detection plate
+G12_AGP20176,mix3.OrrFCB8_a,R155_R4,Re-used detection plate
+F06_AGP20157,mix3.OrrFCB8_b,R155_R4,Re-used detection plate
+G12_AGP20176,mix3.OrrFCB8_b,R155_R4,Re-used detection plate
+F09_AGP20161,mix3.Agt.47_b,R155_R4,Re-used detection plate
+F11_AGP20163,mix3.Agt.47_b,R155_R4,Re-used detection plate
+H01_AGP20177,mix4.ZcwF07_a,R155_R4,Re-used detection plate
+H07_AGP20185,mix4.ZcwF07_a,R155_R4,Re-used detection plate
+H09_AGP20188,mix4.ZcwF07_a,R155_R4,Re-used detection plate
+H01_AGP20177,mix4.ZcwF07_b,R155_R4,Re-used detection plate
+H07_AGP20185,mix4.ZcwF07_b,R155_R4,Re-used detection plate
+H07_AGP20185,mix4.ZcwD02_a,R155_R4,Re-used detection plate
+H07_AGP20185,mix4.ZcwD02_b,R155_R4,Re-used detection plate
+C05_AGP20118,mix4.ZcwCgDh1.8_a,R155_R4,Re-used detection plate
+D04_AGP20129,mix4.ZcwCgDh1.8_a,R155_R4,Re-used detection plate
+E04_AGP20141,mix4.ZcwCgDh1.8_a,R155_R4,Re-used detection plate
+H01_AGP20177,mix4.ZcwCgDh1.8_a,R155_R4,Re-used detection plate
+H07_AGP20185,mix4.ZcwCgDh1.8_a,R155_R4,Re-used detection plate
+H09_AGP20188,mix4.ZcwCgDh1.8_a,R155_R4,Re-used detection plate
+D04_AGP20129,mix4.ZcwCgDh1.8_b,R155_R4,Re-used detection plate
+H01_AGP20177,mix4.ZcwCgDh1.8_b,R155_R4,Re-used detection plate
+A12_AGP20101,mix4.Aa4_a,R155_R4,Re-used detection plate
+D03_AGP20128,mix4.Aa4_a,R155_R4,Re-used detection plate
+D04_AGP20129,mix4.Aa4_a,R155_R4,Re-used detection plate
+H07_AGP20185,mix4.Aa4_a,R155_R4,Re-used detection plate
+H11_AGP20189_2,mix4.Aa4_a,R155_R4,Re-used detection plate
+D02_AGP20127,mix4.Aa4_b,R155_R4,Re-used detection plate
+H01_AGP20177,mix4.Aa4_b,R155_R4,Re-used detection plate
+H07_AGP20185,mix4.Aa4_b,R155_R4,Re-used detection plate
+H11_AGP20189_2,mix4.Aa4_b,R155_R4,Re-used detection plate
+H01_AGP20177,mix4.Agaz3_a,R155_R4,Re-used detection plate
+H07_AGP20185,mix4.Agaz3_b,R155_R4,Re-used detection plate
+A03_AGP16294,mix5.X962.1_a,R155_R4,Re-used detection plate
+A05_AGP20094,mix5.X962.1_a,R155_R4,Re-used detection plate
+A08_AGP20097,mix5.X962.1_a,R155_R4,Re-used detection plate
+A12_AGP20101,mix5.X962.1_a,R155_R4,Re-used detection plate
+B09_AGP20110,mix5.X962.1_a,R155_R4,Re-used detection plate
+B12_AGP20113,mix5.X962.1_a,R155_R4,Re-used detection plate
+C02_AGP20115,mix5.X962.1_a,R155_R4,Re-used detection plate
+D01_AGP20126,mix5.X962.1_a,R155_R4,Re-used detection plate
+D03_AGP20128,mix5.X962.1_a,R155_R4,Re-used detection plate
+E07_AGP20144,mix5.X962.1_a,R155_R4,Re-used detection plate
+E12_AGP20151,mix5.X962.1_a,R155_R4,Re-used detection plate
+F03_AGP20154,mix5.X962.1_a,R155_R4,Re-used detection plate
+F10_AGP20162,mix5.X962.1_a,R155_R4,Re-used detection plate
+H05_AGP20181,mix5.X962.1_a,R155_R4,Re-used detection plate
+H09_AGP20188,mix5.X962.1_a,R155_R4,Re-used detection plate
+H12_AGP20191,mix5.X962.1_a,R155_R4,Re-used detection plate
+A06_AGP20095,mix5.X962.1_b,R155_R4,Re-used detection plate
+B01_AGP20102,mix5.X962.1_b,R155_R4,Re-used detection plate
+B05_AGP20106,mix5.X962.1_b,R155_R4,Re-used detection plate
+B07_AGP20108,mix5.X962.1_b,R155_R4,Re-used detection plate
+C11_AGP20124,mix5.X962.1_b,R155_R4,Re-used detection plate
+D06_AGP20131,mix5.X962.1_b,R155_R4,Re-used detection plate
+E05_AGP20142,mix5.X962.1_b,R155_R4,Re-used detection plate
+E07_AGP20144,mix5.X962.1_b,R155_R4,Re-used detection plate
+E09_AGP20148,mix5.X962.1_b,R155_R4,Re-used detection plate
+F01_AGP20152,mix5.X962.1_b,R155_R4,Re-used detection plate
+F03_AGP20154,mix5.X962.1_b,R155_R4,Re-used detection plate
+F04_AGP20155,mix5.X962.1_b,R155_R4,Re-used detection plate
+F11_AGP20163,mix5.X962.1_b,R155_R4,Re-used detection plate
+G07_AGP20171,mix5.X962.1_b,R155_R4,Re-used detection plate
+H01_AGP20177,mix5.X962.1_b,R155_R4,Re-used detection plate
+H05_AGP20181,mix5.X962.1_b,R155_R4,Re-used detection plate
+H07_AGP20185,mix5.X962.1_b,R155_R4,Re-used detection plate
+E07_AGP20144,mix5.X554.6_b,R155_R4,Re-used detection plate
+F10_AGP20162,mix5.PvcE_a,R155_R4,Re-used detection plate
+G05_AGP20169,mix5.PvcE_a,R155_R4,Re-used detection plate
+E05_AGP20142,mix5.Agaz10_a,R155_R4,Re-used detection plate
+E07_AGP20144,mix5.Agaz10_a,R155_R4,Re-used detection plate
+H01_AGP20177,mix5.Agaz10_b,R155_R4,Re-used detection plate
+A05_AGP20094,mix5.Mang44_b,R155_R4,Re-used detection plate
+C04_AGP20117,mix5.Mang44_b,R155_R4,Re-used detection plate
+D11_AGP20137,mix5.Mang36_a,R155_R4,Re-used detection plate
+C02_AGP20115,mix5.Mang36_b,R155_R4,Re-used detection plate
+F10_AGP20259,mix1.M11a_a,R156_R2,Internal control
+A10_AGP20199,mix2.Ag3_b,R156_R2,Internal control
+E02_AGP20240,mix2.OrrFCB7_a,R156_R2,Internal control
+G07_AGP20269,mix2.OrrFCB7_a,R156_R2,Internal control
+A04_AGP20192,mix2.ZcwCO1_a,R156_R2,Internal control
+B06_AGP20207,mix2.ZcwCO1_a,R156_R2,Internal control
+G01_AGP20262,mix2.ZcwCO1_a,R156_R2,Internal control
+G05_AGP20266,mix2.ZcwCO1_a,R156_R2,Internal control
+C02_AGP20215,mix2.ZcwCO1_b,R156_R2,Internal control
+F02_AGP20251,mix2.ZcwCO1_b,R156_R2,Internal control
+F03_AGP20252,mix2.Agaz5_b,R156_R2,Internal control
+H02_AGP20276,mix3.Ag.10_a,R156_R2,Internal control
+A10_AGP20199,mix3.Ag.10_b,R156_R2,Internal control
+H02_AGP20276,mix3.Ag.10_b,R156_R2,Internal control
+H02_AGP20276,mix3.OrrFCB8_a,R156_R2,Internal control
+G02_AGP20263,mix3.OrrFCB8_b,R156_R2,Internal control
+H02_AGP20276,mix3.OrrFCB8_b,R156_R2,Internal control
+F03_AGP20252,mix4.ZcwF07_a,R156_R2,Internal control
+G03_AGP20264,mix4.ZcwF07_a,R156_R2,Internal control
+F03_AGP20252,mix4.ZcwF07_b,R156_R2,Internal control
+G03_AGP20264,mix4.ZcwF07_b,R156_R2,Internal control
+F03_AGP20252,mix4.ZcwD02_b,R156_R2,Internal control
+F03_AGP20252,mix4.ZcwCgDh1.8_b,R156_R2,Internal control
+G03_AGP20264,mix4.ZcwCgDh1.8_b,R156_R2,Internal control
+F03_AGP20252,mix4.Aa4_a,R156_R2,Internal control
+F03_AGP20252,mix4.Aa4_b,R156_R2,Internal control
+F03_AGP20252,mix4.ZcCgDh5.8_a,R156_R2,Internal control
+G03_AGP20264,mix4.ZcCgDh5.8_a,R156_R2,Internal control
+F03_AGP20252,mix4.ZcCgDh5.8_b,R156_R2,Internal control
+G03_AGP20264,mix4.ZcCgDh5.8_b,R156_R2,Internal control
+F03_AGP20252,mix4.Agaz3_a,R156_R2,Internal control
+F03_AGP20252,mix4.Agaz3_b,R156_R2,Internal control
+H10_AGP20285,mix5.X554.6_a,R156_R2,Internal control
+H10_AGP20285,mix5.X554.6_b,R156_R2,Internal control
+H02_AGP20276,mix5.PvcE_a,R156_R2,Internal control
+H10_AGP20285,mix5.ZcwB09_a,R156_R2,Internal control
+H10_AGP20285,mix5.Agaz10_a,R156_R2,Internal control
+H10_AGP20285,mix5.Agaz10_b,R156_R2,Internal control
+F03_AGP20252,mix5.Mang44_a,R156_R2,Internal control
+G03_AGP20264,mix5.Mang44_a,R156_R2,Internal control
+A04_AGP20192,mix5.Mang44_b,R156_R2,Internal control
+D02_AGP20227,mix5.Mang44_b,R156_R2,Internal control
+F03_AGP20252,mix5.Mang44_b,R156_R2,Internal control
+F07_AGP20256,mix5.Mang44_b,R156_R2,Internal control
+G03_AGP20264,mix5.Mang44_b,R156_R2,Internal control
+D12_AGP20238,mix1.Hg.8.10_a,R156_R3,Re-used PCR
+A06_AGP20195,mix1.M11a_b,R156_R3,Re-used PCR
+B12_AGP20213,mix1.M11a_b,R156_R3,Re-used PCR
+D06_AGP20232,mix1.M11a_b,R156_R3,Re-used PCR
+G03_AGP20264,mix1.PvcA_a,R156_R3,Re-used PCR
+A10_AGP20199,mix2.Ag3_b,R156_R3,Re-used PCR
+E02_AGP20240,mix2.OrrFCB7_a,R156_R3,Re-used PCR
+A04_AGP20192,mix2.ZcwCO1_a,R156_R3,Re-used PCR
+B06_AGP20207,mix2.ZcwCO1_a,R156_R3,Re-used PCR
+C02_AGP20215,mix2.ZcwCO1_b,R156_R3,Re-used PCR
+F02_AGP20251,mix2.ZcwCO1_b,R156_R3,Re-used PCR
+D04_AGP20229,mix2.Agaz5_b,R156_R3,Re-used PCR
+G04_AGP20265,mix2.Agaz5_b,R156_R3,Re-used PCR
+H02_AGP20276,mix3.Ag.10_a,R156_R3,Re-used PCR
+H02_AGP20276,mix3.Ag.10_b,R156_R3,Re-used PCR
+H02_AGP20276,mix3.OrrFCB8_a,R156_R3,Re-used PCR
+H02_AGP20276,mix3.OrrFCB8_b,R156_R3,Re-used PCR
+H10_AGP20285,mix5.X554.6_a,R156_R3,Re-used PCR
+H10_AGP20285,mix5.X554.6_b,R156_R3,Re-used PCR
+H10_AGP20285,mix5.ZcwB09_a,R156_R3,Re-used PCR
+H10_AGP20285,mix5.Agaz10_a,R156_R3,Re-used PCR
+H10_AGP20285,mix5.Agaz10_b,R156_R3,Re-used PCR
+F03_AGP20252,mix5.Mang44_a,R156_R3,Re-used PCR
+F03_AGP20252,mix5.Mang44_b,R156_R3,Re-used PCR
+G02_AGP20263,mix1.Pv9_b,R156_R4,Re-used detection plate
+D05_AGP20230,mix1.Hg.6.3_a,R156_R4,Re-used detection plate
+F10_AGP20259,mix1.Hg.6.3_a,R156_R4,Re-used detection plate
+D12_AGP20238,mix1.Hg.8.10_a,R156_R4,Re-used detection plate
+D05_AGP20230,mix1.Hg.8.10_b,R156_R4,Re-used detection plate
+D11_AGP20237,mix1.Hg.8.10_b,R156_R4,Re-used detection plate
+E12_AGP20249,mix1.Hg.8.10_b,R156_R4,Re-used detection plate
+G02_AGP20263,mix1.Hg.8.10_b,R156_R4,Re-used detection plate
+B11_AGP20212,mix1.PvcA_a,R156_R4,Re-used detection plate
+D05_AGP20230,mix1.PvcA_a,R156_R4,Re-used detection plate
+D12_AGP20238,mix1.PvcA_a,R156_R4,Re-used detection plate
+D05_AGP20230,mix1.PvcA_b,R156_R4,Re-used detection plate
+E01_AGP20239,mix1.Zcwb07_a,R156_R4,Re-used detection plate
+G02_AGP20263,mix1.Zcwb07_a,R156_R4,Re-used detection plate
+D05_AGP20230,mix1.Zcwb07_b,R156_R4,Re-used detection plate
+G02_AGP20263,mix1.Zcwb07_b,R156_R4,Re-used detection plate
+H08_AGP20283,mix2.Ag3_a,R156_R4,Re-used detection plate
+A10_AGP20199,mix2.Ag3_b,R156_R4,Re-used detection plate
+D05_AGP20230,mix2.OrrFCB7_b,R156_R4,Re-used detection plate
+G02_AGP20263,mix2.Ag2_a,R156_R4,Re-used detection plate
+G02_AGP20263,mix2.Ag2_b,R156_R4,Re-used detection plate
+D05_AGP20230,mix2.OrrFCB2_a,R156_R4,Re-used detection plate
+H03_AGP20277,mix2.OrrFCB2_a,R156_R4,Re-used detection plate
+D05_AGP20230,mix2.OrrFCB2_b,R156_R4,Re-used detection plate
+A04_AGP20192,mix2.ZcwCO1_a,R156_R4,Re-used detection plate
+B04_AGP20205,mix2.ZcwCO1_a,R156_R4,Re-used detection plate
+B06_AGP20207,mix2.ZcwCO1_a,R156_R4,Re-used detection plate
+G01_AGP20262,mix2.ZcwCO1_a,R156_R4,Re-used detection plate
+G05_AGP20266,mix2.ZcwCO1_a,R156_R4,Re-used detection plate
+B10_AGP20211,mix2.ZcwCO1_b,R156_R4,Re-used detection plate
+C02_AGP20215,mix2.ZcwCO1_b,R156_R4,Re-used detection plate
+F02_AGP20251,mix2.ZcwCO1_b,R156_R4,Re-used detection plate
+A10_AGP20199,mix2.Agaz5_b,R156_R4,Re-used detection plate
+D04_AGP20229,mix2.Agaz5_b,R156_R4,Re-used detection plate
+D05_AGP20230,mix2.Agaz5_b,R156_R4,Re-used detection plate
+G04_AGP20265,mix2.Agaz5_b,R156_R4,Re-used detection plate
+H12_AGP20287,mix2.Agaz5_b,R156_R4,Re-used detection plate
+D05_AGP20230,mix2.ZcwDhB.14_a,R156_R4,Re-used detection plate
+D05_AGP20230,mix2.ZcwDhB.14_b,R156_R4,Re-used detection plate
+H01_AGP20275,mix2.ZcwDhB.14_b,R156_R4,Re-used detection plate
+H01_AGP20275,mix3.Ag7_a,R156_R4,Re-used detection plate
+H02_AGP20276,mix3.Ag.10_a,R156_R4,Re-used detection plate
+H02_AGP20276,mix3.Ag.10_b,R156_R4,Re-used detection plate
+C08_AGP20221,mix3.Ag1_a,R156_R4,Re-used detection plate
+H08_AGP20283,mix3.Ag1_a,R156_R4,Re-used detection plate
+G02_AGP20263,mix3.Ag1_b,R156_R4,Re-used detection plate
+H08_AGP20283,mix3.Ag1_b,R156_R4,Re-used detection plate
+H02_AGP20276,mix3.OrrFCB8_a,R156_R4,Re-used detection plate
+G02_AGP20263,mix3.OrrFCB8_b,R156_R4,Re-used detection plate
+H02_AGP20276,mix3.OrrFCB8_b,R156_R4,Re-used detection plate
+D05_AGP20230,mix4.ZcwCgDh1.8_a,R156_R4,Re-used detection plate
+H09_AGP20284,mix5.X962.1_a,R156_R4,Re-used detection plate
+H12_AGP20287,mix5.X962.1_a,R156_R4,Re-used detection plate
+F10_AGP20259,mix5.X962.1_b,R156_R4,Re-used detection plate
+G12_AGP20274,mix5.X962.1_b,R156_R4,Re-used detection plate
+H10_AGP20285,mix5.X554.6_a,R156_R4,Re-used detection plate
+H10_AGP20285,mix5.X554.6_b,R156_R4,Re-used detection plate
+F03_AGP20252,mix5.PvcE_a,R156_R4,Re-used detection plate
+G03_AGP20264,mix5.PvcE_a,R156_R4,Re-used detection plate
+F03_AGP20252,mix5.PvcE_b,R156_R4,Re-used detection plate
+G03_AGP20264,mix5.PvcE_b,R156_R4,Re-used detection plate
+H10_AGP20285,mix5.ZcwB09_a,R156_R4,Re-used detection plate
+C08_AGP20221,mix5.Agaz10_a,R156_R4,Re-used detection plate
+D05_AGP20230,mix5.Agaz10_a,R156_R4,Re-used detection plate
+H10_AGP20285,mix5.Agaz10_a,R156_R4,Re-used detection plate
+D05_AGP20230,mix5.Agaz10_b,R156_R4,Re-used detection plate
+H10_AGP20285,mix5.Agaz10_b,R156_R4,Re-used detection plate
