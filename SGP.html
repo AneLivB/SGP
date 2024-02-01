@@ -192,10 +192,10 @@ ul.task-list li input[type="checkbox"] {
 <thead>
 <tr class="header">
 <th style="text-align: left;" data-quarto-table-cell-role="th">Mix</th>
-<th style="text-align: right;" data-quarto-table-cell-role="th">R1</th>
-<th style="text-align: right;" data-quarto-table-cell-role="th">R2</th>
-<th style="text-align: right;" data-quarto-table-cell-role="th">R3</th>
-<th style="text-align: right;" data-quarto-table-cell-role="th">R4</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Standard procedure</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Internal control</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Reused detection plate</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Reused PCR plate</th>
 </tr>
 </thead>
 <tbody>
@@ -258,10 +258,10 @@ ul.task-list li input[type="checkbox"] {
 <thead>
 <tr class="header">
 <th style="text-align: left;" data-quarto-table-cell-role="th">Mix</th>
-<th style="text-align: right;" data-quarto-table-cell-role="th">R1</th>
-<th style="text-align: right;" data-quarto-table-cell-role="th">R2</th>
-<th style="text-align: right;" data-quarto-table-cell-role="th">R3</th>
-<th style="text-align: right;" data-quarto-table-cell-role="th">R4</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Standard procedure</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Internal control</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Reused detection plate</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Reused PCR plate</th>
 </tr>
 </thead>
 <tbody>
@@ -324,10 +324,10 @@ ul.task-list li input[type="checkbox"] {
 <thead>
 <tr class="header">
 <th style="text-align: left;" data-quarto-table-cell-role="th">Mix</th>
-<th style="text-align: right;" data-quarto-table-cell-role="th">R1</th>
-<th style="text-align: right;" data-quarto-table-cell-role="th">R2</th>
-<th style="text-align: right;" data-quarto-table-cell-role="th">R3</th>
-<th style="text-align: right;" data-quarto-table-cell-role="th">R4</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Standard procedure</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Internal control</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Reused detection plate</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Reused PCR plate</th>
 </tr>
 </thead>
 <tbody>
@@ -384,6 +384,7 @@ ul.task-list li input[type="checkbox"] {
 </div>
 </div>
 </div>
+<p><a href="#tbl-failed">Table&nbsp;2</a> display the number of unscored alleles within each mix on each plate. For R154 and R156 this is based on 93 individuals, while for R155 it is based on all 95 individuals on the plate.</p>
 <p>Before starting the error rate evaluation, the no. of genotypes that could not be scored for each round and mix per rack is tabulated (See <a href="#tbl-failed">Table&nbsp;2</a>). From this, we know that a total of 2973 alleles could not be scored. In <a href="#fig-Heatmap">Figure&nbsp;2</a> and <a href="#fig-Heatmap2">Figure&nbsp;3</a>, the location of the missing data on the plate is visualized. More purple hues correspond to more missing loci for that particular samples, and we can conclude that certain samples seem to have failed almost completely. This could hint at poor DNA quality. The data is arranged in the plot to match the layout of the actual plate. Through visual inspection, there might be a slight tendency for the missing loci to be located more towards the edges of the plates compared to the center.</p>
 <div id="fig-Heatmap" class="quarto-figure quarto-figure-center anchored">
 <figure class="figure">
@@ -397,7 +398,7 @@ ul.task-list li input[type="checkbox"] {
 <figcaption class="figure-caption">Figure&nbsp;3: Heatmap of missing data after gapfilling</figcaption>
 </figure>
 </div>
-<p>Based on the heatmaps, it is obvious that even after gap filling, some individuals have a higher proportion of missing data than others. To further explore the distribution of missing data, the number of NAs for each row of the dataset was tabulated. Each row corresponds to one individual on one rack, which means that each individual is represented 4 times.</p>
+<p>Based on the heatmaps, it is obvious that even after gap filling, some individuals have a higher proportion of missing data than others. To further explore the distribution of missing data, the number of NAs for each row of the dataset was tabulated. Each row corresponds to one individual on one rack, which means that each individual is represented 4 times. Based on <a href="#fig-missingdata">Figure&nbsp;4</a> the majority of individuals have less than 10 errors, however 39 individuals are represented in the dataset with more than 10 missing alleles.</p>
 <div id="fig-missingdata" class="quarto-figure quarto-figure-center anchored">
 <figure class="figure">
 <p><img src="Results/Figures/Nasmissing.png" class="img-fluid figure-img"></p>
