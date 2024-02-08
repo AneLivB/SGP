@@ -8,7 +8,7 @@ format:
   #pdf: 
     papersize: "a4paper"
     toc: true
-    toc-depth: 2
+    toc-depth: 3
     toc-title: "Contents"
     number-sections: FALSE
     documentclass: article
@@ -46,13 +46,13 @@ working_dir <- file.path("Data", "Working_data", "Processed_data")
 
 # Description
 
-Scientific research is a massive endeavor, consuming vast quantities of single-use plastics. The sustainable genetics project aim to empirically test the re-usability of lab plastic wear, specifically the plastic racks used for PCRs and detection. The project was based around the protocol for Antarctic fur seal genotyping using microsatellites. In this protocol, extracted DNA is first amplified using PCR and since transfered to detection plates for sequencing. The plates used for detection contain only a small diluted concentration of DNA, while the PCR plates have been used in the PCR process and therefore contain a high concentration of DNA. Therefore, we assume that the potential risk of contamination from a previously used plate would be higher in the PCR step.
+Scientific research is a massive endeavor, consuming vast quantities of single-use plastics. The sustainable genetics project aim to empirically test the re-usability of lab plastic wear, specifically the plastic racks used for PCRs and detection. The project was based around the protocol for Antarctic fur seal genotyping using microsatellites. In this protocol, extracted DNA is first amplified using PCR and since transferred to detection plates for sequencing. The plates used for detection contain only a small diluted concentration of DNA, while the PCR plates have been used in the PCR process and therefore contain a high concentration of DNA. Therefore, we assume that the potential risk of contamination from a previously used plate would be higher in the PCR step.
 
 ```{r}
 #| label: packages
 #| echo: FALSE
 #here::here()
-invisible(pacman::p_load(dplyr, tidyverse, here, stringi, png, knitr, rstatix, cowplot, kableExtra))
+invisible(pacman::p_load(dplyr, tidyverse, here, stringi, png, knitr, rstatix, cowplot, kableExtra, brms, bayesplot))
 ```
 
 # Methods
@@ -66,7 +66,7 @@ The 285 samples were collected from Bird Island, South Georgia (54°00024.800 S,
 |       |               | 60/53            | 90 seconds | Annealing    |
 |       |               | 72               | 30 seconds | Extension    |
 | 3     | 1             | 60/53            | 30 minutes | Annealing    |
-| 4     | 1             | 10               | hold       | Cool down    |
+| 4     | 1             | 10               | Hold       | Cool down    |
 
 : PCR program {#tbl-PCR}
 
@@ -90,12 +90,13 @@ To estimate the genotyping error rate, the 'standard procedure' treatment was fi
 
 The samples were each repeated for all four treatments. In the case of a discrepancy between the original genotype and the 're-used PCR plate' or 're-used detection plate' treatment, the new genotype was compared to the genotype of the individual previously genotyped in the same well. If the genotype matched the genotype of the original individual, the mis-matched was marked as contamination.
 
-### Data
+## Data
 
 The data for this project are the raw sequencing reads from the ABI 3730xl capillary sequencer. Each files is identified with the following name structure: RackX_mixY_Z. Where X gives the rack number, Y the mix and Z the treatment (1 = standard procedure, 2 = internal control, 3 = Re-used detection plate and 4 = Re-used PCR plate).
 
 ```{r}
 #| label: rawdata
+#| eval: False
 #| echo: FALSE
 
 #make list with path to all files
@@ -742,7 +743,7 @@ ggplot( aes(x=Mix, y=`Allelic error rate`)) +
   theme(legend.position = "none") +
   facet_wrap(~`Rack 2`) +
   guides(fill = none, scale = "none") + #remove the legend
-  ylim(0,0.033) +
+  ylim(0,0.05) +
   ggtitle("Per mix genotype error rate") +
   ylab("Per allele genotype error rate") +
   theme_bw()
@@ -835,13 +836,26 @@ Mismatch_loci <- function(DF1, DF2) {
   Loci$Loci <- gsub("mix\\d{1}.", "", Loci$Loci)
   Loci$Rack <- substring(deparse(substitute(DF1)), 1, 4) 
   
+  #To recognize treatment, simplify the 'name' of the DF to the round number (R*)
+  Round <- gsub("R\\d{3}|_", "", deparse(substitute(DF2)))
+  if (Round == "R2"){
+    Treatment <- "Internal control"
+  } else if (Round == "R3") {
+    Treatment <- "Re-used detection plate"
+  } else {
+    Treatment <- "Re-used PCR plate"
+  }
+  Loci$Treatment <- Treatment
+  
+  #To create the binomial match/no match column, first a base is created
   Base <- DF1[1:2]
   colnames(Base) <- c("Well", "ID")
   Base$Row <- substring(Base$ID, 1, 1)
 
   Loci <- cross_join(Loci, Base)
   Loci$pair <- paste(Loci$ID, Loci$Loci)
-
+  
+  #mismatches are identified and the row+column is merged
   Mismatch <- as.data.frame(which(DF1[3:80] != DF2[3:80], arr.ind = TRUE))
   Mismatch$row <- DF1$mix1.ID[Mismatch[,1]]
   Mismatch$col <- Mismatch[,2]+2
@@ -852,7 +866,8 @@ Mismatch_loci <- function(DF1, DF2) {
   Mismatch$col <- gsub("_b", "", Mismatch$col)
   Mismatch <- Mismatch[!duplicated(Mismatch[1:2]),]
   Mismatch$pair <- paste(Mismatch$row, Mismatch$col)
-
+  
+  #Match coloum created by matching loci pair with mismatch row+column pair
   Loci$Match <- ifelse(Loci$pair %in% Mismatch$pair, 0, 1)
   Loci <- Loci[,-grep("pair",colnames(Loci))]
   #Loci should have the same no. of 0 as the number of mismatches
@@ -864,8 +879,6 @@ Mismatch_loci <- function(DF1, DF2) {
   }
 }
 
-Exclude <- c("A04_AGP07487","A05_AGP07488","A01_AGP16315","A02_AGP16316")
-
 Analysis.data <- rbind(Mismatch_loci(R154_R1, R154_R2),
                        Mismatch_loci(R154_R1, R154_R3),
                        Mismatch_loci(R154_R1, R154_R4),
@@ -874,9 +887,77 @@ Analysis.data <- rbind(Mismatch_loci(R154_R1, R154_R2),
                        Mismatch_loci(R155_R1, R155_R4),
                        Mismatch_loci(R156_R1, R156_R2),
                        Mismatch_loci(R156_R1, R156_R3),
-                       Mismatch_loci(R156_R1, R156_R4))
+                       Mismatch_loci(R156_R1, R156_R4)) %>% mutate(Treatment = factor(Treatment, levels = c("Internal control", "Re-used detection plate", "Re-used PCR plate")))
 ```
 
+#### Bayesian models
+
+```{r}
+#| label: Bayes_model1
+#| echo: FALSE
+
+Exclude <- c("A04_AGP07487","A05_AGP07488","A01_AGP16315","A02_AGP16316")
+Analysis.data <- subset(Analysis.data, ID != Exclude)
+
+#A Bernoulli trial is a random experiment that has only two possible outcomes: success or failure.
+#Match/no match is similar, as we expect a match between genotypes, if a mismatch is observed, that's a 'failure'
+r = 10
+#model bernoulli
+model <- brms::brm(Match ~ Treatment + (1|ID),
+             data = Analysis.data,
+             family = bernoulli,
+             cores = 8,
+             iter = 1000*r,
+             thin = 1*r,
+             warmup = 1000, #update to 1000
+             chains = 3,
+             set_prior("normal(0,1)", class = "b"))
+
+summary(model)
+plot(model)
+pp_check(model, ndraws = 100)
+
+
+model_interval <- mcmc_intervals_data(model)
+model_interval <- subset(model_interval, !grepl("b_intercept", parameter))
+model_interval <- subset(model_interval, grepl("b_", parameter))
+model_interval <- model_interval %>% mutate(parameter = case_when(
+  parameter == "b_Intercept" ~ "Intercept",
+  parameter == "b_TreatmentReMuseddetectionplate" ~ "Reused detection plate",
+  parameter == "b_TreatmentReMusedPCRplate"  ~ "Reused PCR plate"))
+
+
+#area
+model_info <- mcmc_areas_data(model)
+model_info <- subset(model_info, !grepl("b_intercept", parameter))
+model_info <- subset(model_info, grepl("b_", parameter))
+model_info <- model_info %>% mutate(parameter = case_when(
+  parameter == "b_Intercept" ~ "Intercept",
+  parameter == "b_TreatmentReMuseddetectionplate" ~ "Reused detection plate",
+  parameter == "b_TreatmentReMusedPCRplate"  ~ "Reused PCR plate"))
+
+library(ggridges)
+
+
+Densityplot <- ggplot(data = subset(model_info, parameter == c("Reused detection plate", "Reused PCR plate"))) + 
+  aes(x = x, y = parameter) +
+  geom_ridgeline(aes(scale = 0.4, height = scaled_density, fill = parameter, col = parameter), size = 0.9) +
+  geom_segment(data = subset(model_interval, parameter != "Intercept"), aes(x = l, xend = h, yend = parameter), col = "black", size=2) +
+  geom_segment(data = subset(model_interval, parameter != "Intercept"), aes(x = ll, xend = hh, yend = parameter), col = "black") +
+  geom_point(data = subset(model_interval, parameter != "Intercept"), aes(x = m, y = parameter), color="black", fill = "grey60", shape=21, size = 3) + 
+  geom_vline(xintercept = 0, col = "#ca562c", linetype="longdash")+
+  guides(fill = F, scale = "none") + #remove the legend
+  scale_fill_brewer(palette = "Oranges") +
+  scale_color_brewer(palette = "Oranges") +
+  ggtitle("Uncertainty from posterior draws") +
+  ylab("Treatment") +
+  xlab("Posterior distribution") +
+  theme_bw() +
+  theme(legend.position = "none")
+
+
+ggsave(plot = Densityplot, filename = file.path(figs_dir, "Densityplot.png"), width = 15, height = 10, unit = "cm", dpi = 500)
+```
 To determine if treatment had a significant effect on the following three measures; no. of mismatches, allelic error rate and potential cases of contamination, we performed ANOVAs followed by a post hoc test for pairwise comparisons for the three treatment groups measured against the standard procedure treatment.
 
 ```{r}

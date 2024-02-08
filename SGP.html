@@ -91,7 +91,7 @@ ul.task-list li input[type="checkbox"] {
 
 <section id="description" class="level1">
 <h1>Description</h1>
-<p>Scientific research is a massive endeavor, consuming vast quantities of single-use plastics. The sustainable genetics project aim to empirically test the re-usability of lab plastic wear, specifically the plastic racks used for PCRs and detection. The project was based around the protocol for Antarctic fur seal genotyping using microsatellites. In this protocol, extracted DNA is first amplified using PCR and since transfered to detection plates for sequencing. The plates used for detection contain only a small diluted concentration of DNA, while the PCR plates have been used in the PCR process and therefore contain a high concentration of DNA. Therefore, we assume that the potential risk of contamination from a previously used plate would be higher in the PCR step.</p>
+<p>Scientific research is a massive endeavor, consuming vast quantities of single-use plastics. The sustainable genetics project aim to empirically test the re-usability of lab plastic wear, specifically the plastic racks used for PCRs and detection. The project was based around the protocol for Antarctic fur seal genotyping using microsatellites. In this protocol, extracted DNA is first amplified using PCR and since transferred to detection plates for sequencing. The plates used for detection contain only a small diluted concentration of DNA, while the PCR plates have been used in the PCR process and therefore contain a high concentration of DNA. Therefore, we assume that the potential risk of contamination from a previously used plate would be higher in the PCR step.</p>
 </section>
 <section id="methods" class="level1">
 <h1>Methods</h1>
@@ -178,6 +178,12 @@ ul.task-list li input[type="checkbox"] {
 <section id="data" class="level3">
 <h3 class="anchored" data-anchor-id="data">Data</h3>
 <p>The data for this project are the raw sequencing reads from the ABI 3730xl capillary sequencer. Each files is identified with the following name structure: RackX_mixY_Z. Where X gives the rack number, Y the mix and Z the treatment (1 = standard procedure, 2 = internal control, 3 = Re-used detection plate and 4 = Re-used PCR plate).</p>
+<div class="cell">
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in rm(Data_df, Data_list, x, Data_files, i, Mix1, Mix1_locate,
+remove_row, : object 'Mix1' not found</code></pre>
+</div>
+</div>
 </section>
 <section id="missing-data" class="level2">
 <h2 class="anchored" data-anchor-id="missing-data">Missing data</h2>
@@ -203,15 +209,15 @@ ul.task-list li input[type="checkbox"] {
 <td style="text-align: left;">Mix1</td>
 <td style="text-align: right;">98</td>
 <td style="text-align: right;">56</td>
-<td style="text-align: right;">26</td>
-<td style="text-align: right;">72</td>
+<td style="text-align: right;">22</td>
+<td style="text-align: right;">1002</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Mix2</td>
 <td style="text-align: right;">58</td>
 <td style="text-align: right;">26</td>
 <td style="text-align: right;">24</td>
-<td style="text-align: right;">48</td>
+<td style="text-align: right;">154</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Mix3</td>
@@ -225,21 +231,21 @@ ul.task-list li input[type="checkbox"] {
 <td style="text-align: right;">38</td>
 <td style="text-align: right;">20</td>
 <td style="text-align: right;">18</td>
-<td style="text-align: right;">56</td>
+<td style="text-align: right;">544</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Mix5</td>
 <td style="text-align: right;">48</td>
 <td style="text-align: right;">66</td>
 <td style="text-align: right;">44</td>
-<td style="text-align: right;">154</td>
+<td style="text-align: right;">170</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Total</td>
 <td style="text-align: right;">278</td>
 <td style="text-align: right;">194</td>
-<td style="text-align: right;">132</td>
-<td style="text-align: right;">410</td>
+<td style="text-align: right;">128</td>
+<td style="text-align: right;">1950</td>
 </tr>
 </tbody>
 </table>
@@ -277,7 +283,7 @@ ul.task-list li input[type="checkbox"] {
 <td style="text-align: right;">14</td>
 <td style="text-align: right;">40</td>
 <td style="text-align: right;">12</td>
-<td style="text-align: right;">52</td>
+<td style="text-align: right;">158</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Mix3</td>
@@ -297,15 +303,15 @@ ul.task-list li input[type="checkbox"] {
 <td style="text-align: left;">Mix5</td>
 <td style="text-align: right;">10</td>
 <td style="text-align: right;">132</td>
-<td style="text-align: right;">16</td>
-<td style="text-align: right;">120</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">430</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Total</td>
 <td style="text-align: right;">76</td>
 <td style="text-align: right;">251</td>
-<td style="text-align: right;">114</td>
-<td style="text-align: right;">446</td>
+<td style="text-align: right;">110</td>
+<td style="text-align: right;">862</td>
 </tr>
 </tbody>
 </table>
@@ -363,15 +369,15 @@ ul.task-list li input[type="checkbox"] {
 <td style="text-align: left;">Mix5</td>
 <td style="text-align: right;">52</td>
 <td style="text-align: right;">52</td>
-<td style="text-align: right;">70</td>
-<td style="text-align: right;">84</td>
+<td style="text-align: right;">48</td>
+<td style="text-align: right;">400</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Total</td>
 <td style="text-align: right;">208</td>
 <td style="text-align: right;">200</td>
-<td style="text-align: right;">278</td>
-<td style="text-align: right;">386</td>
+<td style="text-align: right;">256</td>
+<td style="text-align: right;">702</td>
 </tr>
 </tbody>
 </table>
@@ -385,7 +391,7 @@ ul.task-list li input[type="checkbox"] {
 </div>
 </div>
 <p><a href="#tbl-failed">Table&nbsp;2</a> display the number of unscored alleles within each mix on each plate. For R154 and R156 this is based on 93 individuals, while for R155 it is based on all 95 individuals on the plate.</p>
-<p>Before starting the error rate evaluation, the no. of genotypes that could not be scored for each round and mix per rack is tabulated (See <a href="#tbl-failed">Table&nbsp;2</a>). From this, we know that a total of 2973 alleles could not be scored. In <a href="#fig-Heatmap">Figure&nbsp;2</a> and <a href="#fig-Heatmap2">Figure&nbsp;3</a>, the location of the missing data on the plate is visualized. More purple hues correspond to more missing loci for that particular samples, and we can conclude that certain samples seem to have failed almost completely. This could hint at poor DNA quality. The data is arranged in the plot to match the layout of the actual plate. Through visual inspection, there might be a slight tendency for the missing loci to be located more towards the edges of the plates compared to the center.</p>
+<p>Before starting the error rate evaluation, the no. of genotypes that could not be scored for each round and mix per rack is tabulated (See <a href="#tbl-failed">Table&nbsp;2</a>). From this, we know that a total of 5215 alleles could not be scored. In <a href="#fig-Heatmap">Figure&nbsp;2</a> and <a href="#fig-Heatmap2">Figure&nbsp;3</a>, the location of the missing data on the plate is visualized. More purple hues correspond to more missing loci for that particular samples, and we can conclude that certain samples seem to have failed almost completely. This could hint at poor DNA quality. The data is arranged in the plot to match the layout of the actual plate. Through visual inspection, there might be a slight tendency for the missing loci to be located more towards the edges of the plates compared to the center.</p>
 <div id="fig-Heatmap" class="quarto-figure quarto-figure-center anchored">
 <figure class="figure">
 <p><img src="Results/Figures/Heatmap.png" class="img-fluid figure-img"></p>
@@ -398,7 +404,7 @@ ul.task-list li input[type="checkbox"] {
 <figcaption class="figure-caption">Figure&nbsp;3: Heatmap of missing data after gapfilling</figcaption>
 </figure>
 </div>
-<p>Based on the heatmaps, it is obvious that even after gap filling, some individuals have a higher proportion of missing data than others. To further explore the distribution of missing data, the number of NAs for each row of the dataset was tabulated. Each row corresponds to one individual on one rack, which means that each individual is represented 4 times. Based on <a href="#fig-missingdata">Figure&nbsp;4</a> the majority of individuals have less than 10 errors, however 39 individuals are represented in the dataset with more than 10 missing alleles.</p>
+<p>Based on the heatmaps, it is obvious that even after gap filling, some individuals have a higher proportion of missing data than others. To further explore the distribution of missing data, the number of NAs for each row of the dataset was tabulated. Each row corresponds to one individual on one rack, which means that each individual is represented 4 times. Based on <a href="#fig-missingdata">Figure&nbsp;4</a> the majority of individuals have less than 10 errors, however 105 individuals are represented in the dataset with at least one occurrence of more than 10 missing alleles.</p>
 <div id="fig-missingdata" class="quarto-figure quarto-figure-center anchored">
 <figure class="figure">
 <p><img src="Results/Figures/Nasmissing.png" class="img-fluid figure-img"></p>
@@ -408,7 +414,7 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="error-rate-calculation" class="level2">
 <h2 class="anchored" data-anchor-id="error-rate-calculation">Error rate calculation</h2>
-<p>The error rate is calculated by comparing all scored alleles and genotypes from the standard procedure within one rack with the other treatments starting with the internal control. The internal control is included as a baseline for error rates to have a comparable metric to evaluate if the reused plates inflate the error rate. The error rate is calculated both as per-allele genotyping error rate and per locus genotyping error rate.</p>
+<p>The error rate is calculated by comparing all scored alleles and loci from the standard procedure within one rack with the other treatments starting with the internal control. The internal control is included as a baseline for error rates to have a comparable metric to evaluate if the reused plates inflate the error rate. The error rate is calculated both as per-allele genotyping error rate and per locus genotyping error rate.</p>
 <section id="per-allele-genotyping-error-rate" class="level4">
 <h4 class="anchored" data-anchor-id="per-allele-genotyping-error-rate">Per-allele genotyping error rate</h4>
 <div class="cell">
@@ -455,49 +461,49 @@ ul.task-list li input[type="checkbox"] {
 <td style="text-align: left;">R154_R1</td>
 <td style="text-align: left;">R154_R3</td>
 <td style="text-align: left;">Re-used detection plate</td>
-<td style="text-align: right;">17</td>
-<td style="text-align: right;">0.0024453</td>
-<td style="text-align: right;">0.0037399</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">0.0021564</td>
+<td style="text-align: right;">0.0031627</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">R155_R1</td>
 <td style="text-align: left;">R155_R3</td>
 <td style="text-align: left;">Re-used detection plate</td>
-<td style="text-align: right;">9</td>
-<td style="text-align: right;">0.0012383</td>
-<td style="text-align: right;">0.0022014</td>
+<td style="text-align: right;">11</td>
+<td style="text-align: right;">0.0015127</td>
+<td style="text-align: right;">0.0027503</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">R156_R1</td>
 <td style="text-align: left;">R156_R3</td>
 <td style="text-align: left;">Re-used detection plate</td>
-<td style="text-align: right;">24</td>
-<td style="text-align: right;">0.0034522</td>
-<td style="text-align: right;">0.0063291</td>
+<td style="text-align: right;">26</td>
+<td style="text-align: right;">0.0037303</td>
+<td style="text-align: right;">0.0068867</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">R154_R1</td>
 <td style="text-align: left;">R154_R4</td>
 <td style="text-align: left;">Re-used PCR plate</td>
-<td style="text-align: right;">69</td>
-<td style="text-align: right;">0.0102192</td>
-<td style="text-align: right;">0.0201422</td>
+<td style="text-align: right;">83</td>
+<td style="text-align: right;">0.0158276</td>
+<td style="text-align: right;">0.0312738</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">R155_R1</td>
 <td style="text-align: left;">R155_R4</td>
 <td style="text-align: left;">Re-used PCR plate</td>
-<td style="text-align: right;">109</td>
-<td style="text-align: right;">0.0157106</td>
-<td style="text-align: right;">0.0308446</td>
+<td style="text-align: right;">113</td>
+<td style="text-align: right;">0.0173260</td>
+<td style="text-align: right;">0.0337320</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">R156_R1</td>
 <td style="text-align: left;">R156_R4</td>
 <td style="text-align: left;">Re-used PCR plate</td>
-<td style="text-align: right;">67</td>
-<td style="text-align: right;">0.0098966</td>
-<td style="text-align: right;">0.0183161</td>
+<td style="text-align: right;">68</td>
+<td style="text-align: right;">0.0105231</td>
+<td style="text-align: right;">0.0194986</td>
 </tr>
 </tbody>
 </table>
@@ -534,37 +540,37 @@ ul.task-list li input[type="checkbox"] {
 <tr class="odd">
 <td style="text-align: left;">R154_R3</td>
 <td style="text-align: left;">R156_R1</td>
-<td style="text-align: right;">5</td>
+<td style="text-align: right;">4</td>
 <td style="text-align: left;">Re-used detection plate</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">R155_R3</td>
 <td style="text-align: left;">R154_R1</td>
-<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
 <td style="text-align: left;">Re-used detection plate</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">R156_R3</td>
 <td style="text-align: left;">R155_R1</td>
-<td style="text-align: right;">7</td>
+<td style="text-align: right;">8</td>
 <td style="text-align: left;">Re-used detection plate</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">R154_R4</td>
 <td style="text-align: left;">R156_R1</td>
-<td style="text-align: right;">39</td>
+<td style="text-align: right;">50</td>
 <td style="text-align: left;">Re-used PCR plate</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">R155_R4</td>
 <td style="text-align: left;">R154_R1</td>
-<td style="text-align: right;">89</td>
+<td style="text-align: right;">95</td>
 <td style="text-align: left;">Re-used PCR plate</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">R156_R4</td>
 <td style="text-align: left;">R155_R1</td>
-<td style="text-align: right;">49</td>
+<td style="text-align: right;">53</td>
 <td style="text-align: left;">Re-used PCR plate</td>
 </tr>
 </tbody>
@@ -581,8 +587,8 @@ ul.task-list li input[type="checkbox"] {
 <div class="cell">
 <div class="cell-output cell-output-stdout">
 <pre><code>            Df Sum Sq Mean Sq F value  Pr(&gt;F)   
-Treatment    2   7538    3769    11.8 0.00832 **
-Residuals    6   1916     319                   
+Treatment    2   9059    4529   14.68 0.00489 **
+Residuals    6   1851     309                   
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </div>
@@ -593,10 +599,14 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 Fit: aov(formula = `No. of mismatches` ~ Treatment, data = Mismatches)
 
 $Treatment
-                                          diff       lwr       upr     p adj
-Re-used detection plate-Internal control    -8 -52.76831  36.76831 0.8511201
-Re-used PCR plate-Internal control          57  12.23169 101.76831 0.0185830
-Re-used PCR plate-Re-used detection plate   65  20.23169 109.76831 0.0102280</code></pre>
+                                               diff       lwr       upr
+Re-used detection plate-Internal control  -7.333333 -51.33967  36.67301
+Re-used PCR plate-Internal control        63.333333  19.32699 107.33967
+Re-used PCR plate-Re-used detection plate 70.666667  26.66033 114.67301
+                                              p adj
+Re-used detection plate-Internal control  0.8687638
+Re-used PCR plate-Internal control        0.0106583
+Re-used PCR plate-Re-used detection plate 0.0063148</code></pre>
 </div>
 </div>
 <p>The total no. of mismatches between the standard procedure and the additional treatments could be significantly determined by treatment. Further exploration using a Tukey pairwise comparison revealed that this treatment effect was driven by a significant difference in no. of mismatches in the ‘re-used detection plate’ treatment when compared to both the internal control and the re-used PCR treatment. When comparing those two treatments to each other, no significant difference could be found.</p>
@@ -605,7 +615,7 @@ Re-used PCR plate-Re-used detection plate   65  20.23169 109.76831 0.0102280</co
 </section>
 <section id="results" class="level1">
 <h1>Results</h1>
-<p>On R154 the two samples from 2007-2008 were excluded from analysis, due to lack of DNA for the last treatment. Likewise for two of the positive controls on R156. In total, 369 alleles were analysed, out of which 2973 were unscorable. We found a total of 369 mismatches on allelic level between all treatments across all racks. A subset of these (189) were potential contamination cases.</p>
+<p>On R154 the two samples from 2007-2008 were excluded from analysis, due to lack of DNA for the last treatment. Likewise for two of the positive controls on R156. In total, 390 alleles were analysed, out of which 5215 were unscorable. We found a total of 390 mismatches on allelic level between all treatments across all racks. A subset of these (211) were potential contamination cases.</p>
 <p><a href="#fig-Errorrates">Figure&nbsp;6</a> shows 4 graphic panels. A visualize the total no. of mismatches observed when comparing the standard procedure treatment of each rack with the other treatments. B the total number of potential contamination cases, while C and D show the per allele and per locus genotype error rate, respectively.</p>
 <div id="fig-Errorrates" class="quarto-figure quarto-figure-center anchored">
 <figure class="figure">
