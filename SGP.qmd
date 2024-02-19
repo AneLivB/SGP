@@ -52,7 +52,7 @@ Scientific research is a massive endeavor, consuming vast quantities of single-u
 #| label: packages
 #| echo: FALSE
 #here::here()
-invisible(pacman::p_load(dplyr, tidyverse, here, stringi, png, knitr, rstatix, cowplot, kableExtra, brms, bayesplot))
+invisible(pacman::p_load(dplyr, tidyverse, here, stringi, png, knitr, rstatix, cowplot, kableExtra, brms, bayesplot, ggridges))
 ```
 
 # Methods
@@ -99,218 +99,224 @@ The data for this project are the raw sequencing reads from the ABI 3730xl capil
 #| eval: False
 #| echo: FALSE
 
-#make list with path to all files
-Data_files <- list.files(path = "Data/Working_data", pattern = "*.csv", full.names = T)
-Mix1_locate <- grep("mix1", Data_files)
-Mix1 <- Data_files[Mix1_locate]
-
-Data_list = list()
-#Broken well
-remove_row <- c("E03_Empty")
-
-#for loop which reads the csv files, removes the broken well and collects the dataframes in one list for mix 1
-for(i in Data_files[Mix1_locate]) {
-  x <- read.csv(i, sep = ";")
-  x <- subset(x, ID != remove_row)
-  Data_list[[i]] <- x
-  #The following line tidies up the names of the files
-   names(Data_list) <- gsub("Data/Working_data/AP_AFS_|AFS|_\\d{2}|_AlleleReport.csv", "", names(Data_list))
-   names(Data_list) <- gsub("Data/Working_data/ALB__|AFS_|_\\d{2}|_AlleleReport.csv", "", names(Data_list))
-}
-
-#for loop which reads the csv files, removes the broken well and the columns 'rack_location' and 'id' and collects the dataframes in one list for other mixes than mix one.
-for(i in Data_files[-Mix1_locate]) {
-  x <- read.csv(i, sep = ";")
-  x <- subset(x, ID != remove_row, select = -c(Rack_location, ID))
-  Data_list[[i]] <- x
-  #The following line tidies up the names of the files
-  names(Data_list) <- gsub("Data/Working_data/AP_AFS_|AFS|_\\d{2}|_AlleleReport.csv", "", names(Data_list))
-  names(Data_list) <- gsub("Data/Working_data/ALB__|AFS_|_\\d{2}|_AlleleReport.csv", "", names(Data_list))
-  }
-
-#The loci ZcwCO1 in mix 2 and ZcwCO3 in mix five is the same locus. Therefore, they need to be merged and the second version removed
-
-ZcwCO1_loci <- function(DF) {
-  #ZcwCO1
-  change_a <- which(DF$mix2.ZcwCO1_a != DF$mix5.ZcwC03_a | is.na(DF$mix2.ZcwCO1_a) == T)
-  change_b <- which(DF$mix2.ZcwCO1_b != DF$mix5.ZcwC03_b | is.na(DF$mix2.ZcwCO1_b) == T)
-  DF$mix2.ZcwCO1_a[change_a] <- DF$mix5.ZcwC03_a[change_a]
-  DF$mix2.ZcwCO1_b[change_b] <- DF$mix5.ZcwC03_b[change_b]
-  DF <- subset(DF, select = -c(mix5.ZcwC03_a, mix5.ZcwC03_b))
-}
-
-Mangs_loci <- function(DF) {
-  #Mangs
-  Mangs44_a <- which(DF$mix5.Mang44_a != DF$Mangs.Mang44_a | is.na(DF$mix5.Mang44_a) == T)
-  Mangs44_b <- which(DF$mix5.Mang44_b != DF$Mangs.Mang44_b | is.na(DF$mix5.Mang44_b) == T)
-  Mangs36_a <- which(DF$mix5.Mang36_a != DF$Mangs.Mang36_a | is.na(DF$mix5.Mang36_a) == T)
-  Mangs36_b <- which(DF$mix5.Mang36_b != DF$Mangs.Mang36_b | is.na(DF$mix5.Mang36_b) == T)
-  DF$mix5.Mang44_a[Mangs44_a] <- DF$Mangs.Mang44_a[Mangs44_a]
-  DF$mix5.Mang44_b[Mangs44_b] <- DF$Mangs.Mang44_b[Mangs44_b]
-  DF$mix5.Mang36_a[Mangs36_a] <- DF$Mangs.Mang36_a[Mangs36_a]
-  DF$mix5.Mang36_b[Mangs36_b] <- DF$Mangs.Mang36_b[Mangs36_b]
-  DF <- subset(DF, select = -c(Mangs.Mang44_a, Mangs.Mang44_b, Mangs.Mang36_a, Mangs.Mang36_b))
-}
-
-Mang44_loci <- function(DF) {
-  #Mang44
-  Mangs44_a <- which(DF$mix5.Mang44_a != DF$Mang.Mang44_a | is.na(DF$mix5.Mang44_a) == T)
-  Mangs44_b <- which(DF$mix5.Mang44_b != DF$Mang.Mang44_b | is.na(DF$mix5.Mang44_b) == T)
-  DF$mix5.Mang44_a[Mangs44_a] <- DF$Mang.Mang44_a[Mangs44_a]
-  DF$mix5.Mang44_b[Mangs44_b] <- DF$Mang.Mang44_b[Mangs44_b]
-  DF <- subset(DF, select = -c(Mang.Mang44_a, Mang.Mang44_b))
-}
-
-OrrFCB2_loci <- function(DF) {
-  #Mang44
-  OrrFCB2_a <- which(DF$mix2.OrrFCB2_a != DF$OrrFCB2.OrrFCB2_a | is.na(DF$mix2.OrrFCB2_a) == T)
-  OrrFCB2_b <- which(DF$mix2.OrrFCB2_b != DF$OrrFCB2.OrrFCB2_b | is.na(DF$mix2.OrrFCB2_b) == T)
-  DF$mix2.OrrFCB2_a[OrrFCB2_a] <- DF$OrrFCB2.OrrFCB2_a[OrrFCB2_a]
-  DF$mix2.OrrFCB2_b[OrrFCB2_b] <- DF$OrrFCB2.OrrFCB2_b[OrrFCB2_b]
-  DF <- subset(DF, select = -c(OrrFCB2.OrrFCB2_a, OrrFCB2.OrrFCB2_b))
-}
-
-PvcEMangs <- function(DF) {
-  #Mang44
-  Mangs44_a <- which(DF$mix5.Mang44_a != DF$PvcEMangs.Mang44_a | is.na(DF$mix5.Mang44_a) == T)
-  Mangs44_b <- which(DF$mix5.Mang44_b != DF$PvcEMangs.Mang44_b | is.na(DF$mix5.Mang44_b) == T)
-  DF$mix5.Mang44_a[Mangs44_a] <- DF$PvcEMangs.Mang44_a[Mangs44_a]
-  DF$mix5.Mang44_b[Mangs44_b] <- DF$PvcEMangs.Mang44_b[Mangs44_b]
-  #PvcE
-  PvcE_a <- which(DF$mix5.PvcE_a != DF$PvcEMangs.PvcE_a | is.na(DF$mix5.PvcE_a) == T)
-  PvcE_b <- which(DF$mix5.PvcE_b != DF$PvcEMangs.PvcE_b | is.na(DF$mix5.PvcE_b) == T)
-  DF$mix5.PvcE_a[PvcE_a] <- DF$PvcEMangs.PvcE_a[PvcE_a]
-  DF$mix5.PvcE_b[PvcE_b] <- DF$PvcEMangs.PvcE_b[PvcE_b]
-  DF <- subset(DF, select = -c(PvcEMangs.Mang44_a, PvcEMangs.Mang44_b, PvcEMangs.PvcE_a, PvcEMangs.PvcE_b))
-}
-
-PvcEMangs4436 <- function(DF) {
-   #Mangs
-  Mangs44_a <- which(DF$mix5.Mang44_a != DF$PvcEMangs4436.Mang44_a | is.na(DF$mix5.Mang44_a) == T)
-  Mangs44_b <- which(DF$mix5.Mang44_b != DF$PvcEMangs4436.Mang44_b | is.na(DF$mix5.Mang44_b) == T)
-  Mangs36_a <- which(DF$mix5.Mang36_a != DF$PvcEMangs4436.Mang36_a | is.na(DF$mix5.Mang36_a) == T)
-  Mangs36_b <- which(DF$mix5.Mang36_b != DF$PvcEMangs4436.Mang36_b | is.na(DF$mix5.Mang36_b) == T)
-  DF$mix5.Mang44_a[Mangs44_a] <- DF$PvcEMangs4436.Mang44_a[Mangs44_a]
-  DF$mix5.Mang44_b[Mangs44_b] <- DF$PvcEMangs4436.Mang44_b[Mangs44_b]
-  DF$mix5.Mang36_a[Mangs36_a] <- DF$PvcEMangs4436.Mang36_a[Mangs36_a]
-  DF$mix5.Mang36_b[Mangs36_b] <- DF$PvcEMangs4436.Mang36_b[Mangs36_b]
-  #PvcE
-  PvcE_a <- which(DF$mix5.PvcE_a != DF$PvcEMangs4436.PvcE_a | is.na(DF$mix5.PvcE_a) == T)
-  PvcE_b <- which(DF$mix5.PvcE_b != DF$PvcEMangs4436.PvcE_b | is.na(DF$mix5.PvcE_b) == T)
-  DF$mix5.PvcE_a[PvcE_a] <- DF$PvcEMangs4436.PvcE_a[PvcE_a]
-  DF$mix5.PvcE_b[PvcE_b] <- DF$PvcEMangs4436.PvcE_b[PvcE_b]
-  DF <- subset(DF, select = -c(PvcEMangs4436.Mang36_a, PvcEMangs4436.Mang36_b, PvcEMangs4436.Mang44_a, PvcEMangs4436.Mang44_b, PvcEMangs4436.PvcE_a, PvcEMangs4436.PvcE_b))
-}
-
-Mix1 <- function(DF) {
-  Pv9_a <- which(DF$mix1.Pv9_a != DF$mix1gap.Pv9_a | is.na(DF$mix1.Pv9_a) == T)
-  Pv9_b <- which(DF$mix1.Pv9_b != DF$mix1gap.Pv9_b | is.na(DF$mix1.Pv9_b) == T)
-  Hg.6.3_a <- which(DF$mix1.Hg.6.3_a != DF$mix1gap.Hg.6.3_a | is.na(DF$mix1.Hg.6.3_a) == T)
-  Hg.6.3_b <- which(DF$mix1.Hg.6.3_b != DF$mix1gap.Hg.6.3_b | is.na(DF$mix1.Hg.6.3_b) == T)
-  Hg.8.10_a <- which(DF$mix1.Hg.8.10_a != DF$mix1gap.Hg.8.10_a | is.na(DF$mix1.Hg.8.10_a) == T)
-  Hg.8.10_b <- which(DF$mix1.Hg.8.10_b != DF$mix1gap.Hg.8.10_b | is.na(DF$mix1.Hg.8.10_b) == T)
-  Hg.1.3_a <- which(DF$mix1.Hg.1.3_a != DF$mix1gap.Hg.1.3_a | is.na(DF$mix1.Hg.1.3_a) == T)
-  Hg.1.3_b <- which(DF$mix1.Hg.1.3_b != DF$mix1gap.Hg.1.3_b | is.na(DF$mix1.Hg.1.3_b) == T)
-  M11a_a <- which(DF$mix1.M11a_a != DF$mix1gap.M11a_a | is.na(DF$mix1.M11a_a) == T)
-  M11a_b <- which(DF$mix1.M11a_b != DF$mix1gap.M11a_b | is.na(DF$mix1.M11a_b) == T)
-  PvcA_a <- which(DF$mix1.PvcA_a != DF$mix1gap.PvcA_a | is.na(DF$mix1.PvcA_a) == T)
-  PvcA_b <- which(DF$mix1.PvcA_b != DF$mix1gap.PvcA_b | is.na(DF$mix1.PvcA_b) == T)
-  Zcwb07_a <- which(DF$mix1.Zcwb07_a != DF$mix1gap.Zcwb07_a | is.na(DF$mix1.Zcwb07_a) == T)
-  Zcwb07_b <- which(DF$mix1.Zcwb07_b != DF$mix1gap.Zcwb07_b | is.na(DF$mix1.Zcwb07_b) == T)
-  Agaz.2_a <- which(DF$mix1.Agaz.2_a != DF$mix1gap.Agaz.2_a | is.na(DF$mix1.Agaz.2_a) == T)
-  Agaz.2_b <- which(DF$mix1.Agaz.2_b != DF$mix1gap.Agaz.2_b | is.na(DF$mix1.Agaz.2_b) == T)
-
-  DF$mix1.Pv9_a[Pv9_a] <- DF$mix1gap.Pv9_a[Pv9_a]
-  DF$mix1.Pv9_b[Pv9_b] <- DF$mix1gap.Pv9_b[Pv9_b]
-  DF$mix1.Hg.6.3_a[Hg.6.3_a] <- DF$mix1gap.Hg.6.3_a[Hg.6.3_a]
-  DF$mix1.Hg.6.3_b[Hg.6.3_b] <- DF$mix1gap.Hg.6.3_b[Hg.6.3_b]
-  DF$mix1.Hg.8.10_a[Hg.8.10_a] <- DF$mix1gap.Hg.8.10_a[Hg.8.10_a]
-  DF$mix1.Hg.8.10_b[Hg.8.10_b] <- DF$mix1gap.Hg.8.10_b[Hg.8.10_b]
-  DF$mix1.Hg.1.3_a[Hg.1.3_a] <- DF$mix1gap.Hg.1.3_a[Hg.1.3_a]
-  DF$mix1.Hg.1.3_b[Hg.1.3_b] <- DF$mix1gap.Hg.1.3_b[Hg.1.3_b]
-  DF$mix1.M11a_a[M11a_a] <- DF$mix1gap.M11a_a[M11a_a]
-  DF$mix1.M11a_b[M11a_b] <- DF$mix1gap.M11a_b[M11a_b]
-  DF$mix1.PvcA_a[PvcA_a] <- DF$mix1gap.PvcA_a[PvcA_a]
-  DF$mix1.PvcA_b[PvcA_b] <- DF$mix1gap.PvcA_b[PvcA_b]
-  DF$mix1.Zcwb07_a[Zcwb07_a] <- DF$mix1gap.Zcwb07_a[Zcwb07_a]
-  DF$mix1.Zcwb07_b[Zcwb07_b] <- DF$mix1gap.Zcwb07_b[Zcwb07_b]
-  DF$mix1.Agaz.2_a[Agaz.2_a] <- DF$mix1gap.Agaz.2_a[Agaz.2_a]
-  DF$mix1.Agaz.2_b[Agaz.2_b] <- DF$mix1gap.Agaz.2_b[Agaz.2_b]
-
-  DF <- subset(DF, select = -c(mix1gap.Rack_location, mix1gap.ID, mix1gap.Pv9_a, mix1gap.Pv9_b, mix1gap.Hg.6.3_a, mix1gap.Hg.6.3_b, mix1gap.Hg.8.10_a, mix1gap.Hg.8.10_b, mix1gap.Hg.1.3_a, mix1gap.Hg.1.3_b, mix1gap.M11a_a, mix1gap.M11a_b, mix1gap.PvcA_a, mix1gap.PvcA_b, mix1gap.Zcwb07_a, mix1gap.Zcwb07_b, mix1gap.Agaz.2_a, mix1gap.Agaz.2_b))
-}
-
-Mix4 <- function(DF) {
-  ZcwF07_a <- which(DF$mix4.ZcwF07_a != DF$mix4gap.ZcwF07_a | is.na(DF$mix4.ZcwF07_a) == T)
-  ZcwF07_b <- which(DF$mix4.ZcwF07_b != DF$mix4gap.ZcwF07_b | is.na(DF$mix4.ZcwF07_b) == T)
-  ZcwD02_a <- which(DF$mix4.ZcwD02_a != DF$mix4gap.ZcwD02_a | is.na(DF$mix4.ZcwD02_a) == T)
-  ZcwD02_b <- which(DF$mix4.ZcwD02_b != DF$mix4gap.ZcwD02_b | is.na(DF$mix4.ZcwD02_b) == T)
-  ZcwCgDh1.8_a <- which(DF$mix4.ZcwCgDh1.8_a != DF$mix4gap.ZcwCgDh1.8_a | is.na(DF$mix4.ZcwCgDh1.8_a) == T)
-  ZcwCgDh1.8_b <- which(DF$mix4.ZcwCgDh1.8_b != DF$mix4gap.ZcwCgDh1.8_b | is.na(DF$mix4.ZcwCgDh1.8_b) == T)
-  Aa4_a <- which(DF$mix4.Aa4_a != DF$mix4gap.Aa4_a | is.na(DF$mix4.Aa4_a) == T)
-  Aa4_b <- which(DF$mix4.Aa4_b != DF$mix4gap.Aa4_b | is.na(DF$mix4.Aa4_b) == T)
-  ZcCgDh5.8_a <- which(DF$mix4.ZcCgDh5.8_a != DF$mix4gap.ZcCgDh5.8_a | is.na(DF$mix4.ZcCgDh5.8_a) == T)
-  ZcCgDh5.8_b <- which(DF$mix4.ZcCgDh5.8_b != DF$mix4gap.ZcCgDh5.8_b | is.na(DF$mix4.ZcCgDh5.8_b) == T)
-  Agaz3_a <- which(DF$mix4.Agaz3_a != DF$mix4gap.Agaz3_a | is.na(DF$mix4.Agaz3_a) == T)
-  Agaz3_b <- which(DF$mix4.Agaz3_b != DF$mix4gap.Agaz3_b | is.na(DF$mix4.Agaz3_b) == T)
-
-  DF$mix4.ZcwF07_a[ZcwF07_a] <- DF$mix4gap.ZcwF07_a[ZcwF07_a]
-  DF$mix4.ZcwF07_b[ZcwF07_b] <- DF$mix4gap.ZcwF07_b[ZcwF07_b]
-  DF$mix4.ZcwD02_a[ZcwD02_a] <- DF$mix4gap.ZcwD02_a[ZcwD02_a]
-  DF$mix4.ZcwD02_b[ZcwD02_b] <- DF$mix4gap.ZcwD02_b[ZcwD02_b]
-  DF$mix4.ZcwCgDh1.8_a[ZcwCgDh1.8_a] <- DF$mix4gap.ZcwCgDh1.8_a[ZcwCgDh1.8_a]
-  DF$mix4.ZcwCgDh1.8_b[ZcwCgDh1.8_b] <- DF$mix4gap.ZcwCgDh1.8_b[ZcwCgDh1.8_b]
-  DF$mix4.Aa4_a[Aa4_a] <- DF$mix4gap.Aa4_a[Aa4_a]
-  DF$mix4.Aa4_b[Aa4_b] <- DF$mix4gap.Aa4_b[Aa4_b]
-  DF$mix4.ZcCgDh5.8_a[ZcCgDh5.8_a] <- DF$mix4gap.ZcCgDh5.8_a[ZcCgDh5.8_a]
-  DF$mix4.ZcCgDh5.8_b[ZcCgDh5.8_b] <- DF$mix4gap.ZcCgDh5.8_b[ZcCgDh5.8_b]
-  DF$mix4.Agaz3_a[Agaz3_a] <- DF$mix4gap.Agaz3_a[Agaz3_a]
-  DF$mix4.Agaz3_b[Agaz3_b] <- DF$mix4gap.Agaz3_b[Agaz3_b]
-
-  DF <- subset(DF, select = -c(mix4gap.ZcwF07_a, mix4gap.ZcwF07_b, mix4gap.ZcwD02_a, mix4gap.ZcwD02_b, mix4gap.ZcwCgDh1.8_a, mix4gap.ZcwCgDh1.8_b, mix4gap.Aa4_a, mix4gap.Aa4_b, mix4gap.ZcCgDh5.8_a, mix4gap.ZcCgDh5.8_b, mix4gap.Agaz3_a, mix4gap.Agaz3_b))
-}
-
-#bind the different mixes together
-Data_df = do.call(cbind, Data_list)
-#Separate the dataframe into Rack and treatment and remove this info from column names
-R154_R1 <- Data_df %>% select(contains("Rack154")) %>% select(contains("_1")) %>%
-  rename_with(~sub("Rack154_", "", .), everything()) %>%
-  rename_with(~sub("_1", "", .), everything()) %>% ZcwCO1_loci() %>% Mangs_loci() %>% write_csv(., file.path(working_dir, "R154_R1.csv"))
-R154_R2 <- Data_df %>% select(contains("Rack154")) %>% select(contains("_2")) %>%
-  rename_with(~sub("Rack154_", "", .), everything()) %>%
-  rename_with(~sub("_2", "", .), everything()) %>% ZcwCO1_loci() %>% write_csv(., file.path(working_dir, "R154_R2.csv"))
-R154_R3 <- Data_df %>% select(contains("Rack154")) %>% select(contains("_3")) %>%
-  rename_with(~sub("Rack154_", "", .), everything()) %>%
-  rename_with(~sub("_3", "", .), everything()) %>% ZcwCO1_loci() %>% Mang44_loci() %>% OrrFCB2_loci() %>% Mix1() %>% Mix4() %>% write_csv(., file.path(working_dir, "R154_R3.csv"))
-R154_R4 <- Data_df %>% select(contains("Rack154")) %>% select(contains("_4")) %>%
-  rename_with(~sub("Rack154_", "", .), everything()) %>%
-  rename_with(~sub("_4", "", .), everything()) %>% ZcwCO1_loci() %>% write_csv(., file.path(working_dir, "R154_R4.csv"))
-R155_R1 <- Data_df %>% select(contains("Rack155")) %>% select(contains("_1")) %>%
-  rename_with(~sub("Rack155_", "", .), everything()) %>%
-  rename_with(~sub("_1", "", .), everything()) %>% ZcwCO1_loci() %>% Mangs_loci() %>% write_csv(., file.path(working_dir, "R155_R1.csv"))
-R155_R2 <- Data_df %>% select(contains("Rack155")) %>% select(contains("_2")) %>%
-  rename_with(~sub("Rack155_", "", .), everything()) %>%
-  rename_with(~sub("_2", "", .), everything()) %>% ZcwCO1_loci() %>% Mang44_loci() %>% write_csv(., file.path(working_dir, "R155_R2.csv"))
-R155_R3 <- Data_df %>% select(contains("Rack155")) %>% select(contains("_3")) %>%
-  rename_with(~sub("Rack155_", "", .), everything()) %>%
-  rename_with(~sub("_3", "", .), everything()) %>% ZcwCO1_loci() %>% OrrFCB2_loci() %>% PvcEMangs() %>% write_csv(., file.path(working_dir, "R155_R3.csv"))
-R155_R4 <- Data_df %>% select(contains("Rack155")) %>% select(contains("_4")) %>%
-  rename_with(~sub("Rack155_", "", .), everything()) %>%
-  rename_with(~sub("_4", "", .), everything()) %>% ZcwCO1_loci() %>% write_csv(., file.path(working_dir, "R155_R4.csv"))
-R156_R1 <- Data_df %>% select(contains("Rack156")) %>% select(contains("_1")) %>%
-  rename_with(~sub("Rack156_", "", .), everything()) %>%
-  rename_with(~sub("_1", "", .), everything()) %>% ZcwCO1_loci() %>% Mangs_loci() %>% write_csv(., file.path(working_dir, "R156_R1.csv"))
-R156_R2 <- Data_df %>% select(contains("Rack156")) %>% select(contains("_2")) %>%
-  rename_with(~sub("Rack156_", "", .), everything()) %>%
-  rename_with(~sub("_2", "", .), everything()) %>% ZcwCO1_loci() %>% Mix4() %>% write_csv(., file.path(working_dir, "R156_R2.csv"))
-R156_R3 <- Data_df %>% select(contains("Rack156")) %>% select(contains("_3")) %>%
-  rename_with(~sub("Rack156_", "", .), everything()) %>%
-  rename_with(~sub("_3", "", .), everything()) %>% ZcwCO1_loci() %>% PvcEMangs4436() %>% write_csv(., file.path(working_dir, "R156_R3.csv"))
-R156_R4 <- Data_df %>% select(contains("Rack156")) %>% select(contains("_4")) %>%
-  rename_with(~sub("Rack156_", "", .), everything()) %>%
-  rename_with(~sub("_4", "", .), everything()) %>% ZcwCO1_loci() %>% write_csv(., file.path(working_dir, "R156_R4.csv"))
-
-rm(Data_df, Data_list, x, Data_files, i, Mix1, Mix1_locate, remove_row, Mang44_loci, Mangs_loci, Mix4, Mix1, OrrFCB2_loci, PvcEMangs, PvcEMangs4436, ZcwCO1_loci)
+# #make list with path to all files
+# Data_files <- list.files(path = "Data/Working_data", pattern = "*.csv", full.names = T)
+# Mix1_locate <- grep("mix1", Data_files)
+# Mix1 <- Data_files[Mix1_locate]
+# 
+# Data_list = list()
+# #Broken well
+# remove_row <- c("E03_Empty")
+# 
+# #for loop which reads the csv files, removes the broken well and collects the dataframes in one list for mix 1
+# for(i in Data_files[Mix1_locate]) {
+#   x <- read.csv(i, sep = ";")
+#   x <- subset(x, ID != remove_row)
+#   Data_list[[i]] <- x
+#   #The following line tidies up the names of the files
+#    names(Data_list) <- gsub("Data/Working_data/AP_AFS_|AFS|_\\d{2}|_AlleleReport.csv", "", names(Data_list))
+#    names(Data_list) <- gsub("Data/Working_data/ALB__|AFS_|_\\d{2}|_AlleleReport.csv", "", names(Data_list))
+# }
+# 
+# #for loop which reads the csv files, removes the broken well and the columns 'rack_location' and 'id' and collects the dataframes in one list for other mixes than mix one.
+# for(i in Data_files[-Mix1_locate]) {
+#   x <- read.csv(i, sep = ";")
+#   x <- subset(x, ID != remove_row, select = -c(Rack_location, ID))
+#   Data_list[[i]] <- x
+#   #The following line tidies up the names of the files
+#   names(Data_list) <- gsub("Data/Working_data/AP_AFS_|AFS|_\\d{2}|_AlleleReport.csv", "", names(Data_list))
+#   names(Data_list) <- gsub("Data/Working_data/ALB__|AFS_|_\\d{2}|_AlleleReport.csv", "", names(Data_list))
+#   }
+# 
+# #The loci ZcwCO1 in mix 2 and ZcwCO3 in mix five is the same locus. Therefore, they need to be merged and the second version removed
+# 
+# ZcwCO1_loci <- function(DF) {
+#   #ZcwCO1
+#   change_a <- which(DF$mix2.ZcwCO1_a != DF$mix5.ZcwC03_a | is.na(DF$mix2.ZcwCO1_a) == T)
+#   change_b <- which(DF$mix2.ZcwCO1_b != DF$mix5.ZcwC03_b | is.na(DF$mix2.ZcwCO1_b) == T)
+#   DF$mix2.ZcwCO1_a[change_a] <- DF$mix5.ZcwC03_a[change_a]
+#   DF$mix2.ZcwCO1_b[change_b] <- DF$mix5.ZcwC03_b[change_b]
+#   DF <- subset(DF, select = -c(mix5.ZcwC03_a, mix5.ZcwC03_b))
+# }
+# 
+# Mangs_loci <- function(DF) {
+#   #Mangs
+#   Mangs44_a <- which(DF$mix5.Mang44_a != DF$Mangs.Mang44_a | is.na(DF$mix5.Mang44_a) == T)
+#   Mangs44_b <- which(DF$mix5.Mang44_b != DF$Mangs.Mang44_b | is.na(DF$mix5.Mang44_b) == T)
+#   Mangs36_a <- which(DF$mix5.Mang36_a != DF$Mangs.Mang36_a | is.na(DF$mix5.Mang36_a) == T)
+#   Mangs36_b <- which(DF$mix5.Mang36_b != DF$Mangs.Mang36_b | is.na(DF$mix5.Mang36_b) == T)
+#   DF$mix5.Mang44_a[Mangs44_a] <- DF$Mangs.Mang44_a[Mangs44_a]
+#   DF$mix5.Mang44_b[Mangs44_b] <- DF$Mangs.Mang44_b[Mangs44_b]
+#   DF$mix5.Mang36_a[Mangs36_a] <- DF$Mangs.Mang36_a[Mangs36_a]
+#   DF$mix5.Mang36_b[Mangs36_b] <- DF$Mangs.Mang36_b[Mangs36_b]
+#   DF <- subset(DF, select = -c(Mangs.Mang44_a, Mangs.Mang44_b, Mangs.Mang36_a, Mangs.Mang36_b))
+# }
+# 
+# Mang44_loci <- function(DF) {
+#   #Mang44
+#   Mangs44_a <- which(DF$mix5.Mang44_a != DF$Mang.Mang44_a | is.na(DF$mix5.Mang44_a) == T)
+#   Mangs44_b <- which(DF$mix5.Mang44_b != DF$Mang.Mang44_b | is.na(DF$mix5.Mang44_b) == T)
+#   DF$mix5.Mang44_a[Mangs44_a] <- DF$Mang.Mang44_a[Mangs44_a]
+#   DF$mix5.Mang44_b[Mangs44_b] <- DF$Mang.Mang44_b[Mangs44_b]
+#   DF <- subset(DF, select = -c(Mang.Mang44_a, Mang.Mang44_b))
+# }
+# 
+# OrrFCB2_loci <- function(DF) {
+#   #Mang44
+#   OrrFCB2_a <- which(DF$mix2.OrrFCB2_a != DF$OrrFCB2.OrrFCB2_a | is.na(DF$mix2.OrrFCB2_a) == T)
+#   OrrFCB2_b <- which(DF$mix2.OrrFCB2_b != DF$OrrFCB2.OrrFCB2_b | is.na(DF$mix2.OrrFCB2_b) == T)
+#   DF$mix2.OrrFCB2_a[OrrFCB2_a] <- DF$OrrFCB2.OrrFCB2_a[OrrFCB2_a]
+#   DF$mix2.OrrFCB2_b[OrrFCB2_b] <- DF$OrrFCB2.OrrFCB2_b[OrrFCB2_b]
+#   DF <- subset(DF, select = -c(OrrFCB2.OrrFCB2_a, OrrFCB2.OrrFCB2_b))
+# }
+# 
+# PvcEMangs <- function(DF) {
+#   #Mang44
+#   Mangs44_a <- which(DF$mix5.Mang44_a != DF$PvcEMangs.Mang44_a | is.na(DF$mix5.Mang44_a) == T)
+#   Mangs44_b <- which(DF$mix5.Mang44_b != DF$PvcEMangs.Mang44_b | is.na(DF$mix5.Mang44_b) == T)
+#   DF$mix5.Mang44_a[Mangs44_a] <- DF$PvcEMangs.Mang44_a[Mangs44_a]
+#   DF$mix5.Mang44_b[Mangs44_b] <- DF$PvcEMangs.Mang44_b[Mangs44_b]
+#   #PvcE
+#   PvcE_a <- which(DF$mix5.PvcE_a != DF$PvcEMangs.PvcE_a | is.na(DF$mix5.PvcE_a) == T)
+#   PvcE_b <- which(DF$mix5.PvcE_b != DF$PvcEMangs.PvcE_b | is.na(DF$mix5.PvcE_b) == T)
+#   DF$mix5.PvcE_a[PvcE_a] <- DF$PvcEMangs.PvcE_a[PvcE_a]
+#   DF$mix5.PvcE_b[PvcE_b] <- DF$PvcEMangs.PvcE_b[PvcE_b]
+#   DF <- subset(DF, select = -c(PvcEMangs.Mang44_a, PvcEMangs.Mang44_b, PvcEMangs.PvcE_a, PvcEMangs.PvcE_b))
+# }
+# 
+# PvcEMangs4436 <- function(DF) {
+#    #Mangs
+#   Mangs44_a <- which(DF$mix5.Mang44_a != DF$PvcEMangs4436.Mang44_a | is.na(DF$mix5.Mang44_a) == T)
+#   Mangs44_b <- which(DF$mix5.Mang44_b != DF$PvcEMangs4436.Mang44_b | is.na(DF$mix5.Mang44_b) == T)
+#   Mangs36_a <- which(DF$mix5.Mang36_a != DF$PvcEMangs4436.Mang36_a | is.na(DF$mix5.Mang36_a) == T)
+#   Mangs36_b <- which(DF$mix5.Mang36_b != DF$PvcEMangs4436.Mang36_b | is.na(DF$mix5.Mang36_b) == T)
+#   DF$mix5.Mang44_a[Mangs44_a] <- DF$PvcEMangs4436.Mang44_a[Mangs44_a]
+#   DF$mix5.Mang44_b[Mangs44_b] <- DF$PvcEMangs4436.Mang44_b[Mangs44_b]
+#   DF$mix5.Mang36_a[Mangs36_a] <- DF$PvcEMangs4436.Mang36_a[Mangs36_a]
+#   DF$mix5.Mang36_b[Mangs36_b] <- DF$PvcEMangs4436.Mang36_b[Mangs36_b]
+#   #PvcE
+#   PvcE_a <- which(DF$mix5.PvcE_a != DF$PvcEMangs4436.PvcE_a | is.na(DF$mix5.PvcE_a) == T)
+#   PvcE_b <- which(DF$mix5.PvcE_b != DF$PvcEMangs4436.PvcE_b | is.na(DF$mix5.PvcE_b) == T)
+#   DF$mix5.PvcE_a[PvcE_a] <- DF$PvcEMangs4436.PvcE_a[PvcE_a]
+#   DF$mix5.PvcE_b[PvcE_b] <- DF$PvcEMangs4436.PvcE_b[PvcE_b]
+#   DF <- subset(DF, select = -c(PvcEMangs4436.Mang36_a, PvcEMangs4436.Mang36_b, PvcEMangs4436.Mang44_a, PvcEMangs4436.Mang44_b, PvcEMangs4436.PvcE_a, PvcEMangs4436.PvcE_b))
+# }
+# 
+# Mix1 <- function(DF) {
+#   #In the last rounds, the first 5 samples were compromised due to low DNA
+#   #Therefore, these samples are more likely to be correct then from the gapfilling plates
+#   First_5 <- DF[1:5,]
+#   
+#   Pv9_a <- which(DF$mix1.Pv9_a != DF$mix1gap.Pv9_a | is.na(DF$mix1.Pv9_a) == T)
+#   Pv9_b <- which(DF$mix1.Pv9_b != DF$mix1gap.Pv9_b | is.na(DF$mix1.Pv9_b) == T)
+#   Hg.6.3_a <- which(DF$mix1.Hg.6.3_a != DF$mix1gap.Hg.6.3_a | is.na(DF$mix1.Hg.6.3_a) == T)
+#   Hg.6.3_b <- which(DF$mix1.Hg.6.3_b != DF$mix1gap.Hg.6.3_b | is.na(DF$mix1.Hg.6.3_b) == T)
+#   Hg.8.10_a <- which(DF$mix1.Hg.8.10_a != DF$mix1gap.Hg.8.10_a | is.na(DF$mix1.Hg.8.10_a) == T)
+#   Hg.8.10_b <- which(DF$mix1.Hg.8.10_b != DF$mix1gap.Hg.8.10_b | is.na(DF$mix1.Hg.8.10_b) == T)
+#   Hg.1.3_a <- which(DF$mix1.Hg.1.3_a != DF$mix1gap.Hg.1.3_a | is.na(DF$mix1.Hg.1.3_a) == T)
+#   Hg.1.3_b <- which(DF$mix1.Hg.1.3_b != DF$mix1gap.Hg.1.3_b | is.na(DF$mix1.Hg.1.3_b) == T)
+#   M11a_a <- which(DF$mix1.M11a_a != DF$mix1gap.M11a_a | is.na(DF$mix1.M11a_a) == T)
+#   M11a_b <- which(DF$mix1.M11a_b != DF$mix1gap.M11a_b | is.na(DF$mix1.M11a_b) == T)
+#   PvcA_a <- which(DF$mix1.PvcA_a != DF$mix1gap.PvcA_a | is.na(DF$mix1.PvcA_a) == T)
+#   PvcA_b <- which(DF$mix1.PvcA_b != DF$mix1gap.PvcA_b | is.na(DF$mix1.PvcA_b) == T)
+#   Zcwb07_a <- which(DF$mix1.Zcwb07_a != DF$mix1gap.Zcwb07_a | is.na(DF$mix1.Zcwb07_a) == T)
+#   Zcwb07_b <- which(DF$mix1.Zcwb07_b != DF$mix1gap.Zcwb07_b | is.na(DF$mix1.Zcwb07_b) == T)
+#   Agaz.2_a <- which(DF$mix1.Agaz.2_a != DF$mix1gap.Agaz.2_a | is.na(DF$mix1.Agaz.2_a) == T)
+#   Agaz.2_b <- which(DF$mix1.Agaz.2_b != DF$mix1gap.Agaz.2_b | is.na(DF$mix1.Agaz.2_b) == T)
+# 
+#   DF$mix1.Pv9_a[Pv9_a] <- DF$mix1gap.Pv9_a[Pv9_a]
+#   DF$mix1.Pv9_b[Pv9_b] <- DF$mix1gap.Pv9_b[Pv9_b]
+#   DF$mix1.Hg.6.3_a[Hg.6.3_a] <- DF$mix1gap.Hg.6.3_a[Hg.6.3_a]
+#   DF$mix1.Hg.6.3_b[Hg.6.3_b] <- DF$mix1gap.Hg.6.3_b[Hg.6.3_b]
+#   DF$mix1.Hg.8.10_a[Hg.8.10_a] <- DF$mix1gap.Hg.8.10_a[Hg.8.10_a]
+#   DF$mix1.Hg.8.10_b[Hg.8.10_b] <- DF$mix1gap.Hg.8.10_b[Hg.8.10_b]
+#   DF$mix1.Hg.1.3_a[Hg.1.3_a] <- DF$mix1gap.Hg.1.3_a[Hg.1.3_a]
+#   DF$mix1.Hg.1.3_b[Hg.1.3_b] <- DF$mix1gap.Hg.1.3_b[Hg.1.3_b]
+#   DF$mix1.M11a_a[M11a_a] <- DF$mix1gap.M11a_a[M11a_a]
+#   DF$mix1.M11a_b[M11a_b] <- DF$mix1gap.M11a_b[M11a_b]
+#   DF$mix1.PvcA_a[PvcA_a] <- DF$mix1gap.PvcA_a[PvcA_a]
+#   DF$mix1.PvcA_b[PvcA_b] <- DF$mix1gap.PvcA_b[PvcA_b]
+#   DF$mix1.Zcwb07_a[Zcwb07_a] <- DF$mix1gap.Zcwb07_a[Zcwb07_a]
+#   DF$mix1.Zcwb07_b[Zcwb07_b] <- DF$mix1gap.Zcwb07_b[Zcwb07_b]
+#   DF$mix1.Agaz.2_a[Agaz.2_a] <- DF$mix1gap.Agaz.2_a[Agaz.2_a]
+#   DF$mix1.Agaz.2_b[Agaz.2_b] <- DF$mix1gap.Agaz.2_b[Agaz.2_b]
+#   
+#   DF[1:5,] <- First_5
+#   
+#   DF <- subset(DF, select = -c(mix1gap.Rack_location, mix1gap.ID, mix1gap.Pv9_a, mix1gap.Pv9_b, mix1gap.Hg.6.3_a, mix1gap.Hg.6.3_b, mix1gap.Hg.8.10_a, mix1gap.Hg.8.10_b, mix1gap.Hg.1.3_a, mix1gap.Hg.1.3_b, mix1gap.M11a_a, mix1gap.M11a_b, mix1gap.PvcA_a, mix1gap.PvcA_b, mix1gap.Zcwb07_a, mix1gap.Zcwb07_b, mix1gap.Agaz.2_a, mix1gap.Agaz.2_b))
+# }
+# 
+# Mix4 <- function(DF) {
+#   ZcwF07_a <- which(DF$mix4.ZcwF07_a != DF$mix4gap.ZcwF07_a | is.na(DF$mix4.ZcwF07_a) == T)
+#   ZcwF07_b <- which(DF$mix4.ZcwF07_b != DF$mix4gap.ZcwF07_b | is.na(DF$mix4.ZcwF07_b) == T)
+#   ZcwD02_a <- which(DF$mix4.ZcwD02_a != DF$mix4gap.ZcwD02_a | is.na(DF$mix4.ZcwD02_a) == T)
+#   ZcwD02_b <- which(DF$mix4.ZcwD02_b != DF$mix4gap.ZcwD02_b | is.na(DF$mix4.ZcwD02_b) == T)
+#   ZcwCgDh1.8_a <- which(DF$mix4.ZcwCgDh1.8_a != DF$mix4gap.ZcwCgDh1.8_a | is.na(DF$mix4.ZcwCgDh1.8_a) == T)
+#   ZcwCgDh1.8_b <- which(DF$mix4.ZcwCgDh1.8_b != DF$mix4gap.ZcwCgDh1.8_b | is.na(DF$mix4.ZcwCgDh1.8_b) == T)
+#   Aa4_a <- which(DF$mix4.Aa4_a != DF$mix4gap.Aa4_a | is.na(DF$mix4.Aa4_a) == T)
+#   Aa4_b <- which(DF$mix4.Aa4_b != DF$mix4gap.Aa4_b | is.na(DF$mix4.Aa4_b) == T)
+#   ZcCgDh5.8_a <- which(DF$mix4.ZcCgDh5.8_a != DF$mix4gap.ZcCgDh5.8_a | is.na(DF$mix4.ZcCgDh5.8_a) == T)
+#   ZcCgDh5.8_b <- which(DF$mix4.ZcCgDh5.8_b != DF$mix4gap.ZcCgDh5.8_b | is.na(DF$mix4.ZcCgDh5.8_b) == T)
+#   Agaz3_a <- which(DF$mix4.Agaz3_a != DF$mix4gap.Agaz3_a | is.na(DF$mix4.Agaz3_a) == T)
+#   Agaz3_b <- which(DF$mix4.Agaz3_b != DF$mix4gap.Agaz3_b | is.na(DF$mix4.Agaz3_b) == T)
+# 
+#   DF$mix4.ZcwF07_a[ZcwF07_a] <- DF$mix4gap.ZcwF07_a[ZcwF07_a]
+#   DF$mix4.ZcwF07_b[ZcwF07_b] <- DF$mix4gap.ZcwF07_b[ZcwF07_b]
+#   DF$mix4.ZcwD02_a[ZcwD02_a] <- DF$mix4gap.ZcwD02_a[ZcwD02_a]
+#   DF$mix4.ZcwD02_b[ZcwD02_b] <- DF$mix4gap.ZcwD02_b[ZcwD02_b]
+#   DF$mix4.ZcwCgDh1.8_a[ZcwCgDh1.8_a] <- DF$mix4gap.ZcwCgDh1.8_a[ZcwCgDh1.8_a]
+#   DF$mix4.ZcwCgDh1.8_b[ZcwCgDh1.8_b] <- DF$mix4gap.ZcwCgDh1.8_b[ZcwCgDh1.8_b]
+#   DF$mix4.Aa4_a[Aa4_a] <- DF$mix4gap.Aa4_a[Aa4_a]
+#   DF$mix4.Aa4_b[Aa4_b] <- DF$mix4gap.Aa4_b[Aa4_b]
+#   DF$mix4.ZcCgDh5.8_a[ZcCgDh5.8_a] <- DF$mix4gap.ZcCgDh5.8_a[ZcCgDh5.8_a]
+#   DF$mix4.ZcCgDh5.8_b[ZcCgDh5.8_b] <- DF$mix4gap.ZcCgDh5.8_b[ZcCgDh5.8_b]
+#   DF$mix4.Agaz3_a[Agaz3_a] <- DF$mix4gap.Agaz3_a[Agaz3_a]
+#   DF$mix4.Agaz3_b[Agaz3_b] <- DF$mix4gap.Agaz3_b[Agaz3_b]
+#   
+#   DF <- subset(DF, select = -c(mix4gap.ZcwF07_a, mix4gap.ZcwF07_b, mix4gap.ZcwD02_a, mix4gap.ZcwD02_b, mix4gap.ZcwCgDh1.8_a, mix4gap.ZcwCgDh1.8_b, mix4gap.Aa4_a, mix4gap.Aa4_b, mix4gap.ZcCgDh5.8_a, mix4gap.ZcCgDh5.8_b, mix4gap.Agaz3_a, mix4gap.Agaz3_b))
+# }
+# 
+# #bind the different mixes together
+# Data_df = do.call(cbind, Data_list)
+# #Separate the dataframe into Rack and treatment and remove this info from column names
+# R154_R1 <- Data_df %>% select(contains("Rack154")) %>% select(contains("_1")) %>%
+#   rename_with(~sub("Rack154_", "", .), everything()) %>%
+#   rename_with(~sub("_1", "", .), everything()) %>% ZcwCO1_loci() %>% Mangs_loci() %>% write_csv(., file.path(working_dir, "R154_R1.csv"))
+# R154_R2 <- Data_df %>% select(contains("Rack154")) %>% select(contains("_2")) %>%
+#   rename_with(~sub("Rack154_", "", .), everything()) %>%
+#   rename_with(~sub("_2", "", .), everything()) %>% ZcwCO1_loci() %>% write_csv(., file.path(working_dir, "R154_R2.csv"))
+# R154_R3 <- Data_df %>% select(contains("Rack154")) %>% select(contains("_3")) %>%
+#   rename_with(~sub("Rack154_", "", .), everything()) %>%
+#   rename_with(~sub("_3", "", .), everything()) %>% ZcwCO1_loci() %>% Mang44_loci() %>% OrrFCB2_loci() %>% Mix1() %>% Mix4() %>% write_csv(., file.path(working_dir, "R154_R3.csv"))
+# R154_R4 <- Data_df %>% select(contains("Rack154")) %>% select(contains("_4")) %>%
+#   rename_with(~sub("Rack154_", "", .), everything()) %>%
+#   rename_with(~sub("_4", "", .), everything()) %>% ZcwCO1_loci() %>% Mix1() %>% write_csv(., file.path(working_dir, "R154_R4.csv"))
+# R155_R1 <- Data_df %>% select(contains("Rack155")) %>% select(contains("_1")) %>%
+#   rename_with(~sub("Rack155_", "", .), everything()) %>%
+#   rename_with(~sub("_1", "", .), everything()) %>% ZcwCO1_loci() %>% Mangs_loci() %>% write_csv(., file.path(working_dir, "R155_R1.csv"))
+# R155_R2 <- Data_df %>% select(contains("Rack155")) %>% select(contains("_2")) %>%
+#   rename_with(~sub("Rack155_", "", .), everything()) %>%
+#   rename_with(~sub("_2", "", .), everything()) %>% ZcwCO1_loci() %>% Mang44_loci() %>% write_csv(., file.path(working_dir, "R155_R2.csv"))
+# R155_R3 <- Data_df %>% select(contains("Rack155")) %>% select(contains("_3")) %>%
+#   rename_with(~sub("Rack155_", "", .), everything()) %>%
+#   rename_with(~sub("_3", "", .), everything()) %>% ZcwCO1_loci() %>% OrrFCB2_loci() %>% PvcEMangs() %>% write_csv(., file.path(working_dir, "R155_R3.csv"))
+# R155_R4 <- Data_df %>% select(contains("Rack155")) %>% select(contains("_4")) %>%
+#   rename_with(~sub("Rack155_", "", .), everything()) %>%
+#   rename_with(~sub("_4", "", .), everything()) %>% ZcwCO1_loci() %>% write_csv(., file.path(working_dir, "R155_R4.csv"))
+# R156_R1 <- Data_df %>% select(contains("Rack156")) %>% select(contains("_1")) %>%
+#   rename_with(~sub("Rack156_", "", .), everything()) %>%
+#   rename_with(~sub("_1", "", .), everything()) %>% ZcwCO1_loci() %>% Mangs_loci() %>% write_csv(., file.path(working_dir, "R156_R1.csv"))
+# R156_R2 <- Data_df %>% select(contains("Rack156")) %>% select(contains("_2")) %>%
+#   rename_with(~sub("Rack156_", "", .), everything()) %>%
+#   rename_with(~sub("_2", "", .), everything()) %>% ZcwCO1_loci() %>% Mix4() %>% write_csv(., file.path(working_dir, "R156_R2.csv"))
+# R156_R3 <- Data_df %>% select(contains("Rack156")) %>% select(contains("_3")) %>%
+#   rename_with(~sub("Rack156_", "", .), everything()) %>%
+#   rename_with(~sub("_3", "", .), everything()) %>% ZcwCO1_loci() %>% PvcEMangs4436() %>% write_csv(., file.path(working_dir, "R156_R3.csv"))
+# R156_R4 <- Data_df %>% select(contains("Rack156")) %>% select(contains("_4")) %>%
+#   rename_with(~sub("Rack156_", "", .), everything()) %>%
+#   rename_with(~sub("_4", "", .), everything()) %>% ZcwCO1_loci() %>% write_csv(., file.path(working_dir, "R156_R4.csv"))
+# 
+# rm(Data_df, Data_list, x, Data_files, i, Mix1, Mix1_locate, remove_row, Mang44_loci, Mangs_loci, Mix4, Mix1, OrrFCB2_loci, PvcEMangs, PvcEMangs4436, ZcwCO1_loci)
 ```
 
 ```{r}
@@ -378,7 +384,7 @@ Failed_samples_R156 <- as.data.frame(cbind(Count_NAs(R156_R1), Count_NAs(R156_R2
 Failed_samples_R156 <- tibble::rownames_to_column(Failed_samples_R156, "Mix")
 names(Failed_samples_R156) <- c("Mix", "Standard procedure", "Internal control", "Reused detection plate", "Reused PCR plate")    
 
-#Failed_samples <- bind_rows(Failed_samples_R154, Failed_samples_R155, Failed_samples_R156)
+Failed_samples <- bind_rows(Failed_samples_R154, Failed_samples_R155, Failed_samples_R156)
 #Save the table as a csv file
 #write_csv(Failed_samples, file.path(tabs_dir, "Failed_alleles.csv"))
 
@@ -458,9 +464,9 @@ Heatmap.plot <- plot_grid(Heatmap(R154_R1), Heatmap(R155_R1), Heatmap(R156_R1),
 
 #Single heatmap
 SingleHeatmap.plot <- Heatmap(R154_R1)
-ggsave(plot = SingleHeatmap.plot, filename = file.path(figs_dir, "SingleHeatmap.png"), width = 15, height = 10, unit = "cm", dpi = 500)
+#ggsave(plot = SingleHeatmap.plot, filename = file.path(figs_dir, "SingleHeatmap.png"), width = 15, height = 10, unit = "cm", dpi = 500)
 #Heatmap.plot
-ggsave(plot = Heatmap.plot, filename = file.path(figs_dir, "Heatmap2.png"), width = 30, height = 21, unit = "cm", dpi = 500)
+#ggsave(plot = Heatmap.plot, filename = file.path(figs_dir, "Heatmap2.png"), width = 30, height = 21, unit = "cm", dpi = 500)
 ```
 
 ![Heatmap of missing data before gapfilling](Results/Figures/Heatmap.png){#fig-Heatmap fig-align="center"}
@@ -507,7 +513,7 @@ More_than_10 <- subset(Nasmissing, NAs > 10)
 #Maybe_exclude <- table(More_than_10$ID)
 ```
 
-Based on the heatmaps, it is obvious that even after gap filling, some individuals have a higher proportion of missing data than others. To further explore the distribution of missing data, the number of NAs for each row of the dataset was tabulated. Each row corresponds to one individual on one rack, which means that each individual is represented 4 times. Based on @fig-missingdata the majority of individuals have less than 10 errors, however `r length(unique(More_than_10$ID))` individuals are represented in the dataset with at least one occurrence of more than 10 missing alleles. 
+Based on the heatmaps, it is obvious that even after gap filling, some individuals have a higher proportion of missing data than others. To further explore the distribution of missing data, the number of NAs for each row of the dataset was tabulated. Each row corresponds to one individual on one rack, which means that each individual is represented 4 times. Based on @fig-missingdata the majority of individuals have less than 10 errors, however `r length(unique(More_than_10$ID))` individuals are represented in the dataset with at least one occurrence of more than 10 missing alleles.
 
 ![Missing data per individual](Results/Figures/Nasmissing.png){#fig-missingdata}
 
@@ -735,7 +741,6 @@ Mix_Mismatches <- bind_rows(
   Mix_Mismatch(R156_R1, R156_R3),
   Mix_Mismatch(R156_R1, R156_R4))
 
-
 Errorratepermixplot <- Mix_Mismatches %>% 
   mutate(Treatment = factor(Treatment, levels = c("Internal control", "Re-used detection plate", "Re-used PCR plate"))) %>%
 ggplot( aes(x=Mix, y=`Allelic error rate`)) + 
@@ -896,68 +901,83 @@ Analysis.data <- rbind(Mismatch_loci(R154_R1, R154_R2),
 #| label: Bayes_model1
 #| echo: FALSE
 
-Exclude <- c("A04_AGP07487","A05_AGP07488","A01_AGP16315","A02_AGP16316")
-Analysis.data <- subset(Analysis.data, ID != Exclude)
-
-#A Bernoulli trial is a random experiment that has only two possible outcomes: success or failure.
-#Match/no match is similar, as we expect a match between genotypes, if a mismatch is observed, that's a 'failure'
-r = 10
-#model bernoulli
-model <- brms::brm(Match ~ Treatment + (1|ID),
-             data = Analysis.data,
-             family = bernoulli,
-             cores = 8,
-             iter = 1000*r,
-             thin = 1*r,
-             warmup = 1000, #update to 1000
-             chains = 3,
-             set_prior("normal(0,1)", class = "b"))
-
-summary(model)
-plot(model)
-pp_check(model, ndraws = 100)
-
-
-model_interval <- mcmc_intervals_data(model)
-model_interval <- subset(model_interval, !grepl("b_intercept", parameter))
-model_interval <- subset(model_interval, grepl("b_", parameter))
-model_interval <- model_interval %>% mutate(parameter = case_when(
-  parameter == "b_Intercept" ~ "Intercept",
-  parameter == "b_TreatmentReMuseddetectionplate" ~ "Reused detection plate",
-  parameter == "b_TreatmentReMusedPCRplate"  ~ "Reused PCR plate"))
-
-
-#area
-model_info <- mcmc_areas_data(model)
-model_info <- subset(model_info, !grepl("b_intercept", parameter))
-model_info <- subset(model_info, grepl("b_", parameter))
-model_info <- model_info %>% mutate(parameter = case_when(
-  parameter == "b_Intercept" ~ "Intercept",
-  parameter == "b_TreatmentReMuseddetectionplate" ~ "Reused detection plate",
-  parameter == "b_TreatmentReMusedPCRplate"  ~ "Reused PCR plate"))
-
-library(ggridges)
-
-
-Densityplot <- ggplot(data = subset(model_info, parameter == c("Reused detection plate", "Reused PCR plate"))) + 
-  aes(x = x, y = parameter) +
-  geom_ridgeline(aes(scale = 0.4, height = scaled_density, fill = parameter, col = parameter), size = 0.9) +
-  geom_segment(data = subset(model_interval, parameter != "Intercept"), aes(x = l, xend = h, yend = parameter), col = "black", size=2) +
-  geom_segment(data = subset(model_interval, parameter != "Intercept"), aes(x = ll, xend = hh, yend = parameter), col = "black") +
-  geom_point(data = subset(model_interval, parameter != "Intercept"), aes(x = m, y = parameter), color="black", fill = "grey60", shape=21, size = 3) + 
-  geom_vline(xintercept = 0, col = "#ca562c", linetype="longdash")+
-  guides(fill = F, scale = "none") + #remove the legend
-  scale_fill_brewer(palette = "Oranges") +
-  scale_color_brewer(palette = "Oranges") +
-  ggtitle("Uncertainty from posterior draws") +
-  ylab("Treatment") +
-  xlab("Posterior distribution") +
-  theme_bw() +
-  theme(legend.position = "none")
-
-
-ggsave(plot = Densityplot, filename = file.path(figs_dir, "Densityplot.png"), width = 15, height = 10, unit = "cm", dpi = 500)
+# Exclude <- c("A04_AGP07487","A05_AGP07488","A01_AGP16315","A02_AGP16316")
+# Analysis.data <- subset(Analysis.data, ID != Exclude)
+# 
+# #A Bernoulli trial is a random experiment that has only two possible outcomes: success or failure.
+# #Match/no match is similar, as we expect a match between genotypes, if a mismatch is observed, that's a 'failure'
+# r = 100
+# #model bernoulli
+# set.seed(1995) 
+# model <- brms::brm(Match ~ Treatment + Loci + Mix + (1|ID) + (1|Rack),
+#              data = Analysis.data,
+#              family = bernoulli,
+#              cores = 8,
+#              iter = 1000*r,
+#              thin = 1*r,
+#              warmup = 1000, #update to 1000
+#              chains = 3,
+#              set_prior("normal(0,1)", class = "b"))
+# 
+# summary(model)
+# plot(model)
+# pp_check(model, ndraws = 100)
+# 
+# #Extract info from model output
+# model_interval <- mcmc_intervals_data(model)
+# model_interval <- subset(model_interval, !grepl("b_intercept", parameter))
+# model_interval <- subset(model_interval, grepl("b_", parameter))
+# model_interval <- model_interval %>% mutate(parameter = case_when(
+#   parameter == "b_Intercept" ~ "Intercept",
+#   parameter == "b_TreatmentReMuseddetectionplate" ~ "Reused detection plate",
+#   parameter == "b_TreatmentReMusedPCRplate"  ~ "Reused PCR plate"))
+# 
+# #area (for density clouds)
+# model_info <- mcmc_areas_data(model)
+# model_info <- subset(model_info, !grepl("b_intercept", parameter))
+# model_info <- subset(model_info, grepl("b_", parameter))
+# model_info <- model_info %>% mutate(parameter = case_when(
+#   parameter == "b_Intercept" ~ "Intercept",
+#   parameter == "b_TreatmentReMuseddetectionplate" ~ "Reused detection plate",
+#   parameter == "b_TreatmentReMusedPCRplate"  ~ "Reused PCR plate"))
+# 
+# #Build the plot
+# Densityplot <- ggplot(data = subset(model_info, parameter == c("Reused detection plate", "Reused PCR plate"))) + 
+#   aes(x = x, y = parameter) +
+#   geom_ridgeline(aes(scale = 0.4, height = scaled_density, fill = parameter, col = parameter), size = 0.9) +
+#   geom_segment(data = subset(model_interval, parameter != "Intercept"), aes(x = l, xend = h, yend = parameter), col = "black", size=2) +
+#   geom_segment(data = subset(model_interval, parameter != "Intercept"), aes(x = ll, xend = hh, yend = parameter), col = "black") +
+#   geom_point(data = subset(model_interval, parameter != "Intercept"), aes(x = m, y = parameter), color="black", fill = "grey60", shape=21, size = 3) + 
+#   geom_vline(xintercept = 0, col = "#ca562c", linetype="longdash")+
+#   guides(fill = F, scale = "none") + #remove the legend
+#   scale_fill_brewer(palette = "Oranges") +
+#   scale_color_brewer(palette = "Oranges") +
+#   ggtitle("Uncertainty from posterior draws") +
+#   ylab("Treatment") +
+#   xlab("Posterior distribution") +
+#   theme_bw() +
+#   theme(legend.position = "none")
+# 
+# 
+# ggsave(plot = Densityplot, filename = file.path(figs_dir, "Densityplot.png"), width = 15, height = 10, unit = "cm", dpi = 500)
+# 
+# 
+# set.seed(2024) 
+# model.r <- brms::brm(Match ~ Treatment + (1|ID) + (1|Rack) + (1|Loci) + (1|Mix),
+#              data = Analysis.data,
+#              family = bernoulli,
+#              cores = 8,
+#              iter = 1000*r,
+#              thin = 1*r,
+#              warmup = 1000, #update to 1000
+#              chains = 3,
+#              set_prior("normal(0,1)", class = "b"))
+# 
+# summary(model.r)
+# plot(model.r)
+# pp_check(model.r, ndraws = 100)
 ```
+
 To determine if treatment had a significant effect on the following three measures; no. of mismatches, allelic error rate and potential cases of contamination, we performed ANOVAs followed by a post hoc test for pairwise comparisons for the three treatment groups measured against the standard procedure treatment.
 
 ```{r}
@@ -1002,6 +1022,57 @@ On R154 the two samples from 2007-2008 were excluded from analysis, due to lack 
 ![Mismatches and error rates](Results/Figures/Errorrates.png){#fig-Errorrates fig-align="center"}
 
 ```{r}
+#| label: fig-missingdataerrors
+#| echo: FALSE
+#| warning: FALSE
+#| fig-cap: "Missing data"
+
+SP <- Failed_samples %>% subset(., Failed_samples$Mix == "Total", select = "Standard procedure")
+colnames(SP) <- c("Total")
+SP$Rack <- c("R154_R1", "R155_R1", "R156_R1") 
+SP$Treatment <- "Standard procedure"
+IC <- Failed_samples %>% subset(., Failed_samples$Mix == "Total", select = "Internal control")
+colnames(IC) <- c("Total")
+IC$Rack <- c("R154_R2", "R155_R2", "R156_R2")
+IC$Treatment <- "Internal control"
+RD <- Failed_samples %>% subset(., Failed_samples$Mix == "Total", select = "Reused detection plate")
+colnames(RD) <- c("Total")
+RD$Rack <- c("R154_R3", "R155_R3", "R156_R3")
+RD$Treatment <- "Re-used detection plate"
+RP <- Failed_samples %>% subset(., Failed_samples$Mix == "Total", select = "Reused PCR plate")
+colnames(RP) <- c("Total")
+RP$Rack <- c("R154_R4", "R155_R4", "R156_R4")
+RP$Treatment <- "Re-used PCR plate"
+Missingdata <- bind_rows(SP, IC, RD, RP)
+Missingdata$Fill <- substring(Missingdata$Rack, 1, 4)
+Missingdata$Missingrate <- (Missingdata$Total/(95*78))
+
+Missingdataplot <- Missingdata %>% 
+  mutate(Treatment = factor(Treatment, levels = c("Standard procedure", "Internal control", "Re-used detection plate", "Re-used PCR plate"))) %>%
+  ggplot( aes(y=Total, x = Treatment, fill = Fill)) +
+  geom_bar(stat = "identity", position = position_dodge(0.7), width = 0.5, alpha = 0.8) +
+  scale_fill_brewer(palette = "Purples") +
+  guides(fill = F, scale = "none") + #remove the legend
+  geom_text(aes(label = Fill), vjust = -0.4, position = position_dodge(0.7), size = 3) + #adds the rack name to the bar, vjust pushes the text above the bar
+  ylim(0,1400) +
+  ylab("Total cases of missing data") +
+  ggtitle("Missing data per rack") +
+  theme_bw()
+
+Missingrateplot <- Missingdata %>% 
+  mutate(Treatment = factor(Treatment, levels = c("Standard procedure", "Internal control", "Re-used detection plate", "Re-used PCR plate"))) %>%
+ggplot( aes(x=Treatment, y=Missingrate, fill = Treatment)) + 
+  geom_boxplot(alpha = 0.8) +
+  scale_fill_brewer(palette = "Oranges") +
+  theme(legend.position = "none") +
+  guides(fill = F, scale = "none") + #remove the legend
+  ylim(0,0.2) +
+  ggtitle("Rate of missing data per Rack") +
+  ylab("Missing data rate") +
+  theme_bw()
+```
+
+```{r}
 #| label: fig-allelicerrors
 #| echo: FALSE
 #| warning: FALSE
@@ -1013,8 +1084,8 @@ Mismatchplot <- Mismatches %>%
   geom_bar(stat = "identity", position = position_dodge(0.7), width = 0.5, alpha = 0.8) +
   scale_fill_brewer(palette = "Purples") +
   guides(fill = F, scale = "none") + #remove the legend
-  geom_text(aes(label = `Rack 2`), vjust = -0.4, position = position_dodge(0.7), size = 3) + #adds the rack name to the bar, vjust pushes the text above the bar
-  ylim(0,120) +
+  geom_text(aes(label = Rackno), vjust = -0.4, position = position_dodge(0.7), size = 3) + #adds the rack name to the bar, vjust pushes the text above the bar
+  ylim(0,150) +
   ggtitle("Total no. of mismatches per allele") +
   theme_bw()
 ```
@@ -1032,7 +1103,7 @@ ggplot( aes(x=Treatment, y=`Allelic error rate`, fill = Treatment)) +
   scale_fill_brewer(palette = "Oranges") +
   theme(legend.position = "none") +
   guides(fill = F, scale = "none") + #remove the legend
-  ylim(0,0.032) +
+  ylim(0,0.04) +
   ggtitle("Genotype error rate per allele") +
   ylab("Per allele genotype error rate") +
   theme_bw()
@@ -1050,7 +1121,7 @@ ggplot( aes(x=Treatment, y=`Genotype error rate`, fill = Treatment)) +
   scale_fill_brewer(palette = "Oranges") +
   theme(legend.position = "none") +
   guides(fill = F, scale = "none") + #remove the legend 
-  ylim(0,0.032) +
+  ylim(0,0.04) +
   ggtitle("Genotype error rate per locus") +
   ylab("Per locus genotype error rate") +
   theme_bw()
@@ -1061,6 +1132,7 @@ ggplot( aes(x=Treatment, y=`Genotype error rate`, fill = Treatment)) +
 #| echo: FALSE
 #| warning: FALSE
 #| fig-cap: "Potential contamination"
+Contamination_cases$Plate <- substring(Contamination_cases$Rack, 1, 4)
 Contaminationplot <- Contamination_cases %>%
   mutate(Treatment=factor(Treatment, levels = c("Re-used detection plate", "Re-used PCR plate"))) %>%
   mutate(Control=factor(Control, levels = c("R156_R1", "R154_R1", "R155_R1"))) %>%
@@ -1068,8 +1140,8 @@ Contaminationplot <- Contamination_cases %>%
   geom_bar(stat = "identity", position = position_dodge(0.7), width = 0.5, alpha = 0.8) +
   scale_fill_brewer(palette = "Purples") + 
   guides(fill = F, scale = "none") + #remove the legend
-  geom_text(aes(label = Rack), vjust = -0.4, position = position_dodge(0.7), size = 3) + #adds the rack name to the bar, vjust pushes the text above the bar
-  ylim(0,120) +
+  geom_text(aes(label = Plate), vjust = -0.4, position = position_dodge(0.7), size = 3) + #adds the rack name to the bar, vjust pushes the text above the bar
+  ylim(0,150) +
   ggtitle("Total no. of potential contamination cases") +
   ylab("No. of potential cases") +
   theme_bw()
@@ -1080,12 +1152,14 @@ Contaminationplot <- Contamination_cases %>%
 #| echo: FALSE
 #| warning: FALSE
 
-errorrates.plot <- plot_grid(Mismatchplot, Contaminationplot, 
-          Errorrateplot, Errorrategenotypeplot, nrow = 2, labels = "AUTO")
-
+errorrates.plot <- plot_grid(Missingdataplot, Missingrateplot, 
+                             Mismatchplot, Contaminationplot, 
+                             Errorrateplot, Errorrategenotypeplot, nrow = 3, labels = "AUTO")
 
 ggsave(plot = errorrates.plot, filename = file.path(figs_dir, "Errorrates.png"), width = 30, height = 30, unit = "cm", dpi = 500)
 
+ggsave(plot = Missingdataplot, filename = file.path(figs_dir, "Missingdataplot.png"), width = 15, height = 10, unit = "cm", dpi = 500)
+ggsave(plot = Missingrateplot, filename = file.path(figs_dir, "Missingrateplot.png"), width = 15, height = 10, unit = "cm", dpi = 500)
 ggsave(plot = Mismatchplot, filename = file.path(figs_dir, "Mismatchplot.png"), width = 15, height = 10, unit = "cm", dpi = 500)
 ggsave(plot = Contaminationplot, filename = file.path(figs_dir, "Contaminationplot.png"), width = 15, height = 10, unit = "cm", dpi = 500)
 ggsave(plot = Errorrateplot, filename = file.path(figs_dir, "AlleleErrorrateplot.png"), width = 15, height = 10, unit = "cm", dpi = 500)

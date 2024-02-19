@@ -46,12 +46,16 @@ ul.task-list li input[type="checkbox"] {
   <nav id="TOC" role="doc-toc" class="toc-active">
     <h2 id="toc-title">Contents</h2>
    
-  <ul class="collapse">
+  <ul>
   <li><a href="#description" id="toc-description" class="nav-link active" data-scroll-target="#description">Description</a></li>
   <li><a href="#methods" id="toc-methods" class="nav-link" data-scroll-target="#methods">Methods</a>
   <ul class="collapse">
+  <li><a href="#data" id="toc-data" class="nav-link" data-scroll-target="#data">Data</a></li>
   <li><a href="#missing-data" id="toc-missing-data" class="nav-link" data-scroll-target="#missing-data">Missing data</a></li>
-  <li><a href="#error-rate-calculation" id="toc-error-rate-calculation" class="nav-link" data-scroll-target="#error-rate-calculation">Error rate calculation</a></li>
+  <li><a href="#error-rate-calculation" id="toc-error-rate-calculation" class="nav-link" data-scroll-target="#error-rate-calculation">Error rate calculation</a>
+  <ul class="collapse">
+  <li><a href="#analysis" id="toc-analysis" class="nav-link" data-scroll-target="#analysis">Analysis</a></li>
+  </ul></li>
   </ul></li>
   <li><a href="#results" id="toc-results" class="nav-link" data-scroll-target="#results">Results</a></li>
   </ul>
@@ -148,7 +152,7 @@ ul.task-list li input[type="checkbox"] {
 <td>4</td>
 <td>1</td>
 <td>10</td>
-<td>hold</td>
+<td>Hold</td>
 <td>Cool down</td>
 </tr>
 </tbody>
@@ -175,15 +179,9 @@ ul.task-list li input[type="checkbox"] {
 <h4 class="anchored" data-anchor-id="identification-of-contamination">Identification of contamination</h4>
 <p>The samples were each repeated for all four treatments. In the case of a discrepancy between the original genotype and the ‘re-used PCR plate’ or ‘re-used detection plate’ treatment, the new genotype was compared to the genotype of the individual previously genotyped in the same well. If the genotype matched the genotype of the original individual, the mis-matched was marked as contamination.</p>
 </section>
-<section id="data" class="level3">
-<h3 class="anchored" data-anchor-id="data">Data</h3>
+<section id="data" class="level2">
+<h2 class="anchored" data-anchor-id="data">Data</h2>
 <p>The data for this project are the raw sequencing reads from the ABI 3730xl capillary sequencer. Each files is identified with the following name structure: RackX_mixY_Z. Where X gives the rack number, Y the mix and Z the treatment (1 = standard procedure, 2 = internal control, 3 = Re-used detection plate and 4 = Re-used PCR plate).</p>
-<div class="cell">
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in rm(Data_df, Data_list, x, Data_files, i, Mix1, Mix1_locate,
-remove_row, : object 'Mix1' not found</code></pre>
-</div>
-</div>
 </section>
 <section id="missing-data" class="level2">
 <h2 class="anchored" data-anchor-id="missing-data">Missing data</h2>
@@ -210,7 +208,7 @@ remove_row, : object 'Mix1' not found</code></pre>
 <td style="text-align: right;">98</td>
 <td style="text-align: right;">56</td>
 <td style="text-align: right;">22</td>
-<td style="text-align: right;">1002</td>
+<td style="text-align: right;">432</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Mix2</td>
@@ -245,7 +243,7 @@ remove_row, : object 'Mix1' not found</code></pre>
 <td style="text-align: right;">278</td>
 <td style="text-align: right;">194</td>
 <td style="text-align: right;">128</td>
-<td style="text-align: right;">1950</td>
+<td style="text-align: right;">1380</td>
 </tr>
 </tbody>
 </table>
@@ -391,7 +389,7 @@ remove_row, : object 'Mix1' not found</code></pre>
 </div>
 </div>
 <p><a href="#tbl-failed">Table&nbsp;2</a> display the number of unscored alleles within each mix on each plate. For R154 and R156 this is based on 93 individuals, while for R155 it is based on all 95 individuals on the plate.</p>
-<p>Before starting the error rate evaluation, the no. of genotypes that could not be scored for each round and mix per rack is tabulated (See <a href="#tbl-failed">Table&nbsp;2</a>). From this, we know that a total of 5215 alleles could not be scored. In <a href="#fig-Heatmap">Figure&nbsp;2</a> and <a href="#fig-Heatmap2">Figure&nbsp;3</a>, the location of the missing data on the plate is visualized. More purple hues correspond to more missing loci for that particular samples, and we can conclude that certain samples seem to have failed almost completely. This could hint at poor DNA quality. The data is arranged in the plot to match the layout of the actual plate. Through visual inspection, there might be a slight tendency for the missing loci to be located more towards the edges of the plates compared to the center.</p>
+<p>Before starting the error rate evaluation, the no. of genotypes that could not be scored for each round and mix per rack is tabulated (See <a href="#tbl-failed">Table&nbsp;2</a>). From this, we know that a total of 4645 alleles could not be scored. In <a href="#fig-Heatmap">Figure&nbsp;2</a> and <a href="#fig-Heatmap2">Figure&nbsp;3</a>, the location of the missing data on the plate is visualized. More purple hues correspond to more missing loci for that particular samples, and we can conclude that certain samples seem to have failed almost completely. This could hint at poor DNA quality. The data is arranged in the plot to match the layout of the actual plate. Through visual inspection, there might be a slight tendency for the missing loci to be located more towards the edges of the plates compared to the center.</p>
 <div id="fig-Heatmap" class="quarto-figure quarto-figure-center anchored">
 <figure class="figure">
 <p><img src="Results/Figures/Heatmap.png" class="img-fluid figure-img"></p>
@@ -404,7 +402,7 @@ remove_row, : object 'Mix1' not found</code></pre>
 <figcaption class="figure-caption">Figure&nbsp;3: Heatmap of missing data after gapfilling</figcaption>
 </figure>
 </div>
-<p>Based on the heatmaps, it is obvious that even after gap filling, some individuals have a higher proportion of missing data than others. To further explore the distribution of missing data, the number of NAs for each row of the dataset was tabulated. Each row corresponds to one individual on one rack, which means that each individual is represented 4 times. Based on <a href="#fig-missingdata">Figure&nbsp;4</a> the majority of individuals have less than 10 errors, however 105 individuals are represented in the dataset with at least one occurrence of more than 10 missing alleles.</p>
+<p>Based on the heatmaps, it is obvious that even after gap filling, some individuals have a higher proportion of missing data than others. To further explore the distribution of missing data, the number of NAs for each row of the dataset was tabulated. Each row corresponds to one individual on one rack, which means that each individual is represented 4 times. Based on <a href="#fig-missingdata">Figure&nbsp;4</a> the majority of individuals have less than 10 errors, however 95 individuals are represented in the dataset with at least one occurrence of more than 10 missing alleles.</p>
 <div id="fig-missingdata" class="quarto-figure quarto-figure-center anchored">
 <figure class="figure">
 <p><img src="Results/Figures/Nasmissing.png" class="img-fluid figure-img"></p>
@@ -485,9 +483,9 @@ remove_row, : object 'Mix1' not found</code></pre>
 <td style="text-align: left;">R154_R1</td>
 <td style="text-align: left;">R154_R4</td>
 <td style="text-align: left;">Re-used PCR plate</td>
-<td style="text-align: right;">83</td>
-<td style="text-align: right;">0.0158276</td>
-<td style="text-align: right;">0.0312738</td>
+<td style="text-align: right;">139</td>
+<td style="text-align: right;">0.0239821</td>
+<td style="text-align: right;">0.0472740</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">R155_R1</td>
@@ -558,7 +556,7 @@ remove_row, : object 'Mix1' not found</code></pre>
 <tr class="even">
 <td style="text-align: left;">R154_R4</td>
 <td style="text-align: left;">R156_R1</td>
-<td style="text-align: right;">50</td>
+<td style="text-align: right;">105</td>
 <td style="text-align: left;">Re-used PCR plate</td>
 </tr>
 <tr class="odd">
@@ -583,12 +581,14 @@ remove_row, : object 'Mix1' not found</code></pre>
 </section>
 <section id="analysis" class="level3">
 <h3 class="anchored" data-anchor-id="analysis">Analysis</h3>
+<section id="bayesian-models" class="level4">
+<h4 class="anchored" data-anchor-id="bayesian-models">Bayesian models</h4>
 <p>To determine if treatment had a significant effect on the following three measures; no. of mismatches, allelic error rate and potential cases of contamination, we performed ANOVAs followed by a post hoc test for pairwise comparisons for the three treatment groups measured against the standard procedure treatment.</p>
 <div class="cell">
 <div class="cell-output cell-output-stdout">
 <pre><code>            Df Sum Sq Mean Sq F value  Pr(&gt;F)   
-Treatment    2   9059    4529   14.68 0.00489 **
-Residuals    6   1851     309                   
+Treatment    2  14758    7379   13.09 0.00648 **
+Residuals    6   3382     564                   
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </div>
@@ -600,22 +600,23 @@ Fit: aov(formula = `No. of mismatches` ~ Treatment, data = Mismatches)
 
 $Treatment
                                                diff       lwr       upr
-Re-used detection plate-Internal control  -7.333333 -51.33967  36.67301
-Re-used PCR plate-Internal control        63.333333  19.32699 107.33967
-Re-used PCR plate-Re-used detection plate 70.666667  26.66033 114.67301
+Re-used detection plate-Internal control  -7.333333 -66.81180  52.14513
+Re-used PCR plate-Internal control        82.000000  22.52154 141.47846
+Re-used PCR plate-Re-used detection plate 89.333333  29.85487 148.81180
                                               p adj
-Re-used detection plate-Internal control  0.8687638
-Re-used PCR plate-Internal control        0.0106583
-Re-used PCR plate-Re-used detection plate 0.0063148</code></pre>
+Re-used detection plate-Internal control  0.9251021
+Re-used PCR plate-Internal control        0.0130013
+Re-used PCR plate-Re-used detection plate 0.0087164</code></pre>
 </div>
 </div>
 <p>The total no. of mismatches between the standard procedure and the additional treatments could be significantly determined by treatment. Further exploration using a Tukey pairwise comparison revealed that this treatment effect was driven by a significant difference in no. of mismatches in the ‘re-used detection plate’ treatment when compared to both the internal control and the re-used PCR treatment. When comparing those two treatments to each other, no significant difference could be found.</p>
 </section>
 </section>
 </section>
+</section>
 <section id="results" class="level1">
 <h1>Results</h1>
-<p>On R154 the two samples from 2007-2008 were excluded from analysis, due to lack of DNA for the last treatment. Likewise for two of the positive controls on R156. In total, 390 alleles were analysed, out of which 5215 were unscorable. We found a total of 390 mismatches on allelic level between all treatments across all racks. A subset of these (211) were potential contamination cases.</p>
+<p>On R154 the two samples from 2007-2008 were excluded from analysis, due to lack of DNA for the last treatment. Likewise for two of the positive controls on R156. In total, 446 alleles were analysed, out of which 4645 were unscorable. We found a total of 446 mismatches on allelic level between all treatments across all racks. A subset of these (266) were potential contamination cases.</p>
 <p><a href="#fig-Errorrates">Figure&nbsp;6</a> shows 4 graphic panels. A visualize the total no. of mismatches observed when comparing the standard procedure treatment of each rack with the other treatments. B the total number of potential contamination cases, while C and D show the per allele and per locus genotype error rate, respectively.</p>
 <div id="fig-Errorrates" class="quarto-figure quarto-figure-center anchored">
 <figure class="figure">
