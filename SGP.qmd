@@ -411,59 +411,59 @@ Before starting the error rate evaluation, the no. of genotypes that could not b
 #| warning: FALSE
 #| fig-cap: "Heatmap of missing data"
 
-#Fix this in initial read in
-R154_R4$mix1.M11a_a <- as.integer(R154_R4$mix1.M11a_a)
-R156_R1$mix5.Mang44_a <- as.integer(R156_R1$mix5.Mang44_a)
-
-#The replace functions locates NAs and replaces them with 0 and all other entries with 1
-Replace <- function(DF) {
-  mix <- DF %>% replace(!is.na(.), 1) %>% replace(is.na(.), 0) %>%
-  mutate(Row_Sums = rowSums(across(everything())))
-  Sum <- mix$Row_Sums
-  return(Sum)
-}
-
-#The heatmap function generates a heatmap for the dataframe provided
-Heatmap <- function(DF) {
-  #using the replace function, the sum per ID of scored loci is calculated
-  Sum <- as.data.frame(cbind(Replace(DF[3:18]), Replace(DF[19:36]), Replace(DF[37:52]), Replace(DF[53:64]), Replace(DF[65:80]))) %>% mutate(Sums = rowSums(across(everything())))
-
-  #Name
-  Rack <- deparse(substitute(DF))
-
-  #In some of the racks, a couple of samples have been repeated (_1 and _2), cleans name
-  DF$mix1.ID <- gsub("_(\\d)$", "", as.character(DF$mix1.ID))
-
-  #Creates the table needed for ggplot to generate the heatmap
-  Heat <- as.data.frame(cbind(Sum$Sums, DF$mix1.ID, DF$mix1.ID))
-  colnames(Heat) <- c("Sum", "Column", "Row")
-  Heat <- Heat %>%
-    mutate(Row = gsub("\\d{2}_[A-Z]{3}\\d{5}", "", as.character(Row)),
-         Column = gsub("[A-Z]|_[A-Z]{3}\\d{5}", "", as.character(Column))) %>%
-    mutate(Row = as.factor(Row), Sum = as.numeric(Sum))
-
-  #The actual plot, data entered to represent the layout of the actual plate
-  #More purple hues means more missing data
-  Heatmap.plot <- ggplot(data = Heat, aes(x=factor(Column,level=c('01','02','03','04','05','06','07','08','09','10','11','12')), y=Row, fill=Sum)) +
-  geom_tile() +
-  scale_y_discrete(limits = rev(levels(Heat$Row))) +
-  scale_fill_gradient(low = "purple", high = "orange", limits = c(0,80)) +
-  theme_minimal() +
-  theme(axis.title.x = element_blank(),
-        axis.title.y = element_blank()) +
-  ggtitle(Rack)
-  return(Heatmap.plot)
-}
-
-#Applying the heatmap funtion to all datasets and arranging them
-Heatmap.plot <- plot_grid(Heatmap(R154_R1), Heatmap(R155_R1), Heatmap(R156_R1),
-                          Heatmap(R154_R2), Heatmap(R155_R2), Heatmap(R156_R2),
-                          Heatmap(R154_R3), Heatmap(R155_R3), Heatmap(R156_R3),
-                          Heatmap(R154_R4), Heatmap(R155_R4), Heatmap(R156_R4),
-                          labels = NULL, nrow = 4)
+# #Fix this in initial read in
+# R154_R4$mix1.M11a_a <- as.integer(R154_R4$mix1.M11a_a)
+# R156_R1$mix5.Mang44_a <- as.integer(R156_R1$mix5.Mang44_a)
+# 
+# #The replace functions locates NAs and replaces them with 0 and all other entries with 1
+# Replace <- function(DF) {
+#   mix <- DF %>% replace(!is.na(.), 1) %>% replace(is.na(.), 0) %>%
+#   mutate(Row_Sums = rowSums(across(everything())))
+#   Sum <- mix$Row_Sums
+#   return(Sum)
+# }
+# 
+# #The heatmap function generates a heatmap for the dataframe provided
+# Heatmap <- function(DF) {
+#   #using the replace function, the sum per ID of scored loci is calculated
+#   Sum <- as.data.frame(cbind(Replace(DF[3:18]), Replace(DF[19:36]), Replace(DF[37:52]), Replace(DF[53:64]), Replace(DF[65:80]))) %>% mutate(Sums = rowSums(across(everything())))
+# 
+#   #Name
+#   Rack <- deparse(substitute(DF))
+# 
+#   #In some of the racks, a couple of samples have been repeated (_1 and _2), cleans name
+#   DF$mix1.ID <- gsub("_(\\d)$", "", as.character(DF$mix1.ID))
+# 
+#   #Creates the table needed for ggplot to generate the heatmap
+#   Heat <- as.data.frame(cbind(Sum$Sums, DF$mix1.ID, DF$mix1.ID))
+#   colnames(Heat) <- c("Sum", "Column", "Row")
+#   Heat <- Heat %>%
+#     mutate(Row = gsub("\\d{2}_[A-Z]{3}\\d{5}", "", as.character(Row)),
+#          Column = gsub("[A-Z]|_[A-Z]{3}\\d{5}", "", as.character(Column))) %>%
+#     mutate(Row = as.factor(Row), Sum = as.numeric(Sum))
+# 
+#   #The actual plot, data entered to represent the layout of the actual plate
+#   #More purple hues means more missing data
+#   Heatmap.plot <- ggplot(data = Heat, aes(x=factor(Column,level=c('01','02','03','04','05','06','07','08','09','10','11','12')), y=Row, fill=Sum)) +
+#   geom_tile() +
+#   scale_y_discrete(limits = rev(levels(Heat$Row))) +
+#   scale_fill_gradient(low = "purple", high = "orange", limits = c(0,80)) +
+#   theme_minimal() +
+#   theme(axis.title.x = element_blank(),
+#         axis.title.y = element_blank()) +
+#   ggtitle(Rack)
+#   return(Heatmap.plot)
+# }
+# 
+# #Applying the heatmap funtion to all datasets and arranging them
+# Heatmap.plot <- plot_grid(Heatmap(R154_R1), Heatmap(R155_R1), Heatmap(R156_R1),
+#                           Heatmap(R154_R2), Heatmap(R155_R2), Heatmap(R156_R2),
+#                           Heatmap(R154_R3), Heatmap(R155_R3), Heatmap(R156_R3),
+#                           Heatmap(R154_R4), Heatmap(R155_R4), Heatmap(R156_R4),
+#                           labels = NULL, nrow = 4)
 
 #Single heatmap
-SingleHeatmap.plot <- Heatmap(R154_R1)
+#SingleHeatmap.plot <- Heatmap(R154_R1)
 #ggsave(plot = SingleHeatmap.plot, filename = file.path(figs_dir, "SingleHeatmap.png"), width = 15, height = 10, unit = "cm", dpi = 500)
 #Heatmap.plot
 #ggsave(plot = Heatmap.plot, filename = file.path(figs_dir, "Heatmap2.png"), width = 30, height = 21, unit = "cm", dpi = 500)
@@ -874,9 +874,27 @@ Mismatch_loci <- function(DF1, DF2) {
   
   #Match coloum created by matching loci pair with mismatch row+column pair
   Loci$Match <- ifelse(Loci$pair %in% Mismatch$pair, 0, 1)
-  Loci <- Loci[,-grep("pair",colnames(Loci))]
-  #Loci should have the same no. of 0 as the number of mismatches
+
+  #Add column with NA values
+  Detect_NA <- as.data.frame(which(is.na(DF2[3:80]), arr.ind = TRUE))
+  Detect_NA$row <- DF1$mix1.ID[Detect_NA[,1]]
+  Detect_NA$col <- Detect_NA[,2]+2
+  Detect_NA$col <- colnames(DF1[Detect_NA[,2]])
+  Detect_NA$col <- gsub("mix\\d{1}.|_a.\\d+", "", Detect_NA$col)
+  Detect_NA$col <- gsub("_b.\\d+", "", Detect_NA$col)
+  Detect_NA$col <- gsub("_a", "", Detect_NA$col)
+  Detect_NA$col <- gsub("_b", "", Detect_NA$col)
+  Detect_NA <- Detect_NA[!duplicated(Detect_NA[1:2]),]
+  Detect_NA$pair <- paste(Detect_NA$row, Detect_NA$col)
   
+  #Match and Missing data coloum created by matching loci pair with mismatch row+column pair
+  #If a mismatch or missing data is observed, 0, otherwise 1
+  Loci$Match <- ifelse(Loci$pair %in% Mismatch$pair, 0, 1)
+  Loci$Missing <- ifelse(Loci$pair %in% Detect_NA$pair, 0, 1)
+  
+  Loci <- Loci[,-grep("pair",colnames(Loci))]
+  Loci$ID <- substring(Loci$ID, 5, 12)
+  #Loci should have the same no. of 0 as the number of mismatches
   if (length(Loci$Match[Loci$Match == 0]) != nrow(Mismatch)) {
     print("Error")
   } else {
@@ -893,6 +911,9 @@ Analysis.data <- rbind(Mismatch_loci(R154_R1, R154_R2),
                        Mismatch_loci(R156_R1, R156_R2),
                        Mismatch_loci(R156_R1, R156_R3),
                        Mismatch_loci(R156_R1, R156_R4)) %>% mutate(Treatment = factor(Treatment, levels = c("Internal control", "Re-used detection plate", "Re-used PCR plate")))
+
+Analysis.data <- left_join(Analysis.data, Nanodrop_SGP, by = "ID")
+Analysis.data$Nanodrop <- as.numeric(Analysis.data$Nanodrop)
 ```
 
 #### Bayesian models
@@ -901,15 +922,16 @@ Analysis.data <- rbind(Mismatch_loci(R154_R1, R154_R2),
 #| label: Bayes_model1
 #| echo: FALSE
 
-# Exclude <- c("A04_AGP07487","A05_AGP07488","A01_AGP16315","A02_AGP16316")
-# Analysis.data <- subset(Analysis.data, ID != Exclude)
-# 
-# #A Bernoulli trial is a random experiment that has only two possible outcomes: success or failure.
-# #Match/no match is similar, as we expect a match between genotypes, if a mismatch is observed, that's a 'failure'
-# r = 100
-# #model bernoulli
-# set.seed(1995) 
-# model <- brms::brm(Match ~ Treatment + Loci + Mix + (1|ID) + (1|Rack),
+Exclude <- c("A04_AGP07487","A05_AGP07488","A01_AGP16315","A02_AGP16316")
+Analysis.data <- subset(Analysis.data, ID != Exclude)
+
+#A Bernoulli trial is a random experiment that has only two possible outcomes: success or failure.
+#Match/no match is similar, as we expect a match between genotypes, if a mismatch is observed, that's a 'failure'
+#Including nanodrop values in the model means that one individual: 
+r = 100
+#model bernoulli: Match
+# set.seed(1995)
+# model.match <- brms::brm(Match ~ Treatment + Nanodrop + (1|ID) + (1|Rack) + (1|Loci) + (1|Mix),
 #              data = Analysis.data,
 #              family = bernoulli,
 #              cores = 8,
@@ -919,10 +941,33 @@ Analysis.data <- rbind(Mismatch_loci(R154_R1, R154_R2),
 #              chains = 3,
 #              set_prior("normal(0,1)", class = "b"))
 # 
-# summary(model)
-# plot(model)
-# pp_check(model, ndraws = 100)
-# 
+# save(model.match, file = "Data/Working_data/Processed_data/model.match.Rdata")
+
+summary(model.match)
+#using summary() with brms the intervals default to 95% 
+#you can change this if you want like so: 
+#summary(model.match, prob = 0.89)
+plot(model.match)
+pp_check(model.match, ndraws = 100)
+
+#model bernoulli: Missing
+set.seed(2024)
+model.missing <- brms::brm(Missing ~ Treatment + Nanodrop + (1|ID) + (1|Rack) + (1|Loci) + (1|Mix),
+             data = Analysis.data,
+             family = bernoulli,
+             cores = 8,
+             iter = 1000*r,
+             thin = 1*r,
+             warmup = 1000, #update to 1000
+             chains = 3,
+             set_prior("normal(0,1)", class = "b"))
+
+summary(model.missing)
+plot(model.missing)
+pp_check(model.missing, ndraws = 100)
+
+
+# Plot the models 
 # #Extract info from model output
 # model_interval <- mcmc_intervals_data(model)
 # model_interval <- subset(model_interval, !grepl("b_intercept", parameter))
@@ -961,21 +1006,6 @@ Analysis.data <- rbind(Mismatch_loci(R154_R1, R154_R2),
 # 
 # ggsave(plot = Densityplot, filename = file.path(figs_dir, "Densityplot.png"), width = 15, height = 10, unit = "cm", dpi = 500)
 # 
-# 
-# set.seed(2024) 
-# model.r <- brms::brm(Match ~ Treatment + (1|ID) + (1|Rack) + (1|Loci) + (1|Mix),
-#              data = Analysis.data,
-#              family = bernoulli,
-#              cores = 8,
-#              iter = 1000*r,
-#              thin = 1*r,
-#              warmup = 1000, #update to 1000
-#              chains = 3,
-#              set_prior("normal(0,1)", class = "b"))
-# 
-# summary(model.r)
-# plot(model.r)
-# pp_check(model.r, ndraws = 100)
 ```
 
 To determine if treatment had a significant effect on the following three measures; no. of mismatches, allelic error rate and potential cases of contamination, we performed ANOVAs followed by a post hoc test for pairwise comparisons for the three treatment groups measured against the standard procedure treatment.
@@ -1055,7 +1085,7 @@ Missingdataplot <- Missingdata %>%
   guides(fill = F, scale = "none") + #remove the legend
   geom_text(aes(label = Fill), vjust = -0.4, position = position_dodge(0.7), size = 3) + #adds the rack name to the bar, vjust pushes the text above the bar
   ylim(0,1400) +
-  ylab("Total cases of missing data") +
+  ylab("Total no. of missing data") +
   ggtitle("Missing data per rack") +
   theme_bw()
 
@@ -1067,9 +1097,11 @@ ggplot( aes(x=Treatment, y=Missingrate, fill = Treatment)) +
   theme(legend.position = "none") +
   guides(fill = F, scale = "none") + #remove the legend
   ylim(0,0.2) +
-  ggtitle("Rate of missing data per Rack") +
+  ggtitle("Rate of missing data per rack") +
   ylab("Missing data rate") +
   theme_bw()
+
+rm(IC, RP, RD, SP)
 ```
 
 ```{r}
