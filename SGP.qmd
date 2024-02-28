@@ -830,90 +830,147 @@ Total_Ccases <- sum(Contamination_cases$Cases)
 #| label: Mismatch_loci
 #| echo: FALSE
 
-Mismatch_loci <- function(DF1, DF2) {
-  Loci <- rbind(as.data.frame((colnames(DF1[3:80]))))
-  colnames(Loci) <- "Loci"
-  Loci$Loci <- gsub("_a", "", Loci$Loci)
-  Loci$Loci <- gsub("_b", "", Loci$Loci)
-  Loci <- unique(Loci$Loci)
-  Loci <- as.data.frame(Loci)
-  Loci$Mix <- substring(Loci$Loci, 1, 4) 
-  Loci$Loci <- gsub("mix\\d{1}.", "", Loci$Loci)
-  Loci$Rack <- substring(deparse(substitute(DF1)), 1, 4) 
-  
-  #To recognize treatment, simplify the 'name' of the DF to the round number (R*)
-  Round <- gsub("R\\d{3}|_", "", deparse(substitute(DF2)))
-  if (Round == "R2"){
-    Treatment <- "Internal control"
-  } else if (Round == "R3") {
-    Treatment <- "Re-used detection plate"
-  } else {
-    Treatment <- "Re-used PCR plate"
-  }
-  Loci$Treatment <- Treatment
-  
-  #To create the binomial match/no match column, first a base is created
-  Base <- DF1[1:2]
-  colnames(Base) <- c("Well", "ID")
-  Base$Row <- substring(Base$ID, 1, 1)
+# Mismatch_loci <- function(DF1, DF2) {
+#   Loci <- rbind(as.data.frame((colnames(DF1[3:80]))))
+#   colnames(Loci) <- "Loci"
+#   Loci$Loci <- gsub("_a", "", Loci$Loci)
+#   Loci$Loci <- gsub("_b", "", Loci$Loci)
+#   Loci <- unique(Loci$Loci)
+#   Loci <- as.data.frame(Loci)
+#   Loci$Mix <- substring(Loci$Loci, 1, 4) 
+#   Loci$Loci <- gsub("mix\\d{1}.", "", Loci$Loci)
+#   Loci$Rack <- substring(deparse(substitute(DF1)), 1, 4) 
+#   
+#   #To recognize treatment, simplify the 'name' of the DF to the round number (R*)
+#   Round <- gsub("R\\d{3}|_", "", deparse(substitute(DF2)))
+#   if (Round == "R2"){
+#     Treatment <- "Internal control"
+#   } else if (Round == "R3") {
+#     Treatment <- "Re-used detection plate"
+#   } else {
+#     Treatment <- "Re-used PCR plate"
+#   }
+#   Loci$Treatment <- Treatment
+#   
+#   #To create the binomial match/no match column, first a base is created
+#   Base <- DF1[1:2]
+#   colnames(Base) <- c("Well", "ID")
+#   Base$Row <- substring(Base$ID, 1, 1)
+# 
+#   Loci <- cross_join(Loci, Base)
+#   Loci$pair <- paste(Loci$ID, Loci$Loci)
+#   
+#   #mismatches are identified and the row+column is merged
+#   Mismatch <- as.data.frame(which(DF1[3:80] != DF2[3:80], arr.ind = TRUE))
+#   Mismatch$row <- DF1$mix1.ID[Mismatch[,1]]
+#   Mismatch$col <- Mismatch[,2]+2
+#   Mismatch$col <- colnames(DF1[Mismatch[,2]])
+#   Mismatch$col <- gsub("mix\\d{1}.|_a.\\d+", "", Mismatch$col)
+#   Mismatch$col <- gsub("_b.\\d+", "", Mismatch$col)
+#   Mismatch$col <- gsub("_a", "", Mismatch$col)
+#   Mismatch$col <- gsub("_b", "", Mismatch$col)
+#   Mismatch <- Mismatch[!duplicated(Mismatch[1:2]),]
+#   Mismatch$pair <- paste(Mismatch$row, Mismatch$col)
+#   
+#   #Match coloum created by matching loci pair with mismatch row+column pair
+#   Loci$Match <- ifelse(Loci$pair %in% Mismatch$pair, 0, 1)
+# 
+#   #Add column with NA values
+#   Detect_NA <- as.data.frame(which(is.na(DF2[3:80]), arr.ind = TRUE))
+#   Detect_NA$row <- DF1$mix1.ID[Detect_NA[,1]]
+#   Detect_NA$col <- Detect_NA[,2]+2
+#   Detect_NA$col <- colnames(DF1[Detect_NA[,2]])
+#   Detect_NA$col <- gsub("mix\\d{1}.|_a.\\d+", "", Detect_NA$col)
+#   Detect_NA$col <- gsub("_b.\\d+", "", Detect_NA$col)
+#   Detect_NA$col <- gsub("_a", "", Detect_NA$col)
+#   Detect_NA$col <- gsub("_b", "", Detect_NA$col)
+#   Detect_NA <- Detect_NA[!duplicated(Detect_NA[1:2]),]
+#   Detect_NA$pair <- paste(Detect_NA$row, Detect_NA$col)
+#   
+#   #Match and Missing data coloum created by matching loci pair with mismatch row+column pair
+#   #If a mismatch or missing data is observed, 0, otherwise 1
+#   Loci$Match <- ifelse(Loci$pair %in% Mismatch$pair, 0, 1)
+#   Loci$Missing <- ifelse(Loci$pair %in% Detect_NA$pair, 0, 1)
+#   
+#   Loci <- Loci[,-grep("pair",colnames(Loci))]
+#   Loci$ID <- substring(Loci$ID, 5, 14)
+#   #Loci should have the same no. of 0 as the number of mismatches
+#   if (length(Loci$Match[Loci$Match == 0]) != nrow(Mismatch)) {
+#     print("Error")
+#   } else {
+#     return(Loci)
+#   }
+# }
+# 
+# Analysis.data <- rbind(Mismatch_loci(R154_R1, R154_R2),
+#                        Mismatch_loci(R154_R1, R154_R3),
+#                        Mismatch_loci(R154_R1, R154_R4),
+#                        Mismatch_loci(R155_R1, R155_R2),
+#                        Mismatch_loci(R155_R1, R155_R3),
+#                        Mismatch_loci(R155_R1, R155_R4),
+#                        Mismatch_loci(R156_R1, R156_R2),
+#                        Mismatch_loci(R156_R1, R156_R3),
+#                        Mismatch_loci(R156_R1, R156_R4)) %>% mutate(Treatment = factor(Treatment, levels = c("Internal control", "Re-used detection plate", "Re-used PCR plate")))
+# 
+# Analysis.data <- left_join(Analysis.data, Nanodrop_SGP, by = "ID")
+# Analysis.data$Nanodrop <- as.numeric(Analysis.data$Nanodrop)
+# 
+# write_csv(Analysis.data, file.path(working_dir, "Analysis.data.csv"))
+```
 
-  Loci <- cross_join(Loci, Base)
-  Loci$pair <- paste(Loci$ID, Loci$Loci)
-  
-  #mismatches are identified and the row+column is merged
-  Mismatch <- as.data.frame(which(DF1[3:80] != DF2[3:80], arr.ind = TRUE))
-  Mismatch$row <- DF1$mix1.ID[Mismatch[,1]]
-  Mismatch$col <- Mismatch[,2]+2
-  Mismatch$col <- colnames(DF1[Mismatch[,2]])
-  Mismatch$col <- gsub("mix\\d{1}.|_a.\\d+", "", Mismatch$col)
-  Mismatch$col <- gsub("_b.\\d+", "", Mismatch$col)
-  Mismatch$col <- gsub("_a", "", Mismatch$col)
-  Mismatch$col <- gsub("_b", "", Mismatch$col)
-  Mismatch <- Mismatch[!duplicated(Mismatch[1:2]),]
-  Mismatch$pair <- paste(Mismatch$row, Mismatch$col)
-  
-  #Match coloum created by matching loci pair with mismatch row+column pair
-  Loci$Match <- ifelse(Loci$pair %in% Mismatch$pair, 0, 1)
-
-  #Add column with NA values
-  Detect_NA <- as.data.frame(which(is.na(DF2[3:80]), arr.ind = TRUE))
-  Detect_NA$row <- DF1$mix1.ID[Detect_NA[,1]]
-  Detect_NA$col <- Detect_NA[,2]+2
-  Detect_NA$col <- colnames(DF1[Detect_NA[,2]])
-  Detect_NA$col <- gsub("mix\\d{1}.|_a.\\d+", "", Detect_NA$col)
-  Detect_NA$col <- gsub("_b.\\d+", "", Detect_NA$col)
-  Detect_NA$col <- gsub("_a", "", Detect_NA$col)
-  Detect_NA$col <- gsub("_b", "", Detect_NA$col)
-  Detect_NA <- Detect_NA[!duplicated(Detect_NA[1:2]),]
-  Detect_NA$pair <- paste(Detect_NA$row, Detect_NA$col)
-  
-  #Match and Missing data coloum created by matching loci pair with mismatch row+column pair
-  #If a mismatch or missing data is observed, 0, otherwise 1
-  Loci$Match <- ifelse(Loci$pair %in% Mismatch$pair, 0, 1)
-  Loci$Missing <- ifelse(Loci$pair %in% Detect_NA$pair, 0, 1)
-  
-  Loci <- Loci[,-grep("pair",colnames(Loci))]
-  Loci$ID <- substring(Loci$ID, 5, 12)
-  #Loci should have the same no. of 0 as the number of mismatches
-  if (length(Loci$Match[Loci$Match == 0]) != nrow(Mismatch)) {
-    print("Error")
-  } else {
-    return(Loci)
-  }
-}
-
-Analysis.data <- rbind(Mismatch_loci(R154_R1, R154_R2),
-                       Mismatch_loci(R154_R1, R154_R3),
-                       Mismatch_loci(R154_R1, R154_R4),
-                       Mismatch_loci(R155_R1, R155_R2),
-                       Mismatch_loci(R155_R1, R155_R3),
-                       Mismatch_loci(R155_R1, R155_R4),
-                       Mismatch_loci(R156_R1, R156_R2),
-                       Mismatch_loci(R156_R1, R156_R3),
-                       Mismatch_loci(R156_R1, R156_R4)) %>% mutate(Treatment = factor(Treatment, levels = c("Internal control", "Re-used detection plate", "Re-used PCR plate")))
-
-Analysis.data <- left_join(Analysis.data, Nanodrop_SGP, by = "ID")
-Analysis.data$Nanodrop <- as.numeric(Analysis.data$Nanodrop)
+```{r}
+#| label: Missing_loci
+#| echo: FALSE
+# 
+# #This function observes the missing data in the standard procedure round 
+# Missing_loci <- function(DF1) {
+#   Loci <- rbind(as.data.frame((colnames(DF1[3:80]))))
+#   colnames(Loci) <- "Loci"
+#   Loci$Loci <- gsub("_a", "", Loci$Loci)
+#   Loci$Loci <- gsub("_b", "", Loci$Loci)
+#   Loci <- unique(Loci$Loci)
+#   Loci <- as.data.frame(Loci)
+#   Loci$Mix <- substring(Loci$Loci, 1, 4) 
+#   Loci$Loci <- gsub("mix\\d{1}.", "", Loci$Loci)
+#   Loci$Rack <- substring(deparse(substitute(DF1)), 1, 4) 
+#   Loci$Treatment <- "Standard procedure"
+#   
+#   #To create the binomial match/no match column, first a base is created
+#   Base <- DF1[1:2]
+#   colnames(Base) <- c("Well", "ID")
+#   Base$Row <- substring(Base$ID, 1, 1)
+# 
+#   Loci <- cross_join(Loci, Base)
+#   Loci$pair <- paste(Loci$ID, Loci$Loci)
+# 
+#   #Add column with NA values
+#   Detect_NA <- as.data.frame(which(is.na(DF1[3:80]), arr.ind = TRUE))
+#   Detect_NA$row <- DF1$mix1.ID[Detect_NA[,1]]
+#   Detect_NA$col <- Detect_NA[,2]+2
+#   Detect_NA$col <- colnames(DF1[Detect_NA[,2]])
+#   Detect_NA$col <- gsub("mix\\d{1}.|_a.\\d+", "", Detect_NA$col)
+#   Detect_NA$col <- gsub("_b.\\d+", "", Detect_NA$col)
+#   Detect_NA$col <- gsub("_a", "", Detect_NA$col)
+#   Detect_NA$col <- gsub("_b", "", Detect_NA$col)
+#   Detect_NA <- Detect_NA[!duplicated(Detect_NA[1:2]),]
+#   Detect_NA$pair <- paste(Detect_NA$row, Detect_NA$col)
+#   
+#   #Match and Missing data coloum created by matching loci pair with mismatch row+column pair
+#   #If a mismatch or missing data is observed, 0, otherwise 1
+#   Loci$Match <- NA
+#   Loci$Missing <- ifelse(Loci$pair %in% Detect_NA$pair, 0, 1)
+#   
+#   Loci <- Loci[,-grep("pair",colnames(Loci))]
+#   Loci$ID <- substring(Loci$ID, 5, 14)
+#   return(Loci)
+# }
+# 
+# Standard <- rbind(Missing_loci(R154_R1), Missing_loci(R155_R1), Missing_loci(R156_R1))
+# Standard <- left_join(Standard, Nanodrop_SGP, by = "ID")
+# Standard$Nanodrop <- as.numeric(Standard$Nanodrop)
+# Analysis.data.missing <- rbind(Standard, Analysis.data)
+# 
+# write_csv(Analysis.data.missing, file.path(working_dir, "Analysis.data.missing.csv"))
 ```
 
 #### Bayesian models
@@ -921,133 +978,188 @@ Analysis.data$Nanodrop <- as.numeric(Analysis.data$Nanodrop)
 ```{r}
 #| label: Bayes_model1
 #| echo: FALSE
+#load the data
+Analysis.data <- read.csv(file.path(working_dir, "Analysis.data.csv"))
+#Create binary treatment variables
+Analysis.data <- Analysis.data %>% mutate(dummy=1) %>% spread(key=Treatment,value=dummy, fill=0) 
+colnames(Analysis.data)[10:12] <- c("R2", "R3", "R4")
 
-Exclude <- c("A04_AGP07487","A05_AGP07488","A01_AGP16315","A02_AGP16316")
-Analysis.data <- subset(Analysis.data, ID != Exclude)
+#length(unique(Analysis.data$ID)) #285 individuals
+#We want to exclude the following individuals due to incorrect data
+#"A04_AGP07487" "A05_AGP07488" "A01_AGP16315" "A02_AGP16316" "AGF13004" "AGP16191" (Last two changed name to the original sample)
+
+Analysis.data <- Analysis.data[!Analysis.data$ID %in% c("AGP07487","AGP07488","AGP16315","AGP16316"),]
+#length(unique(Analysis.data$ID)) #281 individuals
+
+# #to scale nanodrop to be on a (0,1) scale like the other varibles (aka Standardization)
+# range01 <- function(x){(x-min(x))/(max(x)-min(x))}
+# Analysis.data$StandardizedNanodrop <- range01(Analysis.data$Nanodrop)
 
 #A Bernoulli trial is a random experiment that has only two possible outcomes: success or failure.
 #Match/no match is similar, as we expect a match between genotypes, if a mismatch is observed, that's a 'failure'
-#Including nanodrop values in the model means that one individual: 
-r = 100
-#model bernoulli: Match
-# set.seed(1995)
-# model.match <- brms::brm(Match ~ Treatment + Nanodrop + (1|ID) + (1|Rack) + (1|Loci) + (1|Mix),
-#              data = Analysis.data,
-#              family = bernoulli,
-#              cores = 8,
-#              iter = 1000*r,
-#              thin = 1*r,
-#              warmup = 1000, #update to 1000
-#              chains = 3,
-#              set_prior("normal(0,1)", class = "b"))
-# 
-# save(model.match, file = "Data/Working_data/Processed_data/model.match.Rdata")
 
+r = 1000
+#model bernoulli: Match
+#shapiro.test(scale(Nanodrop_SGP$Nanodrop)) #not normally distributed
+
+set.seed(1995)
+model.match <- brms::brm(Match ~ R2 + R3 + R4 + (1|ID) + (1|Rack) + (1|Loci) + (1|Mix),
+             data = Analysis.data,
+             family = bernoulli,
+             cores = 10,
+             iter = 1000*r,
+             thin = r,
+             warmup = 500*r, #standard is iter/2
+             chains = 3,
+             control = list(adapt_delta = 0.99, max_treedepth = 10), #default max_treedepth = 10
+             set_prior("normal(0,1)", class = "b")) #standardized weakly informative prior
+                                                    #Prior for the random effect class = "sd", standard is normal(0, sigma_x)
+save(model.match, file = "Data/Working_data/Processed_data/model.match.Rdata")
+pairs(model.match)
 summary(model.match)
-#using summary() with brms the intervals default to 95% 
-#you can change this if you want like so: 
-#summary(model.match, prob = 0.89)
+#using summary() with brms the intervals default to 95%
+#you can change this if you want like so:
+summary(model.match, prob = 0.89)
 plot(model.match)
 pp_check(model.match, ndraws = 100)
 
+# #visualize the rhat values
+# rhats <- rhat(model.match)
+# mcmc_rhat(rhats)
+
+#Explore effect estimates of the random effects
+ranef(model.match)
+
+# Plot the model
+#Extract info from model output
+model_interval <- mcmc_intervals_data(model.match)
+model_interval <- subset(model_interval, !grepl("b_intercept", parameter))
+model_interval <- subset(model_interval, grepl("b_", parameter))
+model_interval <- model_interval %>% mutate(parameter = case_when(
+  parameter == "b_Intercept" ~ "Intercept",
+  parameter == "b_R2"  ~ "Internal control",
+  parameter == "b_R3" ~ "Reused detection plate",
+  parameter == "b_R4"  ~ "Reused PCR plate"))
+
+#area (for density clouds)
+model_info <- mcmc_areas_data(model.match)
+model_info <- subset(model_info, !grepl("b_intercept", parameter))
+model_info <- subset(model_info, grepl("b_", parameter))
+model_info <- model_info %>% mutate(parameter = case_when(
+  parameter == "b_Intercept" ~ "Intercept",
+  parameter == "b_R2"  ~ "Internal control",
+  parameter == "b_R3" ~ "Reused detection plate",
+  parameter == "b_R4"  ~ "Reused PCR plate"))
+
+#Build the plot
+Density.match.plot <- ggplot(data = subset(model_info, parameter == c("Internal control", "Reused detection plate", "Reused PCR plate"))) +
+  aes(x = x, y = parameter) +
+  geom_ridgeline(aes(scale = 0.4, height = scaled_density, fill = parameter, col = parameter), size = 0.9) +
+  geom_ridgeline(data = subset(model_info, parameter == "Internal control"), aes(x = x, y = parameter, scale = 0.4, height = scaled_density, fill = parameter, col = parameter), size = 0.9) +
+  geom_segment(data = model_interval[2:4,], aes(x = l, xend = h, yend = parameter), col = "black", size=2) +
+  geom_segment(data = model_interval[2:4,], aes(x = ll, xend = hh, yend = parameter), col = "black") +
+  geom_point(data = model_interval[2:4,], aes(x = m, y = parameter), color="black", fill = "grey60", shape=21, size = 3) +
+  geom_vline(xintercept = 2.212687e+00, col = "#ca562c", linetype="longdash")+
+  guides(fill = F, scale = "none") + #remove the legend
+  scale_fill_brewer(palette = "Oranges") +
+  scale_color_brewer(palette = "Oranges") +
+  ggtitle("Uncertainty from posterior draws") +
+  ylab("Treatment") +
+  xlab("Posterior distribution") +
+  theme_bw() +
+  theme(legend.position = "none")
+
+# ggsave(plot = Density.match.plot, filename = file.path(figs_dir, "Density.match.plot.png"), width = 15, height = 10, unit = "cm", dpi = 500)
+# 
+```
+
+```{r}
+#| label: Bayes_model2
+#| echo: FALSE
+#load the data
+Analysis.data.missing <- read.csv(file.path(working_dir, "Analysis.data.missing.csv"))
+
+#Exclude individuals as above
+Analysis.data.missing <- Analysis.data.missing[!Analysis.data.missing$ID %in% c("AGP07487","AGP07488","AGP16315","AGP16316"),]
+Analysis.data.missing <- Analysis.data.missing %>% mutate(dummy=1) %>% spread(key=Treatment,value=dummy, fill=0)
+colnames(Analysis.data.missing)[10:13] <- c("R2", "R3", "R4", "R1")
+
+#A Bernoulli trial is a random experiment that has only two possible outcomes: success or failure.
+#Missing/not missing is similar, as we expect data not to be missing, is missing data is observed, that's a 'failure'
+
+r = 1000
+
 #model bernoulli: Missing
 set.seed(2024)
-model.missing <- brms::brm(Missing ~ Treatment + Nanodrop + (1|ID) + (1|Rack) + (1|Loci) + (1|Mix),
-             data = Analysis.data,
+model.missing <- brms::brm(Missing ~ R1 + R2 + R3 + R4 + (1|ID) + (1|Rack) + (1|Loci) + (1|Mix),
+             data = Analysis.data.missing,
              family = bernoulli,
              cores = 8,
              iter = 1000*r,
-             thin = 1*r,
-             warmup = 1000, #update to 1000
+             thin = r,
+             warmup = 500*r, #standard is iter/2
              chains = 3,
+             control = list(adapt_delta = 0.99, max_treedepth = 10),
              set_prior("normal(0,1)", class = "b"))
 
 summary(model.missing)
 plot(model.missing)
 pp_check(model.missing, ndraws = 100)
 
+#Explore effect estimates of the random effects
+ranef(model.missing)
 
-# Plot the models 
-# #Extract info from model output
-# model_interval <- mcmc_intervals_data(model)
-# model_interval <- subset(model_interval, !grepl("b_intercept", parameter))
-# model_interval <- subset(model_interval, grepl("b_", parameter))
-# model_interval <- model_interval %>% mutate(parameter = case_when(
-#   parameter == "b_Intercept" ~ "Intercept",
-#   parameter == "b_TreatmentReMuseddetectionplate" ~ "Reused detection plate",
-#   parameter == "b_TreatmentReMusedPCRplate"  ~ "Reused PCR plate"))
+# Plot the model
+#Extract info from model output
+model_interval <- mcmc_intervals_data(model.missing)
+model_interval <- subset(model_interval, !grepl("b_intercept", parameter))
+model_interval <- subset(model_interval, grepl("b_", parameter))
+model_interval <- model_interval %>% mutate(parameter = case_when(
+  parameter == "b_Intercept" ~ "Intercept",
+  parameter == "b_R1"  ~ "Standard procedure",
+  parameter == "b_R2"  ~ "Internal control",
+  parameter == "b_R3" ~ "Reused detection plate",
+  parameter == "b_R4"  ~ "Reused PCR plate"))
+
+#area (for density clouds)
+model_info <- mcmc_areas_data(model.missing)
+model_info <- subset(model_info, !grepl("b_intercept", parameter))
+model_info <- subset(model_info, grepl("b_", parameter))
+model_info <- model_info %>% mutate(parameter = case_when(
+  parameter == "b_Intercept" ~ "Intercept",
+  parameter == "b_R1"  ~ "Standard procedure",
+  parameter == "b_R2"  ~ "Internal control",
+  parameter == "b_R3" ~ "Reused detection plate",
+  parameter == "b_R4"  ~ "Reused PCR plate"))
+
+#Build the plot
+Density.missing.plot <- ggplot(data = subset(model_info, parameter == c("Standard procedure", "Internal control", "Reused detection plate", "Reused PCR plate"))) +
+  aes(x = x, y = parameter) +
+  geom_ridgeline(aes(scale = 0.4, height = scaled_density, fill = parameter, col = parameter), size = 0.9) +
+  geom_ridgeline(data = subset(model_info, parameter == "Standard procedure"), aes(x = x, y = parameter, scale = 0.4, height = scaled_density, fill = parameter, col = parameter), size = 0.9) +
+  geom_segment(data = model_interval[2:5,], aes(x = l, xend = h, yend = parameter), col = "black", size=2) +
+  geom_segment(data = model_interval[2:5,], aes(x = ll, xend = hh, yend = parameter), col = "black") +
+  geom_point(data = model_interval[2:5,], aes(x = m, y = parameter), color="black", fill = "grey60", shape=21, size = 3) +
+  geom_vline(xintercept = 6.3712923, col = "#ca562c", linetype="longdash")+
+  scale_y_discrete(limits = c("Standard procedure", "Internal control", "Reused detection plate", "Reused PCR plate")) +
+  guides(fill = F, scale = "none") + #remove the legend
+  scale_fill_brewer(palette = "Oranges") +
+  scale_color_brewer(palette = "Oranges") +
+  ggtitle("Uncertainty from posterior draws") +
+  ylab("Treatment") +
+  xlab("Posterior distribution") +
+  theme_bw() +
+  theme(legend.position = "none")
+
+# ggsave(plot = Density.missing.plot, filename = file.path(figs_dir, "Density.missing.plot.png"), width = 15, height = 10, unit = "cm", dpi = 500)
 # 
-# #area (for density clouds)
-# model_info <- mcmc_areas_data(model)
-# model_info <- subset(model_info, !grepl("b_intercept", parameter))
-# model_info <- subset(model_info, grepl("b_", parameter))
-# model_info <- model_info %>% mutate(parameter = case_when(
-#   parameter == "b_Intercept" ~ "Intercept",
-#   parameter == "b_TreatmentReMuseddetectionplate" ~ "Reused detection plate",
-#   parameter == "b_TreatmentReMusedPCRplate"  ~ "Reused PCR plate"))
-# 
-# #Build the plot
-# Densityplot <- ggplot(data = subset(model_info, parameter == c("Reused detection plate", "Reused PCR plate"))) + 
-#   aes(x = x, y = parameter) +
-#   geom_ridgeline(aes(scale = 0.4, height = scaled_density, fill = parameter, col = parameter), size = 0.9) +
-#   geom_segment(data = subset(model_interval, parameter != "Intercept"), aes(x = l, xend = h, yend = parameter), col = "black", size=2) +
-#   geom_segment(data = subset(model_interval, parameter != "Intercept"), aes(x = ll, xend = hh, yend = parameter), col = "black") +
-#   geom_point(data = subset(model_interval, parameter != "Intercept"), aes(x = m, y = parameter), color="black", fill = "grey60", shape=21, size = 3) + 
-#   geom_vline(xintercept = 0, col = "#ca562c", linetype="longdash")+
-#   guides(fill = F, scale = "none") + #remove the legend
-#   scale_fill_brewer(palette = "Oranges") +
-#   scale_color_brewer(palette = "Oranges") +
-#   ggtitle("Uncertainty from posterior draws") +
-#   ylab("Treatment") +
-#   xlab("Posterior distribution") +
-#   theme_bw() +
-#   theme(legend.position = "none")
-# 
-# 
-# ggsave(plot = Densityplot, filename = file.path(figs_dir, "Densityplot.png"), width = 15, height = 10, unit = "cm", dpi = 500)
-# 
-```
-
-To determine if treatment had a significant effect on the following three measures; no. of mismatches, allelic error rate and potential cases of contamination, we performed ANOVAs followed by a post hoc test for pairwise comparisons for the three treatment groups measured against the standard procedure treatment.
-
-```{r}
-#| label: Mismatch_analysis
-#| echo: FALSE
-
-M.mismatches <- aov(`No. of mismatches` ~ Treatment, data = Mismatches)
-summary(M.mismatches)
-
-TukeyHSD(M.mismatches, conf.level=.95) 
-#Detection plate treatment significantly different from the other two
-```
-
-The total no. of mismatches between the standard procedure and the additional treatments could be significantly determined by treatment. Further exploration using a Tukey pairwise comparison revealed that this treatment effect was driven by a significant difference in no. of mismatches in the 're-used detection plate' treatment when compared to both the internal control and the re-used PCR treatment. When comparing those two treatments to each other, no significant difference could be found.
-
-```{r}
-#| label: errorrate_analysis
-#| echo: FALSE
-#The same was true for the error rate.
-# M.errorrate <- aov(`Allelic error rate` ~ Treatment, data = Mismatches)
-# summary(M.errorrate)
-# 
-# TukeyHSD(M.errorrate, conf.level=.95)
-# #Detection plate treatment significantly different from the other two
-```
-
-```{r}
-#| label: contamination_analysis
-#| echo: FALSE
-#To explore the effect of treatment on the number of potential contamination cases, a non-parametric wilcoxon test was used.
-# #Wilcox.test compares two non-parametric groups. 
-# #Null-hypothesis is that the two medians are equal. Lacks the other cases to fully interpret
-# wilcox.test(Cases ~ Treatment, data = Contamination_cases)
 ```
 
 # Results
 
 On R154 the two samples from 2007-2008 were excluded from analysis, due to lack of DNA for the last treatment. Likewise for two of the positive controls on R156. In total, `r Total_Mcases` alleles were analysed, out of which `r Total_Missing` were unscorable. We found a total of `r Total_Mcases` mismatches on allelic level between all treatments across all racks. A subset of these (`r Total_Ccases`) were potential contamination cases.
 
-@fig-Errorrates shows 4 graphic panels. A visualize the total no. of mismatches observed when comparing the standard procedure treatment of each rack with the other treatments. B the total number of potential contamination cases, while C and D show the per allele and per locus genotype error rate, respectively.
+@fig-Errorrates shows 6 graphic panels. A visualize the total no. of mismatches observed when comparing the standard procedure treatment of each rack with the other treatments. B the total number of potential contamination cases, while C and D show the per allele and per locus genotype error rate, respectively.
 
 ![Mismatches and error rates](Results/Figures/Errorrates.png){#fig-Errorrates fig-align="center"}
 
@@ -1298,6 +1410,69 @@ ggsave(plot = Errorrategenotypeplot, filename = file.path(figs_dir, "Errorratege
 ```{r}
 #| label: Maybeusablecode
 #| echo: FALSE
+
+
+# # Plot the model
+# #Extract info from model output
+# model_interval <- mcmc_intervals_data(model.match)
+# model_interval <- subset(model_interval, !grepl("b_intercept", parameter))
+# model_interval <- subset(model_interval, grepl("b_", parameter))
+# model_interval <- model_interval %>% mutate(parameter = case_when(
+#   parameter == "b_Intercept" ~ "Internal control",
+#   parameter == "b_TreatmentReMuseddetectionplate" ~ "Reused detection plate",
+#   parameter == "b_TreatmentReMusedPCRplate"  ~ "Reused PCR plate",
+#   parameter == "b_Nanodrop" ~ "Nanodrop"))
+# 
+# #The parameters are always in relation to the intercept, so to represent them correctly visually
+# #the intercept value is added to the parameter values
+# Intercept <- subset(model_interval[1,], select = c("ll", "l", "m", "h", "hh"))
+# 
+# model_interval <- cbind(subset(model_interval[1:4]), rbind(subset(model_interval[1,], select = c("ll", "l", "m", "h", "hh")),
+#                 subset(model_interval[2,], select = c("ll", "l", "m", "h", "hh"))+Intercept,
+#                 subset(model_interval[3,], select = c("ll", "l", "m", "h", "hh"))+Intercept,
+#                 subset(model_interval[4,], select = c("ll", "l", "m", "h", "hh"))+Intercept))
+# 
+# #area (for density clouds)
+# model_info <- mcmc_areas_data(model.match)
+# model_info <- subset(model_info, !grepl("b_intercept", parameter))
+# model_info <- subset(model_info, grepl("b_", parameter))
+# model_info <- model_info %>% mutate(parameter = case_when(
+#   parameter == "b_Intercept" ~ "Internal control",
+#   parameter == "b_TreatmentReMuseddetectionplate" ~ "Reused detection plate",
+#   parameter == "b_TreatmentReMusedPCRplate"  ~ "Reused PCR plate",
+#   parameter == "b_Nanodrop" ~ "Nanodrop"))
+# 
+# #Build the plot
+# Density.match.plot <- ggplot(data = subset(model_info, parameter == c("Reused detection plate", "Reused PCR plate"))) +
+#   aes(x = x+5.966920, y = parameter) +
+#   geom_ridgeline(aes(scale = 0.4, height = scaled_density, fill = parameter, col = parameter), size = 0.9) +
+#   geom_ridgeline(data = subset(model_info, parameter == "Internal control"), aes(x = x, y = parameter, scale = 0.4, height = scaled_density, fill = parameter, col = parameter), size = 0.9) +
+#   geom_segment(data = subset(model_interval, parameter != "Nanodrop"), aes(x = l, xend = h, yend = parameter), col = "black", size=2) +
+#   geom_segment(data = subset(model_interval, parameter != "Nanodrop"), aes(x = ll, xend = hh, yend = parameter), col = "black") +
+#   geom_point(data = subset(model_interval, parameter != "Nanodrop"), aes(x = m, y = parameter), color="black", fill = "grey60", shape=21, size = 3) +
+#   geom_vline(xintercept = 5.966920, col = "#ca562c", linetype="longdash")+
+#   guides(fill = F, scale = "none") + #remove the legend
+#   scale_fill_brewer(palette = "Oranges") +
+#   scale_color_brewer(palette = "Oranges") +
+#   ggtitle("Uncertainty from posterior draws") +
+#   ylab("Treatment") +
+#   xlab("Posterior distribution") +
+#   theme_bw() +
+#   theme(legend.position = "none")
+
+# ggsave(plot = Density.match.plot, filename = file.path(figs_dir, "Density.match.plot.png"), width = 15, height = 10, unit = "cm", dpi = 500)
+# 
+
+# model.match <- brms::brm(Match ~ Treatment + Nanodrop + (1|ID) + (1|Rack) + (1|Loci) + (1|Mix),
+#              data = Analysis.data,
+#              family = bernoulli,
+#              cores = 10,
+#              iter = 1000*r,
+#              thin = r,
+#              warmup = 500*r, #standard is iter/2
+#              chains = 3,
+#              set_prior("normal(0,1)", class = "b"))
+
 
   #  #Mismatch should also include NA values
   #  NaDF1 <- DF1[3:80] %>% replace(!is.na(.), 0) %>% replace(is.na(.), 1) %>%
