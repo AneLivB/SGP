@@ -45,7 +45,8 @@ working_dir <- file.path("Data", "Working_data", "Processed_data")
 ```
 
 # Abstract
-Scientific research is a massive endeavor, consuming vast quantities of single-use plastics. With an ongoing global plastic crisis at our hands, we cannot hide behind the importance of scientific progress. A multitude of possible solutions from shifting to reusable materials to generating shared campus-wide laboratory inventories are being proposed. Rethinking existing laboratory protocols is often encouraged, but it is rarely based on empirical testing. We designed an experimental set-up to evaluate the re-useability of 96 microwell plates in the context of an existing microsatellite genotyping protocol. In our standard procedure 11 microplates are required to genotype 96 samples. The samples are distributed from one plate to five plates for the first step (PCR amplification) and transferred to five new plates in the second step (fragment analysis). Due to the risk of contamination, the plates are usually single-use. We cleaned the plates using an environmentally friendly approach and systematically reused the plates in either the first step (Re-used PCR plate) or the second step (Re-used detection plate) of the protocol. We included an internal control treatment to establish baseline error rates. We found no detectable difference in quality of either scoring or final genotyping for the ‘Re-used detection plate’ treatment. Whereas the ‘Re-used PCR plates’ led to a decreased scoring and a 10-fold increase in genotype errors. We conclude, that washing and re-using 96 microwell plates for fragment analysis can decrease the use of single-use plastics in laboratories, thereby saving costs and improving sustainability in the lab. 
+
+Scientific research is a massive endeavor, consuming vast quantities of single-use plastics. With an ongoing global plastic crisis at our hands, we cannot hide behind the importance of scientific progress. A multitude of possible solutions from shifting to reusable materials to generating shared campus-wide laboratory inventories are being proposed. Rethinking existing laboratory protocols is often encouraged, but it is rarely based on empirical testing. We designed an experimental set-up to evaluate the re-useability of 96 microwell plates in the context of an existing microsatellite genotyping protocol. In our standard procedure 11 microplates are required to genotype 96 samples. The samples are distributed from one plate to five plates for the first step (PCR amplification) and transferred to five new plates in the second step (fragment analysis). Due to the risk of contamination, the plates are usually single-use. We cleaned the plates using an environmentally friendly approach and systematically reused the plates in either the first step (Re-used PCR plate) or the second step (Re-used detection plate) of the protocol. We included an internal control treatment to establish baseline error rates. We found no detectable difference in quality of either scoring or final genotyping for the 'Re-used detection plate' treatment. Whereas the 'Re-used PCR plates' led to a decreased scoring and a 10-fold increase in genotype errors. We conclude, that washing and re-using 96 microwell plates for fragment analysis can decrease the use of single-use plastics in laboratories, thereby saving costs and improving sustainability in the lab.
 
 # Introduction
 
@@ -56,7 +57,7 @@ Scientific research is a massive endeavor, consuming vast quantities of single-u
 invisible(pacman::p_load(dplyr, tidyverse, here, stringi, png, knitr, rstatix, cowplot, kableExtra, brms, bayesplot, ggridges))
 ```
 
-We set out to explore the re-useability of 96-micro well plate with the aim to test the following hypothesis: 1) 96 microwell plates can be cleaned and reused within the context of microsatellite genotyping, 2) the genotype error rate will be higher for plates reused for PCR amplification. 
+We set out to explore the re-useability of 96-micro well plate with the aim to test the following hypothesis: 1) 96 microwell plates can be cleaned and reused within the context of microsatellite genotyping, 2) the genotype error rate will be higher for plates reused for PCR amplification.
 
 # Materials and Methods
 
@@ -472,9 +473,9 @@ More_than_10 <- subset(Nasmissing, NAs > 10)
 
 #### Data evaluation
 
-We calculated the allelic and genotype error rate between the different treatments using the ‘standard procedure’ treatment as reference. The ‘internal control’ treatment was included in the experimental setup to compute a baseline for error rates. The comparison between the different treatments and the standard procedure yielded a list of mismatches. In the cases where the mismatch stemmed from the 're-used PCR plate' or 're-used detection plate' treatment, the new genotype was compared to the original genotype. Here, original genotype refers to the genotype resolved from the same well in the first use of the plate. If the genotype matched the original genotype, the mismatch was marked as potential case of contamination. Additionally, we calculated the rate of missing data for all treatments. 
+We calculated the allelic and genotype error rate between the different treatments using the 'standard procedure' treatment as reference. The 'internal control' treatment was included in the experimental setup to compute a baseline for error rates. The comparison between the different treatments and the standard procedure yielded a list of mismatches. In the cases where the mismatch stemmed from the 're-used PCR plate' or 're-used detection plate' treatment, the new genotype was compared to the original genotype. Here, original genotype refers to the genotype resolved from the same well in the first use of the plate. If the genotype matched the original genotype, the mismatch was marked as potential case of contamination. Additionally, we calculated the rate of missing data for all treatments.
 
-For each sample we noted whether the genotype matched with the ‘standard procedure’ per loci and for all treatments whether the genotype was scored or not. This yielded two datasets referred to as ‘match’ and ‘missing genotype’ data respectively. We ran separate Bayesian binary logistic regression mixed models with treatment included as several indicator variables for match data and missing genotypes data. All statistical analyses were implemented in R version 4.2.1 with Rstudio version 2023.09.1+494.
+For each sample we noted whether the genotype matched with the 'standard procedure' per loci and for all treatments whether the genotype was scored or not. This yielded two datasets referred to as 'match' and 'missing genotype' data respectively. We ran separate Bayesian binary logistic regression mixed models with treatment included as several indicator variables for match data and missing genotypes data. All statistical analyses were implemented in R version 4.2.1 with Rstudio version 2023.09.1+494.
 
 ```{r}
 #| label: tbl-allelemismatch
@@ -599,7 +600,6 @@ Total_Mcases <- sum(Mismatches$`No. of mismatches`)
 #   theme_bw()
 # ggsave(plot = Mismatchloci, filename = file.path(figs_dir, "Mismatchloci.png"), width = 15, height = 10, unit = "cm", dpi = 500)
 ```
-
 
 ```{r}
 #| label: tbl-contamination
@@ -822,9 +822,9 @@ remotes::install_github("stan-dev/cmdstanr")
 # Analysis.data <- read.csv(file.path(working_dir, "Analysis.data.csv"))
 #
 # #Create binary treatment variables
-Analysis.data$R2 <- ifelse(Analysis.data$Treatment == "Internal control", 0.5, -0.5)
-Analysis.data$R3 <- ifelse(Analysis.data$Treatment == "Re-used detection plate", 0.5, -0.5)
-Analysis.data$R4 <- ifelse(Analysis.data$Treatment == "Re-used PCR plate", 0.5, -0.5)
+Analysis.data$R2 <- ifelse(Analysis.data$Treatment == "Internal control", 1, 0)
+Analysis.data$R3 <- ifelse(Analysis.data$Treatment == "Re-used detection plate", 1, 0)
+Analysis.data$R4 <- ifelse(Analysis.data$Treatment == "Re-used PCR plate", 1, 0)
 # 
 # #length(unique(Analysis.data$ID)) #285 individuals
 # #We want to exclude the following individuals due to incorrect data
@@ -840,19 +840,19 @@ Analysis.data$R4 <- ifelse(Analysis.data$Treatment == "Re-used PCR plate", 0.5, 
 # #A Bernoulli trial is a random experiment that has only two possible outcomes: success or failure.
 # #Match/no match is similar, as we expect a match between genotypes, if a mismatch is observed, that's a 'failure'
 # 
-r = 100
+
 #model bernoulli: Match
 #shapiro.test(scale(Nanodrop_SGP$Nanodrop)) #not normally distributed
 
 #In R the intercept is called 1, you can remove it by adding -1 to your model
 set.seed(1995)
-model.match <- brms::brm(Match ~ -1 + R2 + R3 + R4 + (1|ID) + (1|Rack) + (1|Loci) + (1|Mix),
+model.match <- brms::brm(Match ~ Treatment + (1|ID) + (1|Rack) + (1|Loci) + (1|Mix),
              data = Analysis.data,
              family = bernoulli,
              cores = 3,
-             iter = 1500*r,
-             thin = r, #adjust thinning so you have at least 1000 samples per chain (check: (iter-warmup)/thin)
-             warmup = 500*r, #standard is 20-50%
+             iter = 100000,
+             thin = 70, #adjust thinning so you have at least 1000 samples per chain (check: (iter-warmup)/thin)
+             warmup = 30000, #standard is 20-50%
              chains = 3,
              control = list(adapt_delta = 0.99, max_treedepth = 10), #default max_treedepth = 10, stan does not recommend increasing
              backend = "cmdstanr", #improve speed
@@ -863,6 +863,7 @@ save(model.match, file = "Data/Working_data/Processed_data/model.match.final.Rda
 load(file="Data/Working_data/Processed_data/model.match.final.Rdata")
 pairs(model.match)
 summary(model.match)
+
 
 #using summary() with brms the intervals default to 95%
 #you can change this if you want like so:
@@ -901,11 +902,11 @@ model_info$parameter <- factor(model_info$parameter, levels = c("Internal contro
 # #Build the plot
 Density.match.plot <- ggplot(data = model_info) +
   aes(x = x, y = parameter) +
-  geom_ridgeline(aes(scale = 0.4, height = scaled_density, fill = parameter, col = parameter), size = 0.9) +
+  geom_ridgeline(aes(scale = 0.4, height = scaled_density, fill = parameter), size = 0) +
   geom_segment(data = model_interval, aes(x = l, xend = h, yend = parameter), col = "black", size=2) +
   geom_segment(data = model_interval, aes(x = ll, xend = hh, yend = parameter), col = "black") +
   geom_point(data = model_interval, aes(x = m, y = parameter), color="black", fill = "grey60", shape=21, size = 3) +
-  geom_vline(xintercept = 0.3426995, col = "grey60", linetype="longdash")+
+  geom_vline(xintercept = 0, col = "grey60", linetype="longdash")+
   guides(fill = F, scale = "none") + #remove the legend
   scale_fill_brewer(palette = "Oranges") +
   scale_color_brewer(palette = "Oranges") +
@@ -914,8 +915,10 @@ Density.match.plot <- ggplot(data = model_info) +
   xlab("Posterior distribution") +
   xlim(-4,4) +
   theme_bw() +
-  #scale_x_continuous(breaks=seq(0, 5, 1)) +
-  theme(legend.position = "none")
+  theme(axis.title.y=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank(),
+        legend.position = "none")
 
 # ggsave(plot = Density.match.plot, filename = file.path(figs_dir, "Density.match.plot.png"), width = 15, height = 10, unit = "cm", dpi = 500)
 ```
@@ -930,95 +933,91 @@ Density.match.plot <- ggplot(data = model_info) +
 # Analysis.data.missing <- Analysis.data.missing[!Analysis.data.missing$ID %in% c("AGP07487","AGP07488","AGP16315","AGP16316"),]
 Analysis.data.missing <- subset(Analysis.data.missing, Treatment!="Standard procedure")
 
-# #Create binary treatment variables
-Analysis.data.missing$R2 <- ifelse(Analysis.data.missing$Treatment == "Internal control", 0.5, -0.5)
-Analysis.data.missing$R3 <- ifelse(Analysis.data.missing$Treatment == "Re-used detection plate", 0.5, -0.5)
-Analysis.data.missing$R4 <- ifelse(Analysis.data.missing$Treatment == "Re-used PCR plate", 0.5, -0.5)
-# #A Bernoulli trial is a random experiment that has only two possible outcomes: success or failure.
-# #Missing/not missing is similar, as we expect data not to be missing, is missing data is observed, that's a 'failure'
-# 
-r = 100
-
 #model bernoulli: Missing
 set.seed(2024)
-model.missing <- brms::brm(Missing ~ -1 + R2 + R3 + R4 + (1|ID) + (1|Rack) + (1|Loci) + (1|Mix),
-             data = Analysis.data.missing,
+model.missing <- brms::brm(Missing ~ Treatment + (1|ID) + (1|Rack) + (1|Loci) + (1|Mix),
              family = bernoulli,
-             cores = 8,
-             iter = 1500*r,
-             thin = r,
-             warmup = 500*r, #standard is iter/2
+             data = Analysis.data.missing,
+             cores = 3,
+             iter = 100000,
+             thin = 70, #adjust thinning so you have at least 1000 samples per chain (check: (iter-warmup)/thin)
+             warmup = 30000, #standard is 20-50%
              chains = 3,
              control = list(adapt_delta = 0.99, max_treedepth = 10),
+             backend = "cmdstanr", #improve speed
+             silent = 0, #to see progress
              set_prior("normal(0,1)", class = "b"))
 
 save(model.missing, file = "Data/Working_data/Processed_data/model.missing.genotypes.Rdata")
-# load(file="Data/Working_data/Processed_data/model.missing.Rdata")
-# summary(model.missing)
-# plot(model.missing)
-# pp_check(model.missing, ndraws = 1000)
-# 
-# #Explore effect estimates of the random effects
-# ranef(model.missing)
-# 
-# # Plot the model
-# #Extract info from model output
-# model_interval <- mcmc_intervals_data(model.missing)
-# model_interval <- subset(model_interval, !grepl("b_intercept", parameter))
-# model_interval <- subset(model_interval, grepl("b_", parameter))
-# model_interval <- model_interval %>% mutate(parameter = case_when(
-#   parameter == "b_Intercept" ~ "Intercept",
-#   parameter == "b_R1"  ~ "Standard procedure",
-#   parameter == "b_R2"  ~ "Internal control",
-#   parameter == "b_R3" ~ "Reused detection plate",
-#   parameter == "b_R4"  ~ "Reused PCR plate"))
-# 
-# #area (for density clouds)
-# model_info <- mcmc_areas_data(model.missing)
-# model_info <- subset(model_info, !grepl("b_intercept", parameter))
-# model_info <- subset(model_info, grepl("b_", parameter))
-# model_info <- model_info %>% mutate(parameter = case_when(
-#   parameter == "b_Intercept" ~ "Intercept",
-#   parameter == "b_R1"  ~ "Standard procedure",
-#   parameter == "b_R2"  ~ "Internal control",
-#   parameter == "b_R3" ~ "Reused detection plate",
-#   parameter == "b_R4"  ~ "Reused PCR plate"))
+load(file="Data/Working_data/Processed_data/model.missing.genotypes.Rdata")
 
-# model_info$parameter <- factor(model_info$parameter, levels = c("Standard procedure", "Internal control", "Reused detection plate", "Reused PCR plate"))
-# # #Build the plot
-# Density.missing.plot <- ggplot(data = subset(model_info, parameter == c("Standard procedure", "Internal control", "Reused detection plate", "Reused PCR plate"))) +
-#   aes(x = x, y = parameter) +
-#   #geom_ridgeline(data = subset(model_info, parameter == "Standard procedure"), aes(x = x, y = parameter, scale = 0.4, height = scaled_density, fill = parameter, col = parameter), size = 0.9) +
-#   geom_ridgeline(aes(scale = 0.4, height = scaled_density, fill = parameter, col = parameter), size = 0.9) +
-#   geom_segment(data = model_interval[2:5,], aes(x = l, xend = h, yend = parameter), col = "black", size=2) +
-#   geom_segment(data = model_interval[2:5,], aes(x = ll, xend = hh, yend = parameter), col = "black") +
-#   geom_point(data = model_interval[2:5,], aes(x = m, y = parameter), color="black", fill = "grey60", shape=21, size = 3) +
-#   geom_vline(xintercept = 6.5424092, col = "#ca562c", linetype="longdash")+
-#   scale_y_discrete(limits = c("Standard procedure", "Internal control", "Reused detection plate", "Reused PCR plate")) +
-#   guides(fill = F, scale = "none") + #remove the legend
-#   scale_fill_brewer(palette = "Oranges") +
-#   scale_color_brewer(palette = "Oranges") +
-#   ggtitle("B: Missing genotypes model") +
-#   #ylab("Treatment") +
-#   xlab("Posterior distribution") +
-#   scale_x_continuous(breaks=seq(-1, 7, 1)) +
-#   theme_bw() +
-#   theme(axis.title.y=element_blank(),
-#         axis.text.y=element_blank(),
-#         axis.ticks.y=element_blank(),
-#         legend.position = "none")
-# 
-# # ggsave(plot = Density.missing.plot, filename = file.path(figs_dir, "Density.missing.plot.png"), width = 15, height = 10, unit = "cm", dpi = 500)
-# # 
+summary(model.missing)
+plot(model.missing)
+mcmc_plot(model.missing, type = "acf") #autocorrelation is close to 0
+mcmc_plot(model.missing, type = "pairs")
+plot(model.missing, variable = "^b_", regex = TRUE)
+pp_check(model.missing, ndraws = 1000)
+
+plot(model.missing)
+## plot population-level effects only
+plot(model.missing, variable = "^b_", regex = TRUE)
+pp_check(model.missing, ndraws = 1000)
+prior_summary(model.missing)
+
+#Explore effect estimates of the random effects
+ranef(model.missing)
+
+# Plot the model
+#Extract info from model output
+model_interval <- mcmc_intervals_data(model.missing)
+model_interval <- subset(model_interval, !grepl("b_intercept", parameter))
+model_interval <- subset(model_interval, grepl("b_", parameter))
+model_interval <- model_interval %>% mutate(parameter = case_when(
+  parameter == "b_R2"  ~ "Internal control",
+  parameter == "b_R3" ~ "Reused detection plate",
+  parameter == "b_R4"  ~ "Reused PCR plate"))
+
+#area (for density clouds)
+model_info <- mcmc_areas_data(model.missing)
+model_info <- subset(model_info, !grepl("b_intercept", parameter))
+model_info <- subset(model_info, grepl("b_", parameter))
+model_info <- model_info %>% mutate(parameter = case_when(
+  parameter == "b_R2"  ~ "Internal control",
+  parameter == "b_R3" ~ "Reused detection plate",
+  parameter == "b_R4"  ~ "Reused PCR plate"))
+
+model_info$parameter <- factor(model_info$parameter, levels = c("Internal control", "Reused detection plate", "Reused PCR plate"))
+# #Build the plot
+Density.missing.plot <- ggplot(data = subset(model_info, parameter == c("Internal control", "Reused detection plate", "Reused PCR plate"))) +
+  aes(x = x, y = parameter) +
+  #geom_ridgeline(data = subset(model_info, parameter == "Standard procedure"), aes(x = x, y = parameter, scale = 0.4, height = scaled_density, fill = parameter, col = parameter), size = 0.9) +
+  geom_ridgeline(aes(scale = 0.4, height = scaled_density, fill = parameter), size = 0) +
+  geom_segment(data = model_interval, aes(x = l, xend = h, yend = parameter), col = "black", size=2) +
+  geom_segment(data = model_interval, aes(x = ll, xend = hh, yend = parameter), col = "black") +
+  geom_point(data = model_interval, aes(x = m, y = parameter), color="black", fill = "grey60", shape=21, size = 3) +
+  geom_vline(xintercept = 0, col = "grey60", linetype="longdash")+
+  guides(fill = F, scale = "none") + #remove the legend
+  scale_fill_brewer(palette = "Oranges") +
+  ggtitle("A: Missing genotypes model") +
+  #ylab("Treatment") +
+  xlab("Posterior distribution") +
+  ylab("Treatment") +
+  theme_bw() +
+  xlim(-4,4) +
+  theme(legend.position = "none")
+
+
+ggsave(plot = Density.missing.plot, filename = file.path(figs_dir, "Density.missing.plot.png"), width = 15, height = 10, unit = "cm", dpi = 500)
+
 ```
 
 ```{r}
 #| label: fig-densityplots
 #| echo: FALSE
 #| warning: FALSE
-#Densities.plot <- plot_grid(Density.match.plot, Density.missing.plot, align = "h", rel_widths = c(1, 1.2))
+Densities.plot <- plot_grid(Density.missing.plot, Density.match.plot, align = "h", rel_widths = c(1.35, 1))
 
-# ggsave(plot = Densities.plot, filename = file.path(figs_dir, "Densities.png"), width = 30, height = 15, unit = "cm", dpi = 500)
+# ggsave(plot = Densities.plot, filename = file.path(figs_dir, "Densities.png"), width = 25, height = 10, unit = "cm", dpi = 500)
 
 ```
 
@@ -1179,13 +1178,11 @@ ggsave(plot = Errorrategenotypeplot, filename = file.path(figs_dir, "Errorratege
 
 Two bayesian models with binomial distribution were fitted. The first model explored the treatment effect on match (0 mismatch, 1 match) per loci. The treatments were fit as indicator variables, excluding 'standard procedure', which was the reference treatment for the mismatching. ID, Rack, Loci and Mix were included as random effects.
 
-**Match model** 
-**Match \~ Internal control + Reused detection plate + Reused PCR plate + (1\|ID) + (1\|Rack) + (1\|Loci) + (1\|Mix)**
+**Match model** **Match \~ Internal control + Reused detection plate + Reused PCR plate + (1\|ID) + (1\|Rack) + (1\|Loci) + (1\|Mix)**
 
 The second model explored the treatment effect on missing genotypes (0 missing, 1 present) per loci. The treatments were fit as indicator variables and ID, Rack, Loci and Mix were included as random effects.
 
-**Missing genotypes model** 
-**Missing genotypes \~ Standard procedure + Internal control + Reused detection plate + Reused PCR plate + (1\|ID) + (1\|Rack) + (1\|Loci) + (1\|Mix)**
+**Missing genotypes model** **Missing genotypes \~ Standard procedure + Internal control + Reused detection plate + Reused PCR plate + (1\|ID) + (1\|Rack) + (1\|Loci) + (1\|Mix)**
 
 The first model yielded a significant effect of all treatments, where the Reused detection plate treatment had a positively diverged posterior distribution and the Reused PCR plate treatment yielded a negatively diverged posterior distributed in relation to the Internal control treatment (See @fig-Models A).
 
