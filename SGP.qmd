@@ -363,6 +363,12 @@ Failed_samples <- bind_rows(Failed_samples_R154, Failed_samples_R155, Failed_sam
 Total_Missing <- sum(sum(as.numeric(Failed_samples_R154[6,]), na.rm = T),
                      sum(as.numeric(Failed_samples_R155[6,]), na.rm = T),
                      sum(as.numeric(Failed_samples_R156[6,]), na.rm = T))
+
+#calculate mean and sd
+unscored_mean_sd <- as.data.frame(rbind(cbind("Mean", mean(c(278, 76, 208)), mean(c(194, 251, 200)), mean(c(128, 110, 256)), mean(c(1380, 862, 702))),
+                          cbind("sd", sd(c(278, 76, 208)), sd(c(194, 251, 200)), sd(c(128, 110, 256)), sd(c(1380, 862, 702)))))
+colnames(unscored_mean_sd) <- c("","Standard procedure", "Internal control", "Re-used detection plate", "Re-used PCR plate")
+unscored_mean_sd
 ```
 
 ```{r}
@@ -599,6 +605,23 @@ Total_Mcases <- sum(Mismatches$`No. of mismatches`)
 #   xlab("Locus") +
 #   theme_bw()
 # ggsave(plot = Mismatchloci, filename = file.path(figs_dir, "Mismatchloci.png"), width = 15, height = 10, unit = "cm", dpi = 500)
+
+control <- subset(Mismatches, Treatment == "Internal control")
+controlmsd <- cbind(mean(control$`No. of mismatches`), sd(control$`No. of mismatches`),
+                    mean(control$`Genotype error rate`), sd(control$`Genotype error rate`))
+detection <- subset(Mismatches, Treatment == "Re-used detection plate")
+detectionmsd <- cbind(mean(detection$`No. of mismatches`), sd(detection$`No. of mismatches`),
+                    mean(detection$`Genotype error rate`), sd(detection$`Genotype error rate`))
+pcr <- subset(Mismatches, Treatment == "Re-used PCR plate")
+pcrmsd <- cbind(mean(pcr$`No. of mismatches`), sd(pcr$`No. of mismatches`),
+                    mean(pcr$`Genotype error rate`), sd(pcr$`Genotype error rate`))
+Treat <- rbind("Internal control", "Re-used detection plate", "Re-used PCR plate")
+totalmsd <- rbind(controlmsd, detectionmsd, pcrmsd)
+totalmsd <- as.data.frame(cbind(Treat, totalmsd))
+colnames(totalmsd) <- c("Treatment",
+                        "mean (mismatches)", "sd (mismatches)",
+                        "mean (error rate)", "sd (error rate)")
+totalmsd
 ```
 
 ```{r}
@@ -661,6 +684,10 @@ knitr::kable(Contamination_cases, row.names = F)
 Total_Ccases <- sum(Contamination_cases$Cases)
 #Total number of alleles investigated minus the 4 individual excluded from analysis
 
+cases_meansd <- as.data.frame(rbind(cbind("Mean", mean(c(4, 1, 8)), mean(c(105, 95, 53))),
+                          cbind("sd", sd(c(4, 1, 8)), sd(c(105, 95, 53)))))
+colnames(cases_meansd) <- c("", "Re-used detection plate", "Re-used PCR plate")
+cases_meansd
 ```
 
 ```{r}
@@ -811,121 +838,13 @@ Total_Ccases <- sum(Contamination_cases$Cases)
 ```
 
 ```{r}
-#| label: Bayes_model_1
+#| label: Bayes_model1
 #| echo: FALSE
 #Improve speed of bayes model
 # we recommend running this is a fresh R session or restarting your current session
 install.packages("cmdstanr", repos = c("https://mc-stan.org/r-packages/", getOption("repos")))
 install.packages("remotes")
 remotes::install_github("stan-dev/cmdstanr")
-# #load the data
-# Analysis.data <- read.csv(file.path(working_dir, "Analysis.data.csv"))
-#
-# #Create binary treatment variables
-# #length(unique(Analysis.data$ID)) #285 individuals
-# #We want to exclude the following individuals due to incorrect data
-# #"A04_AGP07487" "A05_AGP07488" "A01_AGP16315" "A02_AGP16316" "AGF13004" "AGP16191" (Last two changed name to the original sample)
-# 
-# Analysis.data <- Analysis.data[!Analysis.data$ID %in% c("AGP07487","AGP07488","AGP16315","AGP16316"),]
-# #n_distinct(Analysis.data$ID) #281 individuals
-# 
-# #A Bernoulli trial is a random experiment that has only two possible outcomes: success or failure.
-# #Match/no match is similar, as we expect a match between genotypes, if a mismatch is observed, that's a 'failure'
-# 
-#model bernoulli: Match
-table(Analysis.data$Match)
-#In R the intercept is called 1, you can remove it by adding -1 to your model
-set.seed(1995)
-model.match <- brms::brm(Match ~ Treatment + (1|ID) + (1|Rack) + (1|Loci) + (1|Mix),
-             data = Analysis.data,
-             family = bernoulli,
-             cores = 3,
-             iter = 100000,
-             thin = 60, #adjust thinning so you have at least 1000 samples per chain (check: (iter-warmup)/thin)
-             warmup = 40000, #standard is 20-50%
-             chains = 3,
-             control = list(adapt_delta = 0.99, max_treedepth = 10), #default max_treedepth = 10, stan does not recommend increasing (at least beyond 12)
-             #set_prior("beta(1,1)", class = "b"), #standardized weakly informative prior, Prior for the random effect class = "sd", standard is normal(0, sigma_x)
-             backend = "cmdstanr", #improve speed
-             silent = 0) #to see progress 
-                                                    
-save(model.match, file = "Data/Working_data/Processed_data/model.match.final.Rdata")
-load(file="Data/Working_data/Processed_data/model.match.final.Rdata")
-pairs(model.match)
-summary(model.match)
-
-#using summary() with brms the intervals default to 95%
-#you can change this if you want like so:
-#summary(model.match, prob = 0.89)
-plot(model.match)
-pp_check(model.match, ndraws = 1000)
-# #visualize the rhat values
-# rhats <- rhat(model.match)
-# mcmc_rhat(rhats)
-
-#Explore effect estimates of the random effects
-ranef(model.match)
-
-#Plot the model
-#Extract info from model output
-model_interval <- mcmc_intervals_data(model.match)
-#model_interval <- subset(model_interval, !grepl("b_Intercept", parameter))
-model_interval <- subset(model_interval, grepl("b_", parameter)) %>% select(-outer_width, -inner_width, -point_est)
-model_interval <- model_interval %>% mutate(parameter = case_when(
-  parameter == "b_Intercept"  ~ "Internal control",
-  parameter == "b_TreatmentReMuseddetectionplate" ~ "Reused detection plate",
-  parameter == "b_TreatmentReMusedPCRplate"  ~ "Reused PCR plate")) 
-
-#M value for intercept 
-m <- model_interval %>% subset(parameter == "Internal control") %>% select(m) #6.48881
-
-#Add intercept values to estimates
-Intercept <- model_interval %>% subset(parameter == "Internal control") 
-Other <- model_interval  %>% subset(parameter != "Internal control") %>% mutate(.[2:6]+6.48881)
-model_interval <- rbind(Intercept, Other)
-
-#area (for density clouds)
-model_info <- mcmc_areas_data(model.match)
-#model_info <- subset(model_info, !grepl("b_Intercept", parameter))
-model_info <- subset(model_info, grepl("b_", parameter))
-model_info <- model_info %>% mutate(parameter = case_when(
-  parameter == "b_Intercept"  ~ "Internal control",
-  parameter == "b_TreatmentReMuseddetectionplate" ~ "Reused detection plate",
-  parameter == "b_TreatmentReMusedPCRplate"  ~ "Reused PCR plate"))
-
-model_info$parameter <- factor(model_info$parameter, levels = c("Internal control", "Reused detection plate", "Reused PCR plate"))
-#add median value to other treatments 
-model_info_intercept <- model_info %>% subset(parameter == "Internal control")
-model_info_other <- model_info %>% subset(parameter != "Internal control") %>% mutate(x = x+6.4881)
-model_info <- rbind(model_info_intercept, model_info_other)
-
-#Build the plot
-Density.match.plot <- ggplot(data = model_info) +
-  aes(x = x, y = parameter) +
-  geom_ridgeline(aes(scale = 0.4, height = scaled_density, fill = parameter), size = 0) +
-  geom_segment(data = model_interval, aes(x = l, xend = h, yend = parameter), col = "black", size=2) +
-  geom_segment(data = model_interval, aes(x = ll, xend = hh, yend = parameter), col = "black") +
-  geom_point(data = model_interval, aes(x = m, y = parameter), color="black", fill = "grey60", shape=21, size = 2) +
-  geom_vline(xintercept = 6.48881, col = "grey60", linetype="longdash")+
-  guides(fill = F, scale = "none") + #remove the legend
-  scale_fill_brewer(palette = "Oranges") +
-  scale_color_brewer(palette = "Oranges") +
-  ggtitle("B: Match model") +
-  ylab("Treatment") +
-  xlab("Estimate") +
-  xlim(2,9) +
-  theme_bw() +
-  theme(axis.title.y=element_blank(),
-        axis.text.y=element_blank(),
-        axis.ticks.y=element_blank(),
-        legend.position = "none")
-
-# ggsave(plot = Density.match.plot, filename = file.path(figs_dir, "Density.match.plot.png"), width = 15, height = 10, unit = "cm", dpi = 500)
-```
-
-```{r}
-#| label: Bayes_model2
-#| echo: FALSE
 #load the data
 # Analysis.data.missing <- read.csv(file.path(working_dir, "Analysis.data.missing.csv"))
 # 
@@ -967,61 +886,183 @@ prior_summary(model.missing)
 #Explore effect estimates of the random effects
 ranef(model.missing)
 
+models <- list(
+  "Model 1: Missing genotypes" = model.missing, 
+  "Model 2: Match" = model.match)
+modelsummary(models, output = "kableExtra")
+library(modelsummary)
+library(data.table)
+install.packages('modelsummary')
+
 # Plot the model
 #Extract info from model output
-model_interval <- mcmc_intervals_data(model.missing)
-#model_interval <- subset(model_interval, !grepl("b_intercept", parameter))
-model_interval <- subset(model_interval, grepl("b_", parameter)) %>% select(-outer_width, -inner_width, -point_est)
-model_interval <- model_interval %>% mutate(parameter = case_when(
+model_interval_m1 <- mcmc_intervals_data(model.missing)
+#model_interval <- subset(model_interval_m1, !grepl("b_intercept", parameter))
+model_interval_m1 <- subset(model_interval_m1, grepl("b_", parameter)) %>% select(-outer_width, -inner_width, -point_est)
+model_interval_m1 <- model_interval_m1 %>% mutate(parameter = case_when(
   parameter == "b_Intercept"  ~ "Internal control",
   parameter == "b_TreatmentReMuseddetectionplate" ~ "Reused detection plate",
   parameter == "b_TreatmentReMusedPCRplate"  ~ "Reused PCR plate")) 
 
 #M value for intercept 
-m <- model_interval %>% subset(parameter == "Internal control") %>% select(m) #5.15101
+m_1 <- model_interval_m1 %>% subset(parameter == "Internal control") %>% select(m) #5.15101
 
 #Add intercept values to estimates
-Intercept <- model_interval %>% subset(parameter == "Internal control") 
-Other <- model_interval  %>% subset(parameter != "Internal control") %>% mutate(.[2:6]+5.15101)
-model_interval <- rbind(Intercept, Other)
+Intercept_m1 <- model_interval_m1 %>% subset(parameter == "Internal control") 
+Other_m1 <- model_interval_m1  %>% subset(parameter != "Internal control") %>% mutate(.[2:6]+5.15101)
+model_interval_m1 <- rbind(Intercept_m1, Other_m1)
 
 #area (for density clouds)
-model_info <- mcmc_areas_data(model.missing)
+model_info_m1 <- mcmc_areas_data(model.missing)
 #model_info <- subset(model_info, !grepl("b_intercept", parameter))
-model_info <- subset(model_info, grepl("b_", parameter))
-model_info <- model_info %>% mutate(parameter = case_when(
+model_info_m1 <- subset(model_info_m1, grepl("b_", parameter))
+model_info_m1 <- model_info_m1 %>% mutate(parameter = case_when(
   parameter == "b_Intercept"  ~ "Internal control",
   parameter == "b_TreatmentReMuseddetectionplate" ~ "Reused detection plate",
   parameter == "b_TreatmentReMusedPCRplate"  ~ "Reused PCR plate"))
 
-model_info$parameter <- factor(model_info$parameter, levels = c("Internal control", "Reused detection plate", "Reused PCR plate"))
+model_info_m1$parameter <- factor(model_info_m1$parameter, levels = c("Internal control", "Reused detection plate", "Reused PCR plate"))
 #add median value to other treatments 
-model_info_intercept <- model_info %>% subset(parameter == "Internal control")
-model_info_other <- model_info %>% subset(parameter != "Internal control") %>% mutate(x = x+5.15101)
-model_info <- rbind(model_info_intercept, model_info_other)
+model_info_m1_intercept <- model_info_m1 %>% subset(parameter == "Internal control")
+model_info_m1_other <- model_info_m1 %>% subset(parameter != "Internal control") %>% mutate(x = x+5.15101)
+model_info_m1 <- rbind(model_info_m1_intercept, model_info_m1_other)
 
 # #Build the plot
-Density.missing.plot <- ggplot(data = subset(model_info, parameter == c("Internal control", "Reused detection plate", "Reused PCR plate"))) +
+Density.missing.plot <- ggplot(data = subset(model_info_m1, parameter == c("Internal control", "Reused detection plate", "Reused PCR plate"))) +
   aes(x = x, y = parameter) +
-  #geom_ridgeline(data = subset(model_info, parameter == "Standard procedure"), aes(x = x, y = parameter, scale = 0.4, height = scaled_density, fill = parameter, col = parameter), size = 0.9) +
+  #geom_ridgeline(data = subset(model_info_m1, parameter == "Standard procedure"), aes(x = x, y = parameter, scale = 0.4, height = scaled_density, fill = parameter, col = parameter), size = 0.9) +
   geom_ridgeline(aes(scale = 0.4, height = scaled_density, fill = parameter), size = 0) +
-  geom_segment(data = model_interval, aes(x = l, xend = h, yend = parameter), col = "black", size=2) +
-  geom_segment(data = model_interval, aes(x = ll, xend = hh, yend = parameter), col = "black") +
-  geom_point(data = model_interval, aes(x = m, y = parameter), color="black", fill = "grey60", shape=21, size = 2) +
-  geom_vline(xintercept = 5.15101, col = "grey60", linetype="longdash")+
+  geom_segment(data = model_interval_m1, aes(x = l, xend = h, yend = parameter), col = "black", size=2) +
+  geom_segment(data = model_interval_m1, aes(x = ll, xend = hh, yend = parameter), col = "black") +
+  #geom_point(data = model_interval_m1, aes(x = m, y = parameter), color="black", fill = "grey60", shape=21, size = 2) +
+  #geom_vline(xintercept = 5.15101, col = "grey60", linetype="longdash")+
   guides(fill = F, scale = "none") + #remove the legend
   scale_fill_brewer(palette = "Oranges") +
-  ggtitle("A: Missing genotypes model") +
+  ggtitle("A: Missing data") +
   #ylab("Treatment") +
-  xlab("Estimate") +
+  xlab("Beta coefficient") +
   ylab(" ") +
   theme_bw() +
-  xlim(2,9) +
-  theme(legend.position = "none")
+  xlim(2,8) +
+  theme(legend.position = "none", 
+        axis.text.y = element_text(size = 12, color = "black"),
+        axis.text.x = element_text(size = 10, color = "black"))
 
 
 ggsave(plot = Density.missing.plot, filename = file.path(figs_dir, "Density.missing.plot.png"), width = 15, height = 10, unit = "cm", dpi = 500)
 
+```
+
+
+```{r}
+#| label: Bayes_model_2
+#| echo: FALSE
+
+# #load the data
+# Analysis.data <- read.csv(file.path(working_dir, "Analysis.data.csv"))
+#
+# #Create binary treatment variables
+# #length(unique(Analysis.data$ID)) #285 individuals
+# #We want to exclude the following individuals due to incorrect data
+# #"A04_AGP07487" "A05_AGP07488" "A01_AGP16315" "A02_AGP16316" "AGF13004" "AGP16191" (Last two changed name to the original sample)
+# 
+# Analysis.data <- Analysis.data[!Analysis.data$ID %in% c("AGP07487","AGP07488","AGP16315","AGP16316"),]
+# #n_distinct(Analysis.data$ID) #281 individuals
+# 
+# #A Bernoulli trial is a random experiment that has only two possible outcomes: success or failure.
+# #Match/no match is similar, as we expect a match between genotypes, if a mismatch is observed, that's a 'failure'
+# 
+#model bernoulli: Match
+table(Analysis.data$Match)
+#In R the intercept is called 1, you can remove it by adding -1 to your model
+set.seed(1995)
+model.match <- brms::brm(Match ~ Treatment + (1|ID) + (1|Rack) + (1|Loci) + (1|Mix),
+             data = Analysis.data,
+             family = bernoulli,
+             cores = 3,
+             iter = 100000,
+             thin = 70, #adjust thinning so you have at least 1000 samples per chain (check: (iter-warmup)/thin)
+             warmup = 30000, #standard is 20-50%
+             chains = 3,
+             control = list(adapt_delta = 0.99, max_treedepth = 10), #default max_treedepth = 10, stan does not recommend increasing (at least beyond 12)
+             #set_prior("beta(1,1)", class = "b"), #standardized weakly informative prior, Prior for the random effect class = "sd", standard is normal(0, sigma_x)
+             backend = "cmdstanr", #improve speed
+             silent = 0) #to see progress 
+                                                    
+save(model.match, file = "Data/Working_data/Processed_data/model.match.final.Rdata")
+load(file="Data/Working_data/Processed_data/model.match.final.Rdata")
+pairs(model.match)
+summary(model.match)
+
+#using summary() with brms the intervals default to 95%
+#you can change this if you want like so:
+#summary(model.match, prob = 0.89)
+plot(model.match)
+pp_check(model.match, ndraws = 1000)
+# #visualize the rhat values
+# rhats <- rhat(model.match)
+# mcmc_rhat(rhats)
+
+#Explore effect estimates of the random effects
+ranef(model.match)
+
+#Plot the model
+#Extract info from model output
+model_interval_m2 <- mcmc_intervals_data(model.match)
+#model_interval_m2 <- subset(model_interval_m2, !grepl("b_Intercept", parameter))
+model_interval_m2 <- subset(model_interval_m2, grepl("b_", parameter)) %>% select(-outer_width, -inner_width, -point_est)
+model_interval_m2 <- model_interval_m2 %>% mutate(parameter = case_when(
+  parameter == "b_Intercept"  ~ "Internal control",
+  parameter == "b_TreatmentReMuseddetectionplate" ~ "Reused detection plate",
+  parameter == "b_TreatmentReMusedPCRplate"  ~ "Reused PCR plate")) 
+
+#M value for intercept 
+m_2 <- model_interval_m2 %>% subset(parameter == "Internal control") %>% select(m) #6.48881
+
+#Add intercept values to estimates
+Intercept_m2 <- model_interval_m2 %>% subset(parameter == "Internal control") 
+Other_m2 <- model_interval_m2  %>% subset(parameter != "Internal control") %>% mutate(.[2:6]+6.48881)
+model_interval_m2 <- rbind(Intercept_m2, Other_m2)
+
+#area (for density clouds)
+model_info_m2 <- mcmc_areas_data(model.match)
+#model_info_m2 <- subset(model_info_m2, !grepl("b_Intercept", parameter))
+model_info_m2 <- subset(model_info_m2, grepl("b_", parameter))
+model_info_m2 <- model_info_m2 %>% mutate(parameter = case_when(
+  parameter == "b_Intercept"  ~ "Internal control",
+  parameter == "b_TreatmentReMuseddetectionplate" ~ "Reused detection plate",
+  parameter == "b_TreatmentReMusedPCRplate"  ~ "Reused PCR plate"))
+
+model_info_m2$parameter <- factor(model_info_m2$parameter, levels = c("Internal control", "Reused detection plate", "Reused PCR plate"))
+#add median value to other treatments 
+model_info_m2_intercept <- model_info_m2 %>% subset(parameter == "Internal control")
+model_info_m2_other <- model_info_m2 %>% subset(parameter != "Internal control") %>% mutate(x = x+6.4881)
+model_info_m2 <- rbind(model_info_m2_intercept, model_info_m2_other)
+
+#Build the plot
+Density.match.plot <- ggplot(data = model_info_m2) +
+  aes(x = x, y = parameter) +
+  geom_ridgeline(aes(scale = 0.4, height = scaled_density, fill = parameter), size = 0) +
+  geom_segment(data = model_interval_m2, aes(x = l, xend = h, yend = parameter), col = "black", size=2) +
+  geom_segment(data = model_interval_m2, aes(x = ll, xend = hh, yend = parameter), col = "black") +
+  #geom_point(data = model_interval_m2, aes(x = m, y = parameter), color="black", fill = "grey60", shape=21, size = 2) +
+  #geom_vline(xintercept = 6.48881, col = "grey60", linetype="longdash")+
+  guides(fill = F, scale = "none") + #remove the legend
+  scale_fill_brewer(palette = "Oranges") +
+  scale_color_brewer(palette = "Oranges") +
+  ggtitle("B: Genotyping errors") +
+  ylab("Treatment") +
+  xlab("Beta coefficient") +
+  xlim(2,8) +
+  theme_bw() +
+  theme(axis.title.y=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank(),
+        axis.text.x = element_text(size = 10, color = "black"),
+        legend.position = "none")
+
+
+# ggsave(plot = Density.match.plot, filename = file.path(figs_dir, "Density.match.plot.png"), width = 15, height = 10, unit = "cm", dpi = 500)
 ```
 
 ```{r}
@@ -1373,6 +1414,10 @@ ggplot( aes(x=Mix, y=`Allelic error rate`)) +
 ```
 
 ![Error rate per mix](Results/Figures/Errorratepermixplot.png){#fig-permixerrorrate}
+
+```{r}
+
+```
 
 ```{r}
 #| label: Gapfilling
