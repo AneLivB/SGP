@@ -44,31 +44,22 @@ working_dir <- file.path("Data", "Working_data", "Processed_data")
 #e.g. ggsave(plot = name_of_plot, filename = file.path(figs_dir, "name of figure")), width = 19, height = 19, unit = "cm", dpi = 500)
 ```
 
-# Abstract
-
-Scientific research is a massive endeavor, consuming vast quantities of single-use plastics. With an ongoing global plastic crisis at our hands, we cannot hide behind the importance of scientific progress. A multitude of possible solutions from shifting to reusable materials to generating shared campus-wide laboratory inventories are being proposed. Rethinking existing laboratory protocols is often encouraged, but it is rarely based on empirical testing. We designed an experimental set-up to evaluate the re-useability of 96 microwell plates in the context of an existing microsatellite genotyping protocol. In our standard procedure 11 microplates are required to genotype 96 samples. The samples are distributed from one plate to five plates for the first step (PCR amplification) and transferred to five new plates in the second step (fragment analysis). Due to the risk of contamination, the plates are usually single-use. We cleaned the plates using an environmentally friendly approach and systematically reused the plates in either the first step (Re-used PCR plate) or the second step (Re-used detection plate) of the protocol. We included an internal control treatment to establish baseline error rates. We found no detectable difference in quality of either scoring or final genotyping for the 'Re-used detection plate' treatment. Whereas the 'Re-used PCR plates' led to a decreased scoring and a 10-fold increase in genotype errors. We conclude, that washing and re-using 96 microwell plates for fragment analysis can decrease the use of single-use plastics in laboratories, thereby saving costs and improving sustainability in the lab.
-
-# Introduction
+#Aims
+We set out to explore the re-useability of 96-micro well plate with the aim to test the following hypothesis: 1) 96 microwell plates can be cleaned and reused within the context of microsatellite genotyping, 2) the genotype error rate will be higher for plates reused for PCR amplification.
 
 ```{r}
 #| label: packages
 #| echo: FALSE
 #here::here()
-invisible(pacman::p_load(dplyr, tidyverse, here, stringi, png, knitr, rstatix, cowplot, kableExtra, brms, bayesplot, ggridges))
+invisible(pacman::p_load(dplyr, tidyverse, here, stringi, png, knitr, rstatix, cowplot, kableExtra, brms, bayesplot, ggridges, gt))
 ```
-
-We set out to explore the re-useability of 96-micro well plate with the aim to test the following hypothesis: 1) 96 microwell plates can be cleaned and reused within the context of microsatellite genotyping, 2) the genotype error rate will be higher for plates reused for PCR amplification.
 
 # Materials and Methods
 
-We designed an experimental setup to assess the re-usability of 96-micro well plates within the context of microsatellite genotyping. The setup contained 4 treatments: standard procedure, internal control, re-used PCR plate and re-used detection plate (See @fig-Schematic). In the standard procedure total genomic DNA is distributed from a rack to be PCR amplified in five separate multiplexed reactions on 'PCR plates' (PCR trays ROTILABO® 96 well, Standard, half frame, Roth Selection, Karlsruhe, Germany). Thereafter, the samples are resolved on 'detection plates' (Fisherbrand™ 96-Well Semi-Skirted PCR Plates, Thermo Fisher Scientific, Waltham, MA, USA). After the initial use, the plates were washed using the following steps; first, each plate was individually rinsed with distilled water and emptied 10 times, before submerging in soap water for two hours. After soaking, each plate was again rinsed and emptied 10 times before being left on a paper towel over night to dry. The re-used PCR plates and detection plates all originated from the 'standard procedure' round. We allocated the re-used plates to another rack than the original.
+We designed an experimental setup to assess the re-usability of 96-micro well plates within the context of microsatellite genotyping. The setup contained 4 treatments: standard procedure, internal control, re-used PCR plate and re-used detection plate (See @fig-Schematic). In the standard procedure total genomic DNA is distributed from a rack to be PCR amplified in five separate multiplexed reactions on 'PCR plates' (PCR trays ROTILABO® 96 well, Standard, half frame, Roth Selection, Karlsruhe, Germany). Thereafter, the samples are resolved on 'detection plates' (Fisherbrand™ 96-Well Semi-Skirted PCR Plates, Thermo Fisher Scientific, Waltham, MA, USA). After the initial use, the plates were washed using the following steps; first, each plate was individually rinsed with distilled water and emptied 10 times, before submerging in soap water for two hours. After soaking, each plate was again rinsed and emptied 10 times before being left on a paper towel over night to dry. The re-used PCR plates and detection plates all originated from the 'standard procedure' round. We allocated the re-used plates systematically to another rack than the original.
 
 ![Schematic overview](Results/Figures/SGPsetup5.png){#fig-Schematic fig-align="center"}
-
-#### Microsatellite genotyping
-
-285 tissue samples were collected from Bird Island, South Georgia (54°00024.800 S, 38°03004.100 W) during the austral summer of 2020-2021 (274 samples), 2015-2016 (9 positive controls), and 2 samples on rack 154 from 2006-2007. Tissue samples were collected from the flipper or umbilical cord of Antarctic fur seal pups and stored in 20% dimethyl sulphoxide saturated with sodium chloride at -20°C. The DNA was extracted using a standard chloroform-isoamylalcohol protocol and genotyped at 39 microsatellite loci separated into five multiplexed reactions for improved scoring. PCR amplification was performed using a Type It Kit (Qiagen) with the following program: 5 min denaturation at 94°C; 28 cycles of 30 sec at 94°C, 90 sec at mix-specific temperature (Supplementary table 1), and 30 sec at 72°C, finished by an extension of 30 min at mix-specific temperature. The PCR product was transferred to and diluted on detection plates before being resolved by electrophoresis on an ABI 3730xl capillary sequencer (Applied Biosystems, Thermo Fisher Scientific, Waltham, MA, USA). Each plate contained three positive controls to ensure standardisation of microsatellite scoring across plates. Allele sizes were scored automatically using GeneMarker v. 2.6.2 (SoftGenetics, LLC., State College, PA, USA) and manually inspected and corrected when necessary. Following customary procedure, any locus with more than 30% missing data was attempted to be gapfilled separately to minimize missing data.
-
+### Rawdata
 ```{r}
 #| label: rawdata
 #| eval: False
@@ -307,6 +298,7 @@ R156_R3$mix3.ZcwDz301_a <- as.integer(R156_R3$mix3.ZcwDz301_a)
 R156_R3$mix3.ZcwDh4.7_a <- as.integer(R156_R3$mix3.ZcwDh4.7_a)
 ```
 
+### Missing genotypes
 ```{r}
 #| label: failed_alleles
 #| echo: FALSE
@@ -370,7 +362,7 @@ unscored_mean_sd <- as.data.frame(rbind(cbind("Mean", mean(c(278, 76, 208)), mea
 colnames(unscored_mean_sd) <- c("","Standard procedure", "Internal control", "Re-used detection plate", "Re-used PCR plate")
 unscored_mean_sd
 ```
-
+#### Locate missing genotype data
 ```{r}
 #| label: fig-Heatmap
 #| echo: FALSE
@@ -435,62 +427,19 @@ unscored_mean_sd
 #ggsave(plot = Heatmap.plot, filename = file.path(figs_dir, "Heatmap2.png"), width = 30, height = 21, unit = "cm", dpi = 500)
 ```
 
-```{r}
-#| label: Unscoreddata
-#| echo: FALSE
-#Function to calculate the per individual number of NAs
-Total_NA <- function(R1, R2, R3, R4) {
-    Base <- rbind(R1[1:2], R2[1:2], R3[1:2], R4[1:2])
-   colnames(Base) <- c("Well", "ID")
-   #Replace Nas with 1 across the whole rack
-    #sum is no. of times NA occurs in that row
-    R1 <- R1[3:80] %>% replace(!is.na(.), 0) %>% replace(is.na(.), 1) %>%
-  mutate(Row_Sums = rowSums(across(everything()))) 
-    R2 <- R2[3:80] %>% replace(!is.na(.), 0) %>% replace(is.na(.), 1) %>%
-  mutate(Row_Sums = rowSums(across(everything()))) 
-    R3 <- R3[3:80] %>% replace(!is.na(.), 0) %>% replace(is.na(.), 1) %>%
-  mutate(Row_Sums = rowSums(across(everything())))
-    R4 <- R4[3:80] %>% replace(!is.na(.), 0) %>% replace(is.na(.), 1) %>%
-  mutate(Row_Sums = rowSums(across(everything()))) 
-    
-  NAs <- rbind(R1[,c(1,2,79)], R2[,c(1,2,79)], R3[,c(1,2,79)], R4[,c(1,2,79)])
-  colnames(NAs) <- c("Well", "ID", "NAs")
-  Base$NAs <- NAs$NAs
-  return(Base)
-}
- 
-Nasmissing <- as.data.frame(rbind(Total_NA(R154_R1, R154_R2, R154_R3, R154_R4), Total_NA(R155_R1, R155_R2, R155_R3, R155_R4), Total_NA(R156_R1, R156_R2, R156_R3, R156_R4)))
-
-#Histogram
-# Nasmissing.plot <- ggplot(Nasmissing, aes(x=NAs)) +
-#  geom_histogram(binwidth=.5, colour="black", fill="purple") +
-#  ggtitle("Missing data per individual per rack") +
-#  ylab("No. of indivuals") +
-#  xlab("No. of NAs") +
-#  theme_bw()
-# 
-# ggsave(plot = Nasmissing.plot, filename = file.path(figs_dir, "Nasmissing.png"), width = 30, height = 20, unit = "cm", dpi = 500)
-
-More_than_10 <- subset(Nasmissing, NAs > 10)
-#Maybe_exclude <- table(More_than_10$ID)
-
-#unique(Analysis.data$Loci)
-```
-
 #### Data evaluation
 
-We calculated the allelic and genotype error rate between the different treatments using the 'standard procedure' treatment as reference. The 'internal control' treatment was included in the experimental setup to compute a baseline for error rates. The comparison between the different treatments and the standard procedure yielded a list of mismatches. In the cases where the mismatch stemmed from the 're-used PCR plate' or 're-used detection plate' treatment, the new genotype was compared to the original genotype. Here, original genotype refers to the genotype resolved from the same well in the first use of the plate. If the genotype matched the original genotype, the mismatch was marked as potential case of contamination. Additionally, we calculated the rate of missing data for all treatments.
+We calculated the allelic and genotype error rate between the different treatments using the 'standard procedure' treatment as reference. The 'internal control' treatment was included in the experimental setup to compute a baseline for error rates. The comparison between the different treatments and the standard procedure yielded a list of mismatches. In the cases where the mismatch stemmed from the 're-used PCR plate' or 're-used detection plate' treatment, the new genotype was compared to the original genotype. Here, original genotype refers to the genotype resolved from the same well in the first use of the plate. Additionally, we calculated the rate of missing data for all treatments.
 
 For each sample we noted whether the genotype matched with the 'standard procedure' per loci and for all treatments whether the genotype was scored or not. This yielded two datasets referred to as 'match' and 'missing genotype' data respectively. We ran separate Bayesian binary logistic regression mixed models with treatment included as several indicator variables for match data and missing genotypes data. All statistical analyses were implemented in R version 4.2.1 with Rstudio version 2023.09.1+494.
 
+### Identify mismatches
 ```{r}
 #| label: tbl-allelemismatch
 #| echo: FALSE
 #| tbl-cap: Error rates
 #Function to compare scored alleles between two rounds and find the mismatches
-#The function has two output lines. These cannot work in tandem. 
 #The first return statement returns the total mismatches and error rate
-#The second return statement can be used with "Find_mismatches" to locate mismatch in Genemarker
 
 Mismatch <- function(DF1, DF2){
   #Name of the plates 
@@ -541,14 +490,6 @@ Mismatch <- function(DF1, DF2){
          Error_rate = as.numeric(Error_rate), Error_rate_genotype = as.numeric(Error_rate_genotype))
   colnames(Output) <- c("Rack 1", "Rack 2", "Treatment", "No. of mismatches", "Allelic error rate", "Genotype error rate")
   return(Output)
-  
-  #Second output element! # out return statement when not in use. 
-  #The ID of the individual with the mismatch and the loci werein the mismatch happend 
-  #is bound together to ease location 
-  ID <- cbind(DF1$mix1.ID[mismatches[, 1]])
-  Loci <- cbind(colnames(DF1)[mismatches[, 2]])
-  Find_mismatch <- cbind(ID, Loci, Rack_2, Treatment)
-  #return(Find_mismatch)
 }
 
 #The following applies the mismatch function to the chosen racks and binds the output together
@@ -567,44 +508,6 @@ Mismatches <- bind_rows(
 knitr::kable(Mismatches, row.names = F)
 
 Total_Mcases <- sum(Mismatches$`No. of mismatches`)
-#The following applies the mismatch function to the chosen racks and binds the output together
-#The output contains the location of the mismatches
-# Find_mismatches <- rbind(
-#  Mismatch(R154_R1, R154_R2),
-#  Mismatch(R154_R1, R154_R3),
-#  Mismatch(R154_R1, R154_R4),
-#  Mismatch(R155_R1, R155_R2),
-#  Mismatch(R155_R1, R155_R3),
-#  Mismatch(R155_R1, R155_R4),
-#  Mismatch(R156_R1, R156_R2),
-#  Mismatch(R156_R1, R156_R3),
-#  Mismatch(R156_R1, R156_R4))
-
-# Find_mismatches <- as.data.frame(Find_mismatches)
-# write_csv(Find_mismatches, file.path(tabs_dir, "Locate_mismatches.csv"))
-# Lociwmismatch <- length(unique(Find_mismatches$V2)) #36
-# #Alleles.mismatches was 65
-# Find_mismatches$V2 <- gsub("_a", "", Find_mismatches$V2)
-# Find_mismatches$V2 <- gsub("_b", "", Find_mismatches$V2)
-# Count.loci <- as.data.frame(table(Find_mismatches$V2))
-# Count.loci$Mix <- substring(Count.loci$Var1, 1, 4)
-# Count.loci$Var1 <- gsub("mix\\d{1}.", "", Count.loci$Var1)
-# 
-# OrangePurple <- c("#FF6600", "#FF9900", "#FF9999", "#CC33FF", "#9900CC")
-# Mismatchloci <- Count.loci %>%
-#   mutate(Var1 = fct_reorder(Var1, Mix)) %>%
-#   ggplot( aes(y=Freq, x = Var1, fill = Mix)) +
-#   geom_bar(stat = "identity", position = position_dodge(0.7), width = 0.5, alpha = 0.8) +
-#   #scale_fill_brewer(palette = "PuOr") +
-#   scale_fill_manual(values=OrangePurple) +
-#   scale_x_discrete(guide = guide_axis(angle = 90)) + #turns the x axis label names
-#   #guides(fill = F, scale = "none") + #remove the legend
-#   ylim(0,65) +
-#   ggtitle("Total no. of mismatches per locus") +
-#   ylab("Frequency") +
-#   xlab("Locus") +
-#   theme_bw()
-# ggsave(plot = Mismatchloci, filename = file.path(figs_dir, "Mismatchloci.png"), width = 15, height = 10, unit = "cm", dpi = 500)
 
 control <- subset(Mismatches, Treatment == "Internal control")
 controlmsd <- cbind(mean(control$`No. of mismatches`), sd(control$`No. of mismatches`),
@@ -624,71 +527,6 @@ colnames(totalmsd) <- c("Treatment",
 totalmsd
 ```
 
-```{r}
-#| label: tbl-contamination
-#| echo: FALSE
-#| tbl-cap: Potential contamination cases 
-#To inspect mismatches for potential contamination we use the detect_contamination function. 
-#R1 is the standard procedure plate from a given rack
-#Reused is either the reused PCR or reused detection plate treatment 
-#Control is the outcome of the standard procedure plate that was cleaned (and later reused) to the corresponding rack number. 
-Detect_contamination <- function(R1, Reused, Control){
-    #Get name of dataframes
-  Rack_1 <- deparse(substitute(R1))
-  Rack_2 <- deparse(substitute(Reused))
-  Rack_3 <- deparse(substitute(Control))
-  #cat("The total no. of mismatches between", Rack_1 ,"and", Rack_2, "is", length(mismatches[,1]), "whereof", Cases, "cases match with the control plate:", Rack_3)
-  
-    if (Rack_1 == "R154_R1") {
-    #On plate R154 the samples in 4th and 5th row are not part of the analysis
-     R1 <- R1[-(4:5),]
-     Reused <- Reused[-(4:5),]
-     Control <- Control[-(4:5),]
-  } else if (Rack_1 == "R156_R1"){
-      #The repeats are not consistent across all plates, so we remove them
-      R1 <- R1[-(1:2),]
-      Reused <- Reused[-(1:2),]
-      Control <- Control[-(1:2),]
-  } else {
-        R1 <- R1
-        Reused <- Reused
-        Control <- Control
-  }
-  
-  mismatches <- which(R1 != Reused, arr.ind = TRUE)
-  Potential_contamination <- mismatches[Reused[mismatches] == Control[mismatches],] 
-  Cases <- length(Potential_contamination)/2
-  
-  #Output 
-  Output <- as.data.frame(cbind(Rack_2, Rack_3, Cases)) %>% mutate(Cases = as.numeric(Cases))
-  colnames(Output) <- c("Rack", "Control", "Cases")
-  return(Output)
-  #If we want to quickly locate the specific cases
-  ID <- cbind(Reused$mix1.ID[Potential_contamination[, 1]])
-  Loci <- cbind(colnames(Reused)[Potential_contamination[, 2]])
-  Find_contamination <- cbind(ID, Loci, Rack_2)
-  #return(Find_contamination)
-}
-
-Contamination_cases <- bind_rows(Detect_contamination(R154_R1, R154_R3, R156_R1), 
-                                 Detect_contamination(R154_R1, R154_R4, R156_R1), 
-                                 Detect_contamination(R155_R1, R155_R3, R154_R1), 
-                                 Detect_contamination(R155_R1, R155_R4, R154_R1), 
-                                 Detect_contamination(R156_R1, R156_R3, R155_R1), 
-                                 Detect_contamination(R156_R1, R156_R4, R155_R1))
-Contamination_cases$Treatment <- c("Re-used detection plate", "Re-used PCR plate", "Re-used detection plate", "Re-used PCR plate", "Re-used detection plate", "Re-used PCR plate")
-Contamination_cases <- Contamination_cases[order(Contamination_cases$Treatment, decreasing = F),]
-knitr::kable(Contamination_cases, row.names = F)
-
-#Total potential contamination cases
-Total_Ccases <- sum(Contamination_cases$Cases)
-#Total number of alleles investigated minus the 4 individual excluded from analysis
-
-cases_meansd <- as.data.frame(rbind(cbind("Mean", mean(c(4, 1, 8)), mean(c(105, 95, 53))),
-                          cbind("sd", sd(c(4, 1, 8)), sd(c(105, 95, 53)))))
-colnames(cases_meansd) <- c("", "Re-used detection plate", "Re-used PCR plate")
-cases_meansd
-```
 
 ```{r}
 #| label: Mismatch_loci
@@ -838,6 +676,125 @@ cases_meansd
 ```
 
 ```{r}
+#| label: Bayes_model_scored
+#| echo: FALSE
+#Improve speed of bayes model
+# we recommend running this in a fresh R session or restarting your current session
+install.packages("cmdstanr", repos = c("https://mc-stan.org/r-packages/", getOption("repos")))
+install.packages("remotes")
+remotes::install_github("stan-dev/cmdstanr")
+#load the data
+# Analysis.data.missing <- read.csv(file.path(working_dir, "Analysis.data.missing.csv"))
+# 
+# #Exclude individuals as above
+# Analysis.data.missing <- Analysis.data.missing[!Analysis.data.missing$ID %in% c("AGP07487","AGP07488","AGP16315","AGP16316"),]
+Analysis.data.missing <- subset(Analysis.data.missing, Treatment!="Standard procedure")
+Analysis.data.missing$Scored <- ifelse(Analysis.data.missing$Missing == 0, 1, 0)
+
+#model bernoulli: scored genotypes
+set.seed(2024)
+model.scored <- brms::brm(Scored ~ Treatment + (1|ID) + (1|Rack) + (1|Loci) + (1|Mix),
+             family = bernoulli,
+             data = Analysis.data.missing,
+             cores = 3,
+             iter = 100000,
+             thin = 70, #adjust thinning so you have at least 1000 samples per chain (check: (iter-warmup)/thin)
+             warmup = 30000, #standard is 20-50%
+             chains = 3,
+             control = list(adapt_delta = 0.99, max_treedepth = 10),
+             backend = "cmdstanr", #improve speed
+             silent = 0, #to see progress
+             set_prior("normal(0,1)", class = "b"))
+
+save(model.scored, file = "Data/Working_data/Processed_data/model.scored.genotypes.Rdata")
+load(file="Data/Working_data/Processed_data/model.scored.genotypes.Rdata")
+
+prior_summary(model.scored) 
+prior_summary(model.mismatch) 
+
+#Check model 
+plot(model.scored)
+#specifically for the treatment groups
+plot(model.scored, variable = "^b_", regex = TRUE)
+mcmc_trace(model.scored, variable = "^b_", regex = TRUE)
+
+#Further tests
+mcmc_plot(model.scored, type = "hist")
+mcmc_plot(model.scored, type = "acf") #autocorrelation is close to 0
+mcmc_plot(model.scored, type = "pairs")
+pp_check(model.scored, type = "bars", ndraws = 1000)
+
+#rhat
+mcmc_rhat(brms::rhat(model.scored))
+
+#Check model output
+summary(model.scored)
+
+```
+
+```{r}
+#| label: Plot_Bayes_model_scored
+#| echo: FALSE 
+
+# Plot the model
+#Extract info from model output
+model_interval_scored <- mcmc_intervals_data(model.scored)
+model_interval_scored <- subset(model_interval_scored, grepl("b_", parameter)) %>% select(-outer_width, -inner_width, -point_est)
+model_interval_scored <- model_interval_scored %>% mutate(parameter = case_when(
+  parameter == "b_Intercept"  ~ "Internal control",
+  parameter == "b_TreatmentReMuseddetectionplate" ~ "Reused detection plate",
+  parameter == "b_TreatmentReMusedPCRplate"  ~ "Reused PCR plate")) 
+
+#M value for intercept 
+m_scored <- model_interval_scored %>% subset(parameter == "Internal control") %>% select(m) 
+
+#Add intercept values to estimates
+Intercept_scored <- model_interval_scored %>% subset(parameter == "Internal control") 
+Other_scored <- model_interval_scored  %>% subset(parameter != "Internal control") %>% mutate(.[2:6]+m_scored$m)
+model_interval_scored <- rbind(Intercept_scored, Other_scored)
+
+#area (for density clouds)
+model_info_scored <- mcmc_areas_data(model.scored)
+#model_info <- subset(model_info, !grepl("b_intercept", parameter))
+model_info_scored <- subset(model_info_scored, grepl("b_", parameter))
+model_info_scored <- model_info_scored %>% mutate(parameter = case_when(
+  parameter == "b_Intercept"  ~ "Internal control",
+  parameter == "b_TreatmentReMuseddetectionplate" ~ "Reused detection plate",
+  parameter == "b_TreatmentReMusedPCRplate"  ~ "Reused PCR plate"))
+
+model_info_scored$parameter <- factor(model_info_scored$parameter, levels = c("Internal control", "Reused detection plate", "Reused PCR plate"))
+#add median value to other treatments 
+model_info_scored_intercept <- model_info_scored %>% subset(parameter == "Internal control")
+model_info_scored_other <- model_info_scored %>% subset(parameter != "Internal control") %>% mutate(x = x+m_scored$m)
+model_info_scored <- rbind(model_info_scored_intercept, model_info_scored_other)
+
+
+# #Build the plot
+Density.scored.plot <- ggplot(data = subset(model_info_scored, parameter == c("Internal control", "Reused detection plate", "Reused PCR plate"))) +
+  aes(x = x, y = parameter) +
+  geom_ridgeline(aes(scale = 0.4, height = scaled_density, fill = parameter), size = 0) +
+  geom_segment(data = model_interval_scored, aes(x = l, xend = h, yend = parameter), col = "black", size=2) +
+  geom_segment(data = model_interval_scored, aes(x = ll, xend = hh, yend = parameter), col = "black") +
+  geom_point(data = model_interval_scored, aes(x = m, y = parameter), color="black", fill = "grey60", shape=21, size = 2) +
+  guides(fill = F, scale = "none") + #remove the legend
+  scale_fill_brewer(palette = "Oranges") +
+  ggtitle("(b) Missing data") +
+  ylab("Treatment") +
+  xlab("Beta coefficient") +
+  scale_x_continuous(n.breaks = 7, limits = c(-8, -2)) +
+  theme_classic() +
+  theme(text = element_text(family = "Times New Roman"),
+        legend.position = "none", 
+        axis.text.y = element_text(size = 12, color = "black"),
+        axis.text.x = element_text(size = 12, color = "black"),
+        axis.title.y = element_text(size = 14, color = "black"),
+        axis.title.x = element_text(size = 14, color = "black"),
+        plot.title = element_text(size = 15, color = "black"))
+
+ggsave(plot = Density.scored.plot, filename = file.path(figs_dir, "Density.scored.plot.png"), width = 15, height = 10, unit = "cm", dpi = 500)
+```
+
+```{r}
 #| label: Bayes_model1
 #| echo: FALSE
 #Improve speed of bayes model
@@ -851,9 +808,32 @@ remotes::install_github("stan-dev/cmdstanr")
 # #Exclude individuals as above
 # Analysis.data.missing <- Analysis.data.missing[!Analysis.data.missing$ID %in% c("AGP07487","AGP07488","AGP16315","AGP16316"),]
 Analysis.data.missing <- subset(Analysis.data.missing, Treatment!="Standard procedure")
+Analysis.data.missing$Scored <- ifelse(Analysis.data.missing$Missing == 0, 1, 0)
+
 
 #model bernoulli: Missing
 set.seed(2024)
+model.scored <- brms::brm(Scored ~ Treatment + (1|ID) + (1|Rack) + (1|Loci) + (1|Mix),
+             family = bernoulli,
+             data = Analysis.data.missing,
+             cores = 3,
+             iter = 100000,
+             thin = 70, #adjust thinning so you have at least 1000 samples per chain (check: (iter-warmup)/thin)
+             warmup = 30000, #standard is 20-50%
+             chains = 3,
+             control = list(adapt_delta = 0.99, max_treedepth = 10),
+             backend = "cmdstanr", #improve speed
+             silent = 0, #to see progress
+             set_prior("normal(0,1)", class = "b"))
+
+save(model.scored, file = "Data/Working_data/Processed_data/model.scored.genotypes.Rdata")
+load(file="Data/Working_data/Processed_data/model.scored.genotypes.Rdata")
+
+summary(model.scored)
+plot(model.scored)
+mcmc_plot(model.scored, type = "acf") #autocorrelation is close to 0
+mcmc_plot(model.scored, type = "pairs")
+
 model.missing <- brms::brm(Missing ~ Treatment + (1|ID) + (1|Rack) + (1|Loci) + (1|Mix),
              family = bernoulli,
              data = Analysis.data.missing,
@@ -934,7 +914,7 @@ Density.missing.plot <- ggplot(data = subset(model_info_m1, parameter == c("Inte
   geom_ridgeline(aes(scale = 0.4, height = scaled_density, fill = parameter), size = 0) +
   geom_segment(data = model_interval_m1, aes(x = l, xend = h, yend = parameter), col = "black", size=2) +
   geom_segment(data = model_interval_m1, aes(x = ll, xend = hh, yend = parameter), col = "black") +
-  #geom_point(data = model_interval_m1, aes(x = m, y = parameter), color="black", fill = "grey60", shape=21, size = 2) +
+  geom_point(data = model_interval_m1, aes(x = m, y = parameter), color="black", fill = "grey60", shape=21, size = 2) +
   #geom_vline(xintercept = 5.15101, col = "grey60", linetype="longdash")+
   guides(fill = F, scale = "none") + #remove the legend
   scale_fill_brewer(palette = "Oranges") +
@@ -955,14 +935,14 @@ ggsave(plot = Density.missing.plot, filename = file.path(figs_dir, "Density.miss
 
 
 ```{r}
-#| label: Bayes_model_2
+#| label: Bayes_model_mismatch
 #| echo: FALSE
 
 # #load the data
 # Analysis.data <- read.csv(file.path(working_dir, "Analysis.data.csv"))
 #
 # #Create binary treatment variables
-# #length(unique(Analysis.data$ID)) #285 individuals
+# #n_distinct(Analysis.data$ID) #285 individuals
 # #We want to exclude the following individuals due to incorrect data
 # #"A04_AGP07487" "A05_AGP07488" "A01_AGP16315" "A02_AGP16316" "AGF13004" "AGP16191" (Last two changed name to the original sample)
 # 
@@ -973,9 +953,144 @@ ggsave(plot = Density.missing.plot, filename = file.path(figs_dir, "Density.miss
 # #Match/no match is similar, as we expect a match between genotypes, if a mismatch is observed, that's a 'failure'
 # 
 #model bernoulli: Match
-table(Analysis.data$Match)
+#table(Analysis.data$Match)
+#In R the intercept is called 1, you can remove it by adding -1 to your model
+Analysis.data$Mismatch <- ifelse(Analysis.data$Match == 0,1,0)
+table(Analysis.data$Mismatch)
+table(Analysis.data$Missing)
+table(Analysis.data.missing$Scored)
+
+#The unscored loci from the missing category, cannot be assessed for genotyping errors!
+Analysis.data$Mismatch <- ifelse(Analysis.data$Missing == 0, NA, Analysis.data$Mismatch )
+
+set.seed(1995)
+model.mismatch <- brms::brm(Mismatch ~ Treatment + (1|ID) + (1|Rack) + (1|Loci) + (1|Mix),
+             data = Analysis.data,
+             family = bernoulli,
+             cores = 3,
+             iter = 100000,
+             thin = 70, #adjust thinning so you have at least 1000 samples per chain (check: (iter-warmup)/thin)
+             warmup = 30000, #standard is 20-50%
+             chains = 3,
+             control = list(adapt_delta = 0.99, max_treedepth = 11), #default max_treedepth = 10, stan does not recommend increasing (at least beyond 12)
+             #set_prior("beta(1,1)", class = "b"), #standardized weakly informative prior, Prior for the random effect class = "sd", standard is normal(0, sigma_x)
+             backend = "cmdstanr", #improve speed
+             silent = 0) #to see progress 
+
+save(model.mismatch, file = "Data/Working_data/Processed_data/model.mismatch.2.Rdata")
+load(file="Data/Working_data/Processed_data/model.mismatch.2.Rdata")
+summary(model.mismatch)
+plot(model.mismatch)
+pp_check(model.mismatch, ndraws = 1000)
+
+#Table
+
+
+```
+
+```{r}
+#| label: Plot_Bayes_model_mismatch
+#| echo: FALSE 
+
+# Plot the model
+#Extract info from model output
+model_interval_mismatch <- mcmc_intervals_data(model.mismatch)
+model_interval_mismatch <- subset(model_interval_mismatch, grepl("b_", parameter)) %>% select(-outer_width, -inner_width, -point_est)
+model_interval_mismatch <- model_interval_mismatch %>% mutate(parameter = case_when(
+  parameter == "b_Intercept"  ~ "Internal control",
+  parameter == "b_TreatmentReMuseddetectionplate" ~ "Reused detection plate",
+  parameter == "b_TreatmentReMusedPCRplate"  ~ "Reused PCR plate")) 
+
+#M value for intercept 
+m_mismatch <- model_interval_mismatch %>% subset(parameter == "Internal control") %>% select(m) 
+
+#Add intercept values to estimates
+Intercept_mismatch <- model_interval_mismatch %>% subset(parameter == "Internal control") 
+Other_mismatch <- model_interval_mismatch  %>% subset(parameter != "Internal control") %>% mutate(.[2:6]+m_mismatch$m)
+model_interval_mismatch <- rbind(Intercept_mismatch, Other_mismatch)
+
+#area (for density clouds)
+model_info_mismatch <- mcmc_areas_data(model.mismatch)
+#model_info <- subset(model_info, !grepl("b_intercept", parameter))
+model_info_mismatch <- subset(model_info_mismatch, grepl("b_", parameter))
+model_info_mismatch <- model_info_mismatch %>% mutate(parameter = case_when(
+  parameter == "b_Intercept"  ~ "Internal control",
+  parameter == "b_TreatmentReMuseddetectionplate" ~ "Reused detection plate",
+  parameter == "b_TreatmentReMusedPCRplate"  ~ "Reused PCR plate"))
+
+model_info_mismatch$parameter <- factor(model_info_mismatch$parameter, levels = c("Internal control", "Reused detection plate", "Reused PCR plate"))
+#add median value to other treatments 
+model_info_mismatch_intercept <- model_info_mismatch %>% subset(parameter == "Internal control")
+model_info_mismatch_other <- model_info_mismatch %>% subset(parameter != "Internal control") %>% mutate(x = x+m_mismatch$m)
+model_info_mismatch <- rbind(model_info_mismatch_intercept, model_info_mismatch_other)
+
+
+# #Build the plot
+Density.mismatch.plot <- ggplot(data = subset(model_info_mismatch, parameter == c("Internal control", "Reused detection plate", "Reused PCR plate"))) +
+  aes(x = x, y = parameter) +
+  geom_ridgeline(aes(scale = 0.4, height = scaled_density, fill = parameter), size = 0) +
+  geom_segment(data = model_interval_mismatch, aes(x = l, xend = h, yend = parameter), col = "black", size=2) +
+  geom_segment(data = model_interval_mismatch, aes(x = ll, xend = hh, yend = parameter), col = "black") +
+  geom_point(data = model_interval_mismatch, aes(x = m, y = parameter), color="black", fill = "grey60", shape=21, size = 2) +
+  guides(fill = F, scale = "none") + #remove the legend
+  scale_fill_brewer(palette = "Oranges") +
+  ggtitle("(a) Genotyping errors") +
+  ylab("Treatment") +
+  xlab("Beta coefficient") +
+  scale_x_continuous(n.breaks = 7, limits = c(-9, -3)) +
+  theme_classic() +
+  theme(text = element_text(family = "Times New Roman"),
+        legend.position = "none", 
+        axis.text.y = element_text(size = 12, color = "black"),
+        axis.text.x = element_text(size = 12, color = "black"),
+        axis.title.y = element_text(size = 14, color = "black"),
+        axis.title.x = element_text(size = 14, color = "black"),
+        plot.title = element_text(size = 15, color = "black"))
+
+ggsave(plot = Density.mismatch.plot, filename = file.path(figs_dir, "Density.mismatch.plot.png"), width = 15, height = 10, unit = "cm", dpi = 500)
+```
+
+```{r}
+#| label: Bayes_model_2
+#| echo: FALSE
+
+# #load the data
+# Analysis.data <- read.csv(file.path(working_dir, "Analysis.data.csv"))
+#
+# #Create binary treatment variables
+# #n_distinct(Analysis.data$ID) #285 individuals
+# #We want to exclude the following individuals due to incorrect data
+# #"A04_AGP07487" "A05_AGP07488" "A01_AGP16315" "A02_AGP16316" "AGF13004" "AGP16191" (Last two changed name to the original sample)
+# 
+# Analysis.data <- Analysis.data[!Analysis.data$ID %in% c("AGP07487","AGP07488","AGP16315","AGP16316"),]
+# #n_distinct(Analysis.data$ID) #281 individuals
+# 
+# #A Bernoulli trial is a random experiment that has only two possible outcomes: success or failure.
+# #Match/no match is similar, as we expect a match between genotypes, if a mismatch is observed, that's a 'failure'
+# 
+#model bernoulli: Match
+#table(Analysis.data$Match)
 #In R the intercept is called 1, you can remove it by adding -1 to your model
 set.seed(1995)
+Analysis.data$Mismatch <- ifelse(Analysis.data$Match == 0,1,0)
+table(Analysis.data$Mismatch)
+model.mismatch <- brms::brm(Mismatch ~ Treatment + (1|ID) + (1|Rack) + (1|Loci) + (1|Mix),
+             data = Analysis.data,
+             family = bernoulli,
+             cores = 3,
+             iter = 100000,
+             thin = 70, #adjust thinning so you have at least 1000 samples per chain (check: (iter-warmup)/thin)
+             warmup = 30000, #standard is 20-50%
+             chains = 3,
+             control = list(adapt_delta = 0.99, max_treedepth = 10), #default max_treedepth = 10, stan does not recommend increasing (at least beyond 12)
+             #set_prior("beta(1,1)", class = "b"), #standardized weakly informative prior, Prior for the random effect class = "sd", standard is normal(0, sigma_x)
+             backend = "cmdstanr", #improve speed
+             silent = 0) #to see progress 
+save(model.mismatch, file = "Data/Working_data/Processed_data/model.mismatch.Rdata")
+summary(model.mismatch)
+plot(model.mismatch)
+pp_check(model.mismatch, ndraws = 1000)
+
 model.match <- brms::brm(Match ~ Treatment + (1|ID) + (1|Rack) + (1|Loci) + (1|Mix),
              data = Analysis.data,
              family = bernoulli,
@@ -1045,7 +1160,7 @@ Density.match.plot <- ggplot(data = model_info_m2) +
   geom_ridgeline(aes(scale = 0.4, height = scaled_density, fill = parameter), size = 0) +
   geom_segment(data = model_interval_m2, aes(x = l, xend = h, yend = parameter), col = "black", size=2) +
   geom_segment(data = model_interval_m2, aes(x = ll, xend = hh, yend = parameter), col = "black") +
-  #geom_point(data = model_interval_m2, aes(x = m, y = parameter), color="black", fill = "grey60", shape=21, size = 2) +
+  geom_point(data = model_interval_m2, aes(x = m, y = parameter), color="black", fill = "grey60", shape=21, size = 2) +
   #geom_vline(xintercept = 6.48881, col = "grey60", linetype="longdash")+
   guides(fill = F, scale = "none") + #remove the legend
   scale_fill_brewer(palette = "Oranges") +
@@ -1058,7 +1173,7 @@ Density.match.plot <- ggplot(data = model_info_m2) +
   theme(axis.title.y=element_blank(),
         axis.text.y=element_blank(),
         axis.ticks.y=element_blank(),
-        axis.text.x = element_text(size = 10, color = "black"),
+        axis.text.x = element_text(size = 15, color = "black"),
         legend.position = "none")
 
 
@@ -1069,10 +1184,78 @@ Density.match.plot <- ggplot(data = model_info_m2) +
 #| label: fig-densityplots
 #| echo: FALSE
 #| warning: FALSE
-Densities.plot <- plot_grid(Density.missing.plot, Density.match.plot, align = "h", rel_widths = c(1.35, 1))
+Densities.plot <- plot_grid(Density.mismatch.plot, Density.scored.plot, ncol = 1, rel_widths = c(1, 1), scale = 0.9)
 
-# ggsave(plot = Densities.plot, filename = file.path(figs_dir, "Densities.png"), width = 25, height = 10, unit = "cm", dpi = 500)
+#ggsave(plot = Densities.plot, filename = file.path(figs_dir, "Densities.new.png"), width = 20, height = 20, unit = "cm", dpi = 800)
 
+```
+#### Potential contamination
+If the genotype matched the original genotype, the mismatch was marked as potential case of contamination.
+
+```{r}
+#| label: tbl-contamination
+#| echo: FALSE
+#| tbl-cap: Potential contamination cases 
+#To inspect mismatches for potential contamination we use the detect_contamination function. 
+#R1 is the standard procedure plate from a given rack
+#Reused is either the reused PCR or reused detection plate treatment 
+#Control is the outcome of the standard procedure plate that was cleaned (and later reused) to the corresponding rack number. 
+Detect_contamination <- function(R1, Reused, Control){
+    #Get name of dataframes
+  Rack_1 <- deparse(substitute(R1))
+  Rack_2 <- deparse(substitute(Reused))
+  Rack_3 <- deparse(substitute(Control))
+  #cat("The total no. of mismatches between", Rack_1 ,"and", Rack_2, "is", length(mismatches[,1]), "whereof", Cases, "cases match with the control plate:", Rack_3)
+  
+    if (Rack_1 == "R154_R1") {
+    #On plate R154 the samples in 4th and 5th row are not part of the analysis
+     R1 <- R1[-(4:5),]
+     Reused <- Reused[-(4:5),]
+     Control <- Control[-(4:5),]
+  } else if (Rack_1 == "R156_R1"){
+      #The repeats are not consistent across all plates, so we remove them
+      R1 <- R1[-(1:2),]
+      Reused <- Reused[-(1:2),]
+      Control <- Control[-(1:2),]
+  } else {
+        R1 <- R1
+        Reused <- Reused
+        Control <- Control
+  }
+  
+  mismatches <- which(R1 != Reused, arr.ind = TRUE)
+  Potential_contamination <- mismatches[Reused[mismatches] == Control[mismatches],] 
+  Cases <- length(Potential_contamination)/2
+  
+  #Output 
+  Output <- as.data.frame(cbind(Rack_2, Rack_3, Cases)) %>% mutate(Cases = as.numeric(Cases))
+  colnames(Output) <- c("Rack", "Control", "Cases")
+  return(Output)
+  #If we want to quickly locate the specific cases
+  ID <- cbind(Reused$mix1.ID[Potential_contamination[, 1]])
+  Loci <- cbind(colnames(Reused)[Potential_contamination[, 2]])
+  Find_contamination <- cbind(ID, Loci, Rack_2)
+  #return(Find_contamination)
+}
+
+Contamination_cases <- bind_rows(Detect_contamination(R154_R1, R154_R3, R156_R1), 
+                                 Detect_contamination(R154_R1, R154_R4, R156_R1), 
+                                 Detect_contamination(R155_R1, R155_R3, R154_R1), 
+                                 Detect_contamination(R155_R1, R155_R4, R154_R1), 
+                                 Detect_contamination(R156_R1, R156_R3, R155_R1), 
+                                 Detect_contamination(R156_R1, R156_R4, R155_R1))
+Contamination_cases$Treatment <- c("Re-used detection plate", "Re-used PCR plate", "Re-used detection plate", "Re-used PCR plate", "Re-used detection plate", "Re-used PCR plate")
+Contamination_cases <- Contamination_cases[order(Contamination_cases$Treatment, decreasing = F),]
+knitr::kable(Contamination_cases, row.names = F)
+
+#Total potential contamination cases
+Total_Ccases <- sum(Contamination_cases$Cases)
+#Total number of alleles investigated minus the 4 individual excluded from analysis
+
+cases_meansd <- as.data.frame(rbind(cbind("Mean", mean(c(4, 1, 8)), mean(c(105, 95, 53))),
+                          cbind("sd", sd(c(4, 1, 8)), sd(c(105, 95, 53)))))
+colnames(cases_meansd) <- c("", "Re-used detection plate", "Re-used PCR plate")
+cases_meansd
 ```
 
 # Results
@@ -1082,7 +1265,44 @@ Densities.plot <- plot_grid(Density.missing.plot, Density.match.plot, align = "h
 [@fig-Errorrates shows 6 graphic panels. A shows barplots of the missing data per rack, B the rate of missing data per rack. C visualize the total no. of mismatches observed when comparing the standard procedure treatment of each rack with the other treatments. D the total number of potential contamination cases, while E and F show the per allele and per locus genotype error rate, respectively.]
 
 ![Mismatches and error rates](Results/Figures/Errorrates.png){#fig-Errorrates fig-align="center"}
+### Tables
+```{r}
+#| label: tbl:Errorrates_output
+#| echo: FALSE
 
+
+```
+
+
+```{r}
+#| label: tbl:Model_output
+#| echo: FALSE
+
+#make a table for the model output
+models <- list(
+  "Missing genotypes" = model.scored,
+  "Genotype errors" = model.mismatch)
+Table <- modelsummary::modelsummary(models,
+                           estimate  = "{estimate} [{conf.low}, {conf.high}]",
+                           statistic = NULL,
+                           conf_level = .95,
+                           metrics = "R2",
+                           coef_rename = c("b_Intercept" = "Internal control", "b_TreatmentReMuseddetectionplate" = "Reused detection plate", "b_TreatmentReMusedPCRplate" = "Reused PCR plate", "sd_ID__Intercept" = "Sample ID", "sd_Loci__Intercept" = "Locus", "sd_Mix__Intercept" = "Multiplexed reaction", "sd_Rack__Intercept" = "DNA plate"),
+                           output = "gt")
+
+Table %>% 
+  tab_spanner(label = 'Models', columns = 2:3) %>%
+  tab_style(style = cell_text(color = 'black', weight = "bold"),
+              locations = cells_body(columns = 1)) %>% 
+  tab_options(table.font.names = "TNR",column_labels.font.weight = "bold", table.width = 600) %>% 
+  tab_style(style = cell_fill(color = 'grey90'),
+              locations = cells_body(rows = c(1,3,5,7,9))) -> Table.finished
+
+gtsave(Table.finished, file.path(tabs_dir, "Model.output.png"))
+```
+
+
+### Figures
 ```{r}
 #| label: fig-missingdataerrors
 #| echo: FALSE
@@ -1107,7 +1327,7 @@ RP$Rack <- c("R154_R4", "R155_R4", "R156_R4")
 RP$Treatment <- "Re-used PCR plate"
 Missingdata <- bind_rows(SP, IC, RD, RP)
 Missingdata$Fill <- substring(Missingdata$Rack, 1, 4)
-Missingdata$Missingrate <- (Missingdata$Total/(95*78))
+Missingdata$Missingrate <- (Missingdata$Total/(95*78)) #95 samples on our plate
 
 Missingdataplot <- Missingdata %>% 
   mutate(Treatment = factor(Treatment, levels = c("Standard procedure", "Internal control", "Re-used detection plate", "Re-used PCR plate"))) %>%
@@ -1230,22 +1450,6 @@ ggsave(plot = Errorrateplot, filename = file.path(figs_dir, "AlleleErrorrateplot
 ggsave(plot = Errorrategenotypeplot, filename = file.path(figs_dir, "Errorrategenotypeplot.png"), width = 15, height = 10, unit = "cm", dpi = 500)
 ```
 
-Two bayesian models with binomial distribution were fitted. The first model explored the treatment effect on match (0 mismatch, 1 match) per loci. The treatments were fit as indicator variables, excluding 'standard procedure', which was the reference treatment for the mismatching. ID, Rack, Loci and Mix were included as random effects.
-
-**Match model** **Match \~ Internal control + Reused detection plate + Reused PCR plate + (1\|ID) + (1\|Rack) + (1\|Loci) + (1\|Mix)**
-
-The second model explored the treatment effect on missing genotypes (0 missing, 1 present) per loci. The treatments were fit as indicator variables and ID, Rack, Loci and Mix were included as random effects.
-
-**Missing genotypes model** **Missing genotypes \~ Standard procedure + Internal control + Reused detection plate + Reused PCR plate + (1\|ID) + (1\|Rack) + (1\|Loci) + (1\|Mix)**
-
-The first model yielded a significant effect of all treatments, where the Reused detection plate treatment had a positively diverged posterior distribution and the Reused PCR plate treatment yielded a negatively diverged posterior distributed in relation to the Internal control treatment (See @fig-Models A).
-
-The second model yielded a significant effect of all treatments, where the Internal control treatment and the Reused detection plate treatment had a positively diverged posterior distribution and the Reused PCR plate treatment yielded a negatively diverged posterior distributed in relation to the Standard procedure (See @fig-Models B).
-
-![Posterior distribution from models](Results/Figures/Densities.png){#fig-Models}
-
-# Discussion
-
 # Supporting Information
 
 ### Description
@@ -1272,7 +1476,6 @@ The data for this project are the raw sequencing reads from the ABI 3730xl capil
 *Note: Annealing temperatures are mix-specific.*
 
 ### Missing data
-
 ```{r}
 #| label: tbl-failed
 #| echo: FALSE
@@ -1414,250 +1617,3 @@ ggplot( aes(x=Mix, y=`Allelic error rate`)) +
 ```
 
 ![Error rate per mix](Results/Figures/Errorratepermixplot.png){#fig-permixerrorrate}
-
-```{r}
-
-```
-
-```{r}
-#| label: Gapfilling
-#| echo: FALSE
-
-# #This function can be used to locate the plates that needs to be gapfilled
-# Failed_loci <- function(DF1){
-#   #mix 1
-#   Pv9 <- sum(is.na(select(DF1, contains("Pv9"))))
-#   Hg.6.3 <- sum(is.na(select(DF1, contains("Hg.6.3"))))
-#   Hg.8.10 <- sum(is.na(select(DF1, contains("Hg.8.10"))))
-#   Hg.1.3 <- sum(is.na(select(DF1, contains("Hg.1.3"))))
-#   M11a <- sum(is.na(select(DF1, contains("M11a"))))
-#   PvcA <- sum(is.na(select(DF1, contains("PvcA"))))
-#   Zcwb07 <- sum(is.na(select(DF1, contains("Zcwb07"))))
-#   Agaz2 <- sum(is.na(select(DF1, contains("Agaz2"))))
-#   loci_m1 <- as.data.frame(rbind(Pv9, Hg.6.3, Hg.8.10, Hg.1.3, M11a, PvcA, Zcwb07, Agaz2))
-#   loci_m1$Mix <- "Mix1"
-#   #mix 2
-#   Ag3 <- sum(is.na(select(DF1, contains("Ag3"))))
-#   Agaz6 <- sum(is.na(select(DF1, contains("Agaz6"))))
-#   OrrFCB7 <- sum(is.na(select(DF1, contains("OrrFCB7"))))
-#   Ag2 <- sum(is.na(select(DF1, contains("Ag2"))))
-#   OrrFCB2 <- sum(is.na(select(DF1, contains("OrrFCB2"))))
-#   Lw10 <- sum(is.na(select(DF1, contains("Lw10"))))
-#   ZcwCO1 <- sum(is.na(select(DF1, contains("ZcwCO1"))))
-#   Agaz5 <- sum(is.na(select(DF1, contains("Agaz5"))))
-#   ZcwDhB <- sum(is.na(select(DF1, contains("ZcwDhB"))))
-#   loci_m2 <- as.data.frame(rbind(Ag3, Agaz6, OrrFCB7, Ag2, OrrFCB2, Lw10, ZcwCO1, Agaz5, ZcwDhB))
-#   loci_m2$Mix <- "Mix2"
-#   #mix 3
-#   ZcwDz301 <- sum(is.na(select(DF1, contains("ZcwDz301"))))
-#   Ag7 <- sum(is.na(select(DF1, contains("Ag7"))))
-#   Ag.10 <- sum(is.na(select(DF1, contains("Ag.10"))))
-#   ZcwDh4 <- sum(is.na(select(DF1, contains("ZcwDh4"))))
-#   ZcwE05 <- sum(is.na(select(DF1, contains("ZcwE05"))))
-#   Ag1 <- sum(is.na(select(DF1, contains("Ag1"))))
-#   OrrFCB8 <- sum(is.na(select(DF1, contains("OrrFCB8"))))
-#   Agt.47 <- sum(is.na(select(DF1, contains("Agt.47"))))
-#   loci_m3 <- as.data.frame(rbind(ZcwDz301, Ag7, Ag.10, ZcwDh4, ZcwE05, Ag1, OrrFCB8, Agt.47))
-#   loci_m3$Mix <- "Mix3"
-#   #mix 4
-#   ZcwF07 <- sum(is.na(select(DF1, contains("ZcwF07"))))
-#   ZcwD02 <- sum(is.na(select(DF1, contains("ZcwD02"))))
-#   ZcwCgDh1 <- sum(is.na(select(DF1, contains("ZcwCgDh1"))))
-#   Aa4 <- sum(is.na(select(DF1, contains("Aa4"))))
-#   ZcCgDH5.8 <- sum(is.na(select(DF1, contains("ZcCgDH5.8"))))
-#   Agaz3 <- sum(is.na(select(DF1, contains("Agaz3"))))
-#   loci_m4 <- as.data.frame(rbind(ZcwF07, ZcwD02, ZcwCgDh1, Aa4, ZcCgDH5.8, Agaz3))
-#   loci_m4$Mix <- "Mix4"
-#   #mix 5
-#   X962.1 <- sum(is.na(select(DF1, contains("X962.1"))))
-#   X554.6 <- sum(is.na(select(DF1, contains("X554.6"))))
-#   ZcwA12 <- sum(is.na(select(DF1, contains("ZcwA12"))))
-#   PvcE <- sum(is.na(select(DF1, contains("PvcE"))))
-#   ZcwB09 <- sum(is.na(select(DF1, contains("ZcwB09"))))
-#   Agaz10 <- sum(is.na(select(DF1, contains("Agaz10"))))
-#   Mang44 <- sum(is.na(select(DF1, contains("Mang44"))))
-#   Mang36 <- sum(is.na(select(DF1, contains("Mang36"))))
-#   loci_m5 <- as.data.frame(rbind(X962.1, X554.6, ZcwA12, PvcE, ZcwB09, Agaz10, Mang44, Mang36))
-#   loci_m5$Mix <- "Mix5"
-#   #Create the output
-#   Rack <- deparse(substitute(DF1))
-#   Samples <- 95
-#   Output <- as.data.frame(rbind(loci_m1,loci_m2, loci_m3, loci_m4, loci_m5))
-#   colnames(Output) <- c("Unscored", "Mix")
-#   Rack <- deparse(substitute(DF1))
-#   Output$Rack <- Rack
-#   #Calculates the percentage of unscored loci rounded to 2 digits
-#   Output$Percent <- as.numeric((as.numeric(Output$Unscored)/Samples*0.5)*100) %>%
-#     round(., 2)
-#   Output$Loci <- rownames(Output)
-#   #return(Output)
-#   #alternatively if only interested in failed loci, loci with more than 20% NAs
-#   Find_failed_loci <- subset(Output, Output$Percent > 20)
-#   rownames(Find_failed_loci) <- NULL
-#   return(Find_failed_loci)
-# }
-# 
-# #apply failed_loci function to all racks to locate which plates needs gapfilling
-# Gapfilling <- rbind(Failed_loci(R154_R1),
-#                           Failed_loci(R154_R2),
-#                           Failed_loci(R154_R3),
-#                           Failed_loci(R154_R4),
-#                           Failed_loci(R155_R1),
-#                           Failed_loci(R155_R2),
-#                           Failed_loci(R155_R3),
-#                           Failed_loci(R155_R4),
-#                           Failed_loci(R156_R1),
-#                           Failed_loci(R156_R2),
-#                           Failed_loci(R156_R3),
-#                           Failed_loci(R156_R4))
-# Gapfilling <- Gapfilling[order(Gapfilling$Rack,Gapfilling$Mix ),]
-# 
-# #saves the table in the correct folder
-# write_csv(Gapfilling, file.path(tabs_dir, "Gapfilling.csv"))
-```
-
-```{r}
-#| label: Maybeusablecode
-#| echo: FALSE
-
-
-# # Plot the model
-# #Extract info from model output
-# model_interval <- mcmc_intervals_data(model.match)
-# model_interval <- subset(model_interval, !grepl("b_intercept", parameter))
-# model_interval <- subset(model_interval, grepl("b_", parameter))
-# model_interval <- model_interval %>% mutate(parameter = case_when(
-#   parameter == "b_Intercept" ~ "Internal control",
-#   parameter == "b_TreatmentReMuseddetectionplate" ~ "Reused detection plate",
-#   parameter == "b_TreatmentReMusedPCRplate"  ~ "Reused PCR plate",
-#   parameter == "b_Nanodrop" ~ "Nanodrop"))
-# 
-# #The parameters are always in relation to the intercept, so to represent them correctly visually
-# #the intercept value is added to the parameter values
-# Intercept <- subset(model_interval[1,], select = c("ll", "l", "m", "h", "hh"))
-# 
-# model_interval <- cbind(subset(model_interval[1:4]), rbind(subset(model_interval[1,], select = c("ll", "l", "m", "h", "hh")),
-#                 subset(model_interval[2,], select = c("ll", "l", "m", "h", "hh"))+Intercept,
-#                 subset(model_interval[3,], select = c("ll", "l", "m", "h", "hh"))+Intercept,
-#                 subset(model_interval[4,], select = c("ll", "l", "m", "h", "hh"))+Intercept))
-# 
-# #area (for density clouds)
-# model_info <- mcmc_areas_data(model.match)
-# model_info <- subset(model_info, !grepl("b_intercept", parameter))
-# model_info <- subset(model_info, grepl("b_", parameter))
-# model_info <- model_info %>% mutate(parameter = case_when(
-#   parameter == "b_Intercept" ~ "Internal control",
-#   parameter == "b_TreatmentReMuseddetectionplate" ~ "Reused detection plate",
-#   parameter == "b_TreatmentReMusedPCRplate"  ~ "Reused PCR plate",
-#   parameter == "b_Nanodrop" ~ "Nanodrop"))
-# 
-# #Build the plot
-# Density.match.plot <- ggplot(data = subset(model_info, parameter == c("Reused detection plate", "Reused PCR plate"))) +
-#   aes(x = x+5.966920, y = parameter) +
-#   geom_ridgeline(aes(scale = 0.4, height = scaled_density, fill = parameter, col = parameter), size = 0.9) +
-#   geom_ridgeline(data = subset(model_info, parameter == "Internal control"), aes(x = x, y = parameter, scale = 0.4, height = scaled_density, fill = parameter, col = parameter), size = 0.9) +
-#   geom_segment(data = subset(model_interval, parameter != "Nanodrop"), aes(x = l, xend = h, yend = parameter), col = "black", size=2) +
-#   geom_segment(data = subset(model_interval, parameter != "Nanodrop"), aes(x = ll, xend = hh, yend = parameter), col = "black") +
-#   geom_point(data = subset(model_interval, parameter != "Nanodrop"), aes(x = m, y = parameter), color="black", fill = "grey60", shape=21, size = 3) +
-#   geom_vline(xintercept = 5.966920, col = "#ca562c", linetype="longdash")+
-#   guides(fill = F, scale = "none") + #remove the legend
-#   scale_fill_brewer(palette = "Oranges") +
-#   scale_color_brewer(palette = "Oranges") +
-#   ggtitle("Uncertainty from posterior draws") +
-#   ylab("Treatment") +
-#   xlab("Posterior distribution") +
-#   theme_bw() +
-#   theme(legend.position = "none")
-
-# ggsave(plot = Density.match.plot, filename = file.path(figs_dir, "Density.match.plot.png"), width = 15, height = 10, unit = "cm", dpi = 500)
-# 
-
-# model.match <- brms::brm(Match ~ Treatment + Nanodrop + (1|ID) + (1|Rack) + (1|Loci) + (1|Mix),
-#              data = Analysis.data,
-#              family = bernoulli,
-#              cores = 10,
-#              iter = 1000*r,
-#              thin = r,
-#              warmup = 500*r, #standard is iter/2
-#              chains = 3,
-#              set_prior("normal(0,1)", class = "b"))
-
-
-  #  #Mismatch should also include NA values
-  #  NaDF1 <- DF1[3:80] %>% replace(!is.na(.), 0) %>% replace(is.na(.), 1) %>%
-  # mutate(Row_Sums = rowSums(across(everything())))
-  #  NaDF2 <- DF2[3:80] %>% replace(!is.na(.), 0) %>% replace(is.na(.), 1) %>%
-  # mutate(Row_Sums = rowSums(across(everything())))
-  #  #sum is no. of times NA occurs in that row
-  #  Base$Sum <- as.numeric(NaDF1$Row_Sums) + as.numeric(NaDF2$Row_Sums)
-  #  
-  #  #NAdetected coded as 1 for no NAs and 0 for NA values
-  #  Base$NAdetected <- ifelse(Base$Sum > 0, 0, 1)
-  #  #Added with the match information, we can asses complete matches
-  #  Base$Match.na <- Base$NAdetected + Base$Match 
-  #  Base$Match.na <- ifelse(Base$Match.na != 2, 0, 1)
-   
-   
-
-# Row1 <- R154_R1[grep('A\\d', R154_R1$mix1.ID), ] %>% 
-#   select(contains("Mix1")) %>%
-#   replace(is.na(.), 0) %>%
-#   as.data.frame() %>%
-#   mutate_all(~ ifelse(. == '0', 0, 1)) %>%
-#   mutate(Row_Sums = rowSums(.[3:18])) %>%
-#   pull(Row_Sums)
-# Row2 <- R154_R1[grep('B\\d', R154_R1$mix1.ID), ] %>% 
-#   select(contains("Mix1")) %>%
-#   replace(is.na(.), 0) %>%
-#   as.data.frame() %>%
-#   mutate_all(~ ifelse(. == '0', 0, 1)) %>%
-#   mutate(Row_Sums = rowSums(across(everything()))) %>%
-#   pull(Row_Sums)
-# Row3 <- R154_R1[grep('C\\d', R154_R1$mix1.ID), ] %>%   
-#   select(contains("Mix1")) %>%
-#   replace(is.na(.), 0) %>%
-#   as.data.frame() %>%
-#   mutate_all(~ ifelse(. == '0', 0, 1)) %>%
-#   mutate(Row_Sums = rowSums(across(everything()))) %>%
-#   pull(Row_Sums)
-# Row4 <- R154_R1[grep('D\\d', R154_R1$mix1.ID), ] %>%   
-#   select(contains("Mix1")) %>%
-#   replace(is.na(.), 0) %>%
-#   as.data.frame() %>%
-#   mutate_all(~ ifelse(. == '0', 0, 1)) %>%
-#   mutate(Row_Sums = rowSums(across(everything()))) %>%
-#   pull(Row_Sums)
-# Row5 <- R154_R1[grep('E\\d', R154_R1$mix1.ID), ] %>%   
-#   select(contains("Mix1")) %>%
-#   replace(is.na(.), 0) %>%
-#   as.data.frame() %>%
-#   mutate_all(~ ifelse(. == '0', 0, 1)) %>%
-#   mutate(Row_Sums = rowSums(across(everything()))) %>%
-#   pull(Row_Sums)
-# Row6 <- R154_R1[grep('F\\d', R154_R1$mix1.ID), ] %>%   
-#   select(contains("Mix1")) %>%
-#   replace(is.na(.), 0) %>%
-#   as.data.frame() %>%
-#   mutate_all(~ ifelse(. == '0', 0, 1)) %>%
-#   mutate(Row_Sums = rowSums(across(everything()))) %>%
-#   pull(Row_Sums)
-# Row7 <- R154_R1[grep('G\\d', R154_R1$mix1.ID), ] %>%   
-#   select(contains("Mix1")) %>%
-#   replace(is.na(.), 0) %>%
-#   as.data.frame() %>%
-#   mutate_all(~ ifelse(. == '0', 0, 1)) %>%
-#   mutate(Row_Sums = rowSums(across(everything()))) %>%
-#   pull(Row_Sums)
-# Row8 <- R154_R1[grep('H\\d', R154_R1$mix1.ID), ] %>%
-#   select(contains("Mix1")) %>%
-#   replace(is.na(.), 0) %>%
-#   as.data.frame() %>%
-#   mutate_all(~ ifelse(. == '0', 0, 1)) %>%
-#   mutate(Row_Sums = rowSums(across(everything()))) %>%
-#   pull(Row_Sums)
-# 
-# Missing_data <- as.data.frame(rbind(Row1, Row2, Row3, Row4, Row5, Row6, Row7, Row8))
-# #Missing_data <- matrix(as.numeric(unlist(Missing_data)),nrow=nrow(Missing_data))
-# #heatmap(Missing_data, Rowv = NA, Colv = NA)
-# Missing_data$row <- rbind("row1", "row2", "row3", "row4", "row5", "row6", "row7", "row8")
-```
