@@ -1,0 +1,597 @@
+---
+title: "SGP_extra_figures"
+format: html
+editor: visual
+---
+```{r}
+#| label: setup
+#| echo: FALSE
+
+#This code chunk is dedicated to variables containing the path to the folder related to the project. 
+figs_dir <- file.path("Results", "Figures")
+tabs_dir <- file.path("Results", "Tables")
+working_dir <- file.path("Data", "Working_data", "Processed_data")
+#remember to add a line that saves the figures and tables in the correct folder
+#e.g. write_csv(., file.path(tabs_dir, "name of table"))
+#e.g. ggsave(plot = name_of_plot, filename = file.path(figs_dir, "name of figure")), width = 19, height = 19, unit = "cm", dpi = 500)
+```
+
+Not all packages necessary
+
+```{r}
+#| label: packages
+#| echo: FALSE
+#here::here()
+invisible(pacman::p_load(dplyr, tidyverse, here, stringi, png, knitr, rstatix, cowplot, kableExtra, brms, bayesplot, ggridges, gt, tibble, webshot2))
+#gt for model output table
+#webshot to make table into png
+```
+
+### Missing genotypes
+```{r}
+#| label: failed_alleles
+#| echo: FALSE
+#| warning: FALSE
+
+#The Count_NAs function counts the total and per mix number of NAs in a dataframe. 
+#NAs cover all cases where a allele could not be scored, whatever the reason
+#Reasons include but are not limited to: PCR failing, poor DNA quality, unambiguous genotypes
+Count_NAs <- function(DF) {
+  Rack_1 <- deparse(substitute(DF))
+  Rack_1 <- substring(Rack_1, 1, 4) 
+  if (Rack_1 == "R154"){
+    #On plate R154 the samples in 4th and 5th row are not part of the analysis
+     DF <- DF[-(4:5),]
+  } else if (Rack_1 == "R156"){
+      #The repeats are not consistent across all plates, so we remove them
+      DF <- DF[-(1:2),]
+  } else {
+        DF <- DF
+  }
+  
+  Mix1 <- sum(is.na(select(DF, contains("mix1"))))
+  Mix2 <- sum(is.na(select(DF, contains("mix2"))))
+  Mix3 <- sum(is.na(select(DF, contains("mix3"))))
+  Mix4 <- sum(is.na(select(DF, contains("mix4"))))
+  Mix5 <- sum(is.na(select(DF, contains("mix5"))))
+  Total <- sum(is.na(DF))
+  Rack <- deparse(substitute(DF))
+  Output <- rbind(Mix1, Mix2, Mix3, Mix4, Mix5, Total)
+  #colnames(Output) <- Rack
+  return(Output)
+}
+
+Failed_samples_R154 <- as.data.frame(cbind(Count_NAs(R154_R1), Count_NAs(R154_R2), Count_NAs(R154_R3), Count_NAs(R154_R4)))
+Failed_samples_R154 <- tibble::rownames_to_column(Failed_samples_R154, "Mix")           
+names(Failed_samples_R154) <- c("Mix", "Standard procedure", "Internal control", "Reused detection plate", "Reused PCR plate")             
+
+Failed_samples_R155 <- as.data.frame(cbind(Count_NAs(R155_R1), Count_NAs(R155_R2), Count_NAs(R155_R3), Count_NAs(R155_R4))) 
+Failed_samples_R155 <- tibble::rownames_to_column(Failed_samples_R155, "Mix")
+names(Failed_samples_R155) <- c("Mix", "Standard procedure", "Internal control", "Reused detection plate", "Reused PCR plate")   
+
+Failed_samples_R156 <- as.data.frame(cbind(Count_NAs(R156_R1), Count_NAs(R156_R2), Count_NAs(R156_R3), Count_NAs(R156_R4))) 
+Failed_samples_R156 <- tibble::rownames_to_column(Failed_samples_R156, "Mix")
+names(Failed_samples_R156) <- c("Mix", "Standard procedure", "Internal control", "Reused detection plate", "Reused PCR plate")    
+
+Failed_samples <- bind_rows(Failed_samples_R154, Failed_samples_R155, Failed_samples_R156)
+#Save the table as a csv file
+#write_csv(Failed_samples, file.path(tabs_dir, "Failed_alleles.csv"))
+
+Total_Missing <- sum(sum(as.numeric(Failed_samples_R154[6,]), na.rm = T),
+                     sum(as.numeric(Failed_samples_R155[6,]), na.rm = T),
+                     sum(as.numeric(Failed_samples_R156[6,]), na.rm = T))
+```
+
+#### Locate missing genotype data
+```{r}
+#| label: fig-Heatmap
+#| echo: FALSE
+#| warning: FALSE
+#| fig-cap: "Heatmap of missing data"
+
+# #Fix this in initial read in
+# R154_R4$mix1.M11a_a <- as.integer(R154_R4$mix1.M11a_a)
+# R156_R1$mix5.Mang44_a <- as.integer(R156_R1$mix5.Mang44_a)
+# 
+# #The replace functions locates NAs and replaces them with 0 and all other entries with 1
+# Replace <- function(DF) {
+#   mix <- DF %>% replace(!is.na(.), 1) %>% replace(is.na(.), 0) %>%
+#   mutate(Row_Sums = rowSums(across(everything())))
+#   Sum <- mix$Row_Sums
+#   return(Sum)
+# }
+# 
+# #The heatmap function generates a heatmap for the dataframe provided
+# Heatmap <- function(DF) {
+#   #using the replace function, the sum per ID of scored loci is calculated
+#   Sum <- as.data.frame(cbind(Replace(DF[3:18]), Replace(DF[19:36]), Replace(DF[37:52]), Replace(DF[53:64]), Replace(DF[65:80]))) %>% mutate(Sums = rowSums(across(everything())))
+# 
+#   #Name
+#   Rack <- deparse(substitute(DF))
+# 
+#   #In some of the racks, a couple of samples have been repeated (_1 and _2), cleans name
+#   DF$mix1.ID <- gsub("_(\\d)$", "", as.character(DF$mix1.ID))
+# 
+#   #Creates the table needed for ggplot to generate the heatmap
+#   Heat <- as.data.frame(cbind(Sum$Sums, DF$mix1.ID, DF$mix1.ID))
+#   colnames(Heat) <- c("Sum", "Column", "Row")
+#   Heat <- Heat %>%
+#     mutate(Row = gsub("\\d{2}_[A-Z]{3}\\d{5}", "", as.character(Row)),
+#          Column = gsub("[A-Z]|_[A-Z]{3}\\d{5}", "", as.character(Column))) %>%
+#     mutate(Row = as.factor(Row), Sum = as.numeric(Sum))
+# 
+#   #The actual plot, data entered to represent the layout of the actual plate
+#   #More purple hues means more missing data
+#   Heatmap.plot <- ggplot(data = Heat, aes(x=factor(Column,level=c('01','02','03','04','05','06','07','08','09','10','11','12')), y=Row, fill=Sum)) +
+#   geom_tile() +
+#   scale_y_discrete(limits = rev(levels(Heat$Row))) +
+#   scale_fill_gradient(low = "purple", high = "orange", limits = c(0,80)) +
+#   theme_minimal() +
+#   theme(axis.title.x = element_blank(),
+#         axis.title.y = element_blank()) +
+#   ggtitle(Rack)
+#   return(Heatmap.plot)
+# }
+# 
+# #Applying the heatmap funtion to all datasets and arranging them
+# Heatmap.plot <- plot_grid(Heatmap(R154_R1), Heatmap(R155_R1), Heatmap(R156_R1),
+#                           Heatmap(R154_R2), Heatmap(R155_R2), Heatmap(R156_R2),
+#                           Heatmap(R154_R3), Heatmap(R155_R3), Heatmap(R156_R3),
+#                           Heatmap(R154_R4), Heatmap(R155_R4), Heatmap(R156_R4),
+#                           labels = NULL, nrow = 4)
+
+#Single heatmap
+#SingleHeatmap.plot <- Heatmap(R154_R1)
+#ggsave(plot = SingleHeatmap.plot, filename = file.path(figs_dir, "SingleHeatmap.png"), width = 15, height = 10, unit = "cm", dpi = 500)
+#Heatmap.plot
+#ggsave(plot = Heatmap.plot, filename = file.path(figs_dir, "Heatmap2.png"), width = 30, height = 21, unit = "cm", dpi = 500)
+```
+
+### Figures
+
+```{r}
+#| label: fig-allelicerrors
+#| echo: FALSE
+#| warning: FALSE
+#| fig-cap: "Allelic mismatches"
+Mismatches$Rackno <- c("R154", "R155", "R156", "R154", "R155", "R156","R154", "R155", "R156")
+Mismatchplot <- Mismatches %>% 
+  mutate(Treatment = factor(Treatment, levels = c("Internal control", "Re-used detection plate", "Re-used PCR plate"))) %>%
+  ggplot( aes(y=`No. of mistyped alleles`, x = Treatment, fill = Rackno)) +
+  geom_bar(stat = "identity", position = position_dodge(0.7), width = 0.5, alpha = 0.8) +
+  scale_fill_brewer(palette = "Purples") +
+  guides(fill = F, scale = "none") + #remove the legend
+  geom_text(aes(label = Rackno), vjust = -0.4, position = position_dodge(0.7), size = 3) + #adds the rack name to the bar, vjust pushes the text above the bar
+  ylim(0,150) +
+  ggtitle("Total no. of mismatches per allele") +
+  theme_bw()
+```
+
+```{r}
+#| label: fig-errorrate
+#| echo: FALSE
+#| warning: FALSE
+#| fig-cap: "Genotype error rate"
+
+Errorrategenotypeplot <- Mismatches %>% 
+  mutate(Treatment = factor(Treatment, levels = c("Internal control", "Re-used detection plate", "Re-used PCR plate"))) %>%
+ggplot( aes(x=Treatment, y=`Genotype error rate`, fill = Treatment)) + 
+  geom_boxplot(alpha = 0.8) +
+  scale_fill_brewer(palette = "Oranges") +
+  theme(legend.position = "none") +
+  guides(fill = F, scale = "none") + #remove the legend 
+  ylim(0,0.04) +
+  ggtitle("Genotype error rate per locus") +
+  ylab("Per locus genotype error rate") +
+  theme_bw()
+```
+
+```{r}
+#| label: fig-contamination
+#| echo: FALSE
+#| warning: FALSE
+#| fig-cap: "Potential contamination"
+Contamination_cases$Plate <- substring(Contamination_cases$Rack, 1, 4)
+Contaminationplot <- Contamination_cases %>%
+  mutate(Treatment=factor(Treatment, levels = c("Re-used detection plate", "Re-used PCR plate"))) %>%
+  mutate(Control=factor(Control, levels = c("R156_R1", "R154_R1", "R155_R1"))) %>%
+  ggplot( aes(y=Cases, x = Treatment, fill = Control)) +
+  geom_bar(stat = "identity", position = position_dodge(0.7), width = 0.5, alpha = 0.8) +
+  scale_fill_brewer(palette = "Purples") + 
+  guides(fill = F, scale = "none") + #remove the legend
+  geom_text(aes(label = Plate), vjust = -0.4, position = position_dodge(0.7), size = 3) + #adds the rack name to the bar, vjust pushes the text above the bar
+  ylim(0,150) +
+  ggtitle("Total no. of potential contamination cases") +
+  ylab("No. of potential cases") +
+  theme_bw()
+```
+
+```{r}
+#| label: fig-errorratesplus
+#| echo: FALSE
+#| warning: FALSE
+ggsave(plot = Mismatchplot, filename = file.path(figs_dir, "Mismatchplot.png"), width = 15, height = 10, unit = "cm", dpi = 500)
+ggsave(plot = Contaminationplot, filename = file.path(figs_dir, "Contaminationplot.png"), width = 15, height = 10, unit = "cm", dpi = 500)
+ggsave(plot = Errorrategenotypeplot, filename = file.path(figs_dir, "Errorrategenotypeplot.png"), width = 15, height = 10, unit = "cm", dpi = 500)
+```
+
+### Missing data
+```{r}
+#| label: tbl-failed
+#| echo: FALSE
+#| tbl-cap: Unscored alleles
+#| tbl-subcap: 
+#|   - "Rack 154"
+#|   - "Rack 155"
+#|   - "Rack 156"
+#| warning: FALSE
+
+#This code chunk is connected to the label: failed_alleles code chunk 
+#This code chunk only provides the table originating from the code in the other code chunk
+
+knitr::kable(Failed_samples_R154)
+knitr::kable(Failed_samples_R155)
+knitr::kable(Failed_samples_R156)
+
+```
+
+@tbl-failed display the number of unscored alleles within each mix on each plate. For R154 and R156 this is based on `r nrow(R154_R1[-(4:5),])` individuals, while for R155 it is based on all `r nrow(R155_R1)` individuals on the plate.
+
+Before starting the error rate evaluation, the no. of genotypes that could not be scored for each round and mix per rack is tabulated (See @tbl-failed). From this, we know that a total of `r Total_Missing` alleles could not be scored. In @fig-Heatmap and @fig-Heatmap2, the location of the missing data on the plate is visualized. More purple hues correspond to more missing loci for that particular samples, and we can conclude that certain samples seem to have failed almost completely. This could hint at poor DNA quality. The data is arranged in the plot to match the layout of the actual plate. Through visual inspection, there might be a slight tendency for the missing loci to be located more towards the edges of the plates compared to the center.
+
+![Heatmap of missing data before gapfilling](Results/Figures/Heatmap.png){#fig-Heatmap fig-align="center"}
+
+![Heatmap of missing data after gapfilling](Results/Figures/Heatmap2.png){#fig-Heatmap2 fig-align="center"}
+
+Based on the heatmaps, it is obvious that some individuals have a higher proportion of missing data than others. To further explore the distribution of missing data, the number of NAs for each row of the dataset was tabulated. Each row corresponds to one individual on one rack, which means that each individual is represented 4 times. Based on @fig-missingdata the majority of individuals have less than 10 errors, however `r length(unique(More_than_10$ID))` individuals are represented in the dataset with at least one occurrence of more than 10 missing alleles.
+
+![Missing data per individual](Results/Figures/Nasmissing.png){#fig-missingdata}
+
+The genotyping error rate per allele and per locus was calculated across all treatments (@fig-Errorrates). To further understand where the errors occur in the dataset, the error rate per mix across all racks were calculated.
+
+```{r}
+#| label: fig-mixmismatch
+#| echo: FALSE
+
+Mix_Mismatch <- function(DF1, DF2){
+  #Name of the plates 
+  Rack_1 <- deparse(substitute(DF1))
+  Rack_2 <- deparse(substitute(DF2))
+  
+  if (Rack_1 == "R154_R1") {
+    #On plate R154 the samples in 4th and 5th row are not part of the analysis
+     DF1 <- DF1[-(4:5),]
+     DF2 <- DF2[-(4:5),]
+  } else if (Rack_1 == "R156_R1"){
+      #The repeats are not consistent across all plates, so we remove them
+      DF1 <- DF1[-(1:2),]
+      DF2 <- DF2[-(1:2),]
+  } else {
+    DF1 <- DF1
+    DF2 <- DF2
+  }
+  
+  #To recognize treatment, simplify the 'name' of the DF to the round number (R*)
+  Round <- gsub("R\\d{3}|_", "", Rack_2)
+  if (Round == "R2"){
+    Treatment <- "Internal control"
+  } else if (Round == "R3") {
+    Treatment <- "Re-used detection plate"
+  } else {
+    Treatment <- "Re-used PCR plate"
+  }
+  
+  #locate the mismatches in each mix by comparing the two data frames and count them
+  #The allelic error rate is calculated by dividing the number of errors with 
+  #the total number of comparision made between the two dataframes
+  mismatches_mix1 <- which(DF1[3:18] != DF2[3:18], arr.ind = TRUE)
+  Total_mismatches_mix1 <- length(mismatches_mix1[,1])
+  Total_comparisons_mix1 <- sum(!is.na(DF1[3:18]) & !is.na(DF2[3:18]))
+  Error_rate_mix1 <- Total_mismatches_mix1/Total_comparisons_mix1
+  
+  mismatches_mix2 <- which(DF1[19:36] != DF2[19:36], arr.ind = TRUE)
+  Total_mismatches_mix2 <- length(mismatches_mix2[,1])
+  Total_comparisons_mix2 <- sum(!is.na(DF1[19:36]) & !is.na(DF2[19:36]))
+  Error_rate_mix2 <- Total_mismatches_mix2/Total_comparisons_mix2
+  
+  mismatches_mix3 <- which(DF1[37:52] != DF2[37:52], arr.ind = TRUE)
+  Total_mismatches_mix3 <- length(mismatches_mix3[,1])
+  Total_comparisons_mix3 <- sum(!is.na(DF1[37:52]) & !is.na(DF2[37:52]))
+  Error_rate_mix3 <- Total_mismatches_mix3/Total_comparisons_mix3
+  
+  mismatches_mix4 <- which(DF1[53:64] != DF2[53:64], arr.ind = TRUE)
+  Total_mismatches_mix4 <- length(mismatches_mix4[,1])
+  Total_comparisons_mix4 <- sum(!is.na(DF1[53:64]) & !is.na(DF2[53:64]))
+  Error_rate_mix4 <- Total_mismatches_mix4/Total_comparisons_mix4
+  
+  mismatches_mix5 <- which(DF1[65:80] != DF2[65:80], arr.ind = TRUE)
+  Total_mismatches_mix5 <- length(mismatches_mix5[,1])
+  Total_comparisons_mix5 <- sum(!is.na(DF1[65:80]) & !is.na(DF2[65:80]))
+  Error_rate_mix5 <- Total_mismatches_mix5/Total_comparisons_mix5
+  
+  #The Output is a data frame with the results
+  Mix1 <- as.data.frame(cbind(Rack_1, Rack_2, Treatment, Total_mismatches_mix1, Error_rate_mix1)) 
+  colnames(Mix1) <- c("Rack 1", "Rack 2", "Treatment", "No. of mismatches", "Allelic error rate")
+  Mix1$Mix <- "Mix1"
+  Mix2 <- as.data.frame(cbind(Rack_1, Rack_2, Treatment, Total_mismatches_mix2, Error_rate_mix2)) 
+  colnames(Mix2) <- c("Rack 1", "Rack 2", "Treatment", "No. of mismatches", "Allelic error rate")
+  Mix2$Mix <- "Mix2"
+  Mix3 <- as.data.frame(cbind(Rack_1, Rack_2, Treatment, Total_mismatches_mix3, Error_rate_mix3)) 
+  colnames(Mix3) <- c("Rack 1", "Rack 2", "Treatment", "No. of mismatches", "Allelic error rate")
+  Mix3$Mix <- "Mix3"
+  Mix4 <- as.data.frame(cbind(Rack_1, Rack_2, Treatment, Total_mismatches_mix4, Error_rate_mix4))
+  colnames(Mix4) <- c("Rack 1", "Rack 2", "Treatment", "No. of mismatches", "Allelic error rate")
+  Mix4$Mix <- "Mix4"
+  Mix5 <- as.data.frame(cbind(Rack_1, Rack_2, Treatment, Total_mismatches_mix5, Error_rate_mix5))
+  colnames(Mix5) <- c("Rack 1", "Rack 2", "Treatment", "No. of mismatches", "Allelic error rate")
+  Mix5$Mix <- "Mix5"
+  Output <- rbind(Mix1, Mix2, Mix3, Mix4, Mix5)
+  Output$`Allelic error rate` <- as.numeric(Output$`Allelic error rate`)
+  return(Output)
+}
+
+Mix_Mismatches <- bind_rows(
+  Mix_Mismatch(R154_R1, R154_R2),
+  Mix_Mismatch(R154_R1, R154_R3),
+  Mix_Mismatch(R154_R1, R154_R4),
+  Mix_Mismatch(R155_R1, R155_R2),
+  Mix_Mismatch(R155_R1, R155_R3),
+  Mix_Mismatch(R155_R1, R155_R4),
+  Mix_Mismatch(R156_R1, R156_R2),
+  Mix_Mismatch(R156_R1, R156_R3),
+  Mix_Mismatch(R156_R1, R156_R4))
+
+Errorratepermixplot <- Mix_Mismatches %>% 
+  mutate(Treatment = factor(Treatment, levels = c("Internal control", "Re-used detection plate", "Re-used PCR plate"))) %>%
+ggplot( aes(x=Mix, y=`Allelic error rate`)) + 
+  geom_boxplot(alpha = 0.8) +
+  theme(legend.position = "none") +
+  facet_wrap(~`Rack 2`) +
+  guides(fill = none, scale = "none") + #remove the legend
+  ylim(0,0.05) +
+  ggtitle("Per mix genotype error rate") +
+  ylab("Per allele genotype error rate") +
+  theme_bw()
+
+#ggsave(plot = Errorratepermixplot, filename = file.path(figs_dir, "Errorratepermixplot.png"), width = 30, height = 20, unit = "cm", dpi = 500)
+```
+
+![Error rate per mix](Results/Figures/Errorratepermixplot.png){#fig-permixerrorrate}
+
+#### Potential contamination
+If the genotype matched the original genotype, the mismatch was marked as potential case of contamination.
+
+```{r}
+#| label: tbl-contamination
+#| echo: FALSE
+#| tbl-cap: Potential contamination cases 
+#To inspect mismatches for potential contamination we use the detect_contamination function. 
+#R1 is the standard procedure plate from a given rack
+#Reused is either the reused PCR or reused detection plate treatment 
+#Control is the outcome of the standard procedure plate that was cleaned (and later reused) to the corresponding rack number. 
+Detect_contamination <- function(R1, Reused, Control){
+    #Get name of dataframes
+  Rack_1 <- deparse(substitute(R1))
+  Rack_2 <- deparse(substitute(Reused))
+  Rack_3 <- deparse(substitute(Control))
+  #cat("The total no. of mismatches between", Rack_1 ,"and", Rack_2, "is", length(mismatches[,1]), "whereof", Cases, "cases match with the control plate:", Rack_3)
+  
+    if (Rack_1 == "R154_R1") {
+    #On plate R154 the samples in 4th and 5th row are not part of the analysis
+     R1 <- R1[-(4:5),]
+     Reused <- Reused[-(4:5),]
+     Control <- Control[-(4:5),]
+  } else if (Rack_1 == "R156_R1"){
+      #The repeats are not consistent across all plates, so we remove them
+      R1 <- R1[-(1:2),]
+      Reused <- Reused[-(1:2),]
+      Control <- Control[-(1:2),]
+  } else {
+        R1 <- R1
+        Reused <- Reused
+        Control <- Control
+  }
+  
+  mismatches <- which(R1 != Reused, arr.ind = TRUE)
+  Potential_contamination <- mismatches[Reused[mismatches] == Control[mismatches],] 
+  Cases <- length(Potential_contamination)/2
+  
+  #Output 
+  Output <- as.data.frame(cbind(Rack_2, Rack_3, Cases)) %>% mutate(Cases = as.numeric(Cases))
+  colnames(Output) <- c("Rack", "Control", "Cases")
+  return(Output)
+  #If we want to quickly locate the specific cases
+  ID <- cbind(Reused$mix1.ID[Potential_contamination[, 1]])
+  Loci <- cbind(colnames(Reused)[Potential_contamination[, 2]])
+  Find_contamination <- cbind(ID, Loci, Rack_2)
+  #return(Find_contamination)
+}
+
+Contamination_cases <- bind_rows(Detect_contamination(R154_R1, R154_R3, R156_R1), 
+                                 Detect_contamination(R154_R1, R154_R4, R156_R1), 
+                                 Detect_contamination(R155_R1, R155_R3, R154_R1), 
+                                 Detect_contamination(R155_R1, R155_R4, R154_R1), 
+                                 Detect_contamination(R156_R1, R156_R3, R155_R1), 
+                                 Detect_contamination(R156_R1, R156_R4, R155_R1))
+Contamination_cases$Treatment <- c("Re-used detection plate", "Re-used PCR plate", "Re-used detection plate", "Re-used PCR plate", "Re-used detection plate", "Re-used PCR plate")
+Contamination_cases <- Contamination_cases[order(Contamination_cases$Treatment, decreasing = F),]
+knitr::kable(Contamination_cases, row.names = F)
+
+#Total potential contamination cases
+Total_Ccases <- sum(Contamination_cases$Cases)
+#Total number of alleles investigated minus the 4 individual excluded from analysis
+
+cases_meansd <- as.data.frame(rbind(cbind("Mean", mean(c(4, 1, 8)), mean(c(105, 95, 53))),
+                          cbind("sd", sd(c(4, 1, 8)), sd(c(105, 95, 53)))))
+colnames(cases_meansd) <- c("", "Re-used detection plate", "Re-used PCR plate")
+cases_meansd
+```
+
+### Model exploring the missing data. 
+```{r}
+#| label: Bayes_model_scored
+#| echo: FALSE
+#Improve speed of bayes model
+# we recommend running this in a fresh R session or restarting your current session
+install.packages("cmdstanr", repos = c("https://mc-stan.org/r-packages/", getOption("repos")))
+install.packages("remotes")
+remotes::install_github("stan-dev/cmdstanr")
+#load the data
+# Analysis.data.missing <- read.csv(file.path(working_dir, "Analysis.data.missing.csv"))
+# 
+# #Exclude individuals as above
+# Analysis.data.missing <- Analysis.data.missing[!Analysis.data.missing$ID %in% c("AGP07487","AGP07488","AGP16315","AGP16316"),]
+Analysis.data.missing <- subset(Analysis.data.missing, Treatment!="Standard procedure")
+Analysis.data.missing$Scored <- ifelse(Analysis.data.missing$Missing == 0, 1, 0)
+
+#model bernoulli: scored genotypes
+set.seed(2024)
+model.scored <- brms::brm(Scored ~ Treatment + (1|ID) + (1|Rack) + (1|Loci) + (1|Mix),
+             family = bernoulli,
+             data = Analysis.data.missing,
+             cores = 3,
+             iter = 100000,
+             thin = 70, #adjust thinning so you have at least 1000 samples per chain (check: (iter-warmup)/thin)
+             warmup = 30000, #standard is 20-50%
+             chains = 3,
+             control = list(adapt_delta = 0.99, max_treedepth = 10),
+             backend = "cmdstanr", #improve speed
+             silent = 0, #to see progress
+             set_prior("normal(0,1)", class = "b"))
+
+save(model.scored, file = "Data/Working_data/Processed_data/model.scored.genotypes.Rdata")
+load(file="Data/Working_data/Processed_data/model.scored.genotypes.Rdata")
+
+#Check model 
+plot(model.scored)
+#specifically for the treatment groups
+plot(model.scored, variable = "^b_", regex = TRUE)
+mcmc_trace(model.scored, variable = "^b_", regex = TRUE)
+
+#Further tests
+mcmc_plot(model.scored, type = "hist")
+mcmc_plot(model.scored, type = "acf") #autocorrelation is close to 0
+mcmc_plot(model.scored, type = "pairs")
+pp_check(model.scored, type = "bars", ndraws = 1000)
+
+#rhat
+mcmc_rhat(brms::rhat(model.scored))
+
+#Check model output
+summary(model.scored)
+```
+
+```{r}
+#| label: Plot_Bayes_model_scored
+#| echo: FALSE 
+
+# Plot the model
+#Extract info from model output
+model_interval_scored <- mcmc_intervals_data(model.scored)
+model_interval_scored <- subset(model_interval_scored, grepl("b_", parameter)) %>% select(-outer_width, -inner_width, -point_est)
+model_interval_scored <- model_interval_scored %>% mutate(parameter = case_when(
+  parameter == "b_Intercept"  ~ "Internal control",
+  parameter == "b_TreatmentReMuseddetectionplate" ~ "Reused detection plate",
+  parameter == "b_TreatmentReMusedPCRplate"  ~ "Reused PCR plate")) 
+
+#M value for intercept 
+m_scored <- model_interval_scored %>% subset(parameter == "Internal control") %>% select(m) 
+
+#Add intercept values to estimates
+Intercept_scored <- model_interval_scored %>% subset(parameter == "Internal control") 
+Other_scored <- model_interval_scored  %>% subset(parameter != "Internal control") %>% mutate(.[2:6]+m_scored$m)
+model_interval_scored <- rbind(Intercept_scored, Other_scored)
+
+#area (for density clouds)
+model_info_scored <- mcmc_areas_data(model.scored)
+#model_info <- subset(model_info, !grepl("b_intercept", parameter))
+model_info_scored <- subset(model_info_scored, grepl("b_", parameter))
+model_info_scored <- model_info_scored %>% mutate(parameter = case_when(
+  parameter == "b_Intercept"  ~ "Internal control",
+  parameter == "b_TreatmentReMuseddetectionplate" ~ "Reused detection plate",
+  parameter == "b_TreatmentReMusedPCRplate"  ~ "Reused PCR plate"))
+
+model_info_scored$parameter <- factor(model_info_scored$parameter, levels = c("Internal control", "Reused detection plate", "Reused PCR plate"))
+#add median value to other treatments 
+model_info_scored_intercept <- model_info_scored %>% subset(parameter == "Internal control")
+model_info_scored_other <- model_info_scored %>% subset(parameter != "Internal control") %>% mutate(x = x+m_scored$m)
+model_info_scored <- rbind(model_info_scored_intercept, model_info_scored_other)
+
+
+# #Build the plot
+Density.scored.plot <- ggplot(data = subset(model_info_scored, parameter == c("Internal control", "Reused detection plate", "Reused PCR plate"))) +
+  aes(x = x, y = parameter) +
+  geom_ridgeline(aes(scale = 0.4, height = scaled_density, fill = parameter), size = 0) +
+  geom_segment(data = model_interval_scored, aes(x = l, xend = h, yend = parameter), col = "black", size=2) +
+  geom_segment(data = model_interval_scored, aes(x = ll, xend = hh, yend = parameter), col = "black") +
+  geom_point(data = model_interval_scored, aes(x = m, y = parameter), color="black", fill = "grey60", shape=21, size = 2) +
+  guides(fill = F, scale = "none") + #remove the legend
+  scale_fill_brewer(palette = "Oranges") +
+  ggtitle("(b) Missing data") +
+  ylab("Treatment") +
+  xlab("Beta coefficient") +
+  scale_x_continuous(n.breaks = 7, limits = c(-8, -2)) +
+  theme_classic() +
+  theme(text = element_text(family = "Times New Roman"),
+        legend.position = "none", 
+        axis.text.y = element_text(size = 12, color = "black"),
+        axis.text.x = element_text(size = 12, color = "black"),
+        axis.title.y = element_text(size = 14, color = "black"),
+        axis.title.x = element_text(size = 14, color = "black"),
+        plot.title = element_text(size = 15, color = "black"))
+
+ggsave(plot = Density.scored.plot, filename = file.path(figs_dir, "Density.scored.plot.png"), width = 15, height = 10, unit = "cm", dpi = 500)
+```
+
+#### Missing data from standard protocol
+```{r}
+#| label: Missing_loci
+#| echo: FALSE
+# 
+# #This function observes the missing data in the standard procedure round 
+# Missing_loci <- function(DF1) {
+#   Loci <- rbind(as.data.frame((colnames(DF1[3:80]))))
+#   colnames(Loci) <- "Loci"
+#   Loci$Loci <- gsub("_a", "", Loci$Loci)
+#   Loci$Loci <- gsub("_b", "", Loci$Loci)
+#   Loci <- unique(Loci$Loci)
+#   Loci <- as.data.frame(Loci)
+#   Loci$Mix <- substring(Loci$Loci, 1, 4) 
+#   Loci$Loci <- gsub("mix\\d{1}.", "", Loci$Loci)
+#   Loci$Rack <- substring(deparse(substitute(DF1)), 1, 4) 
+#   Loci$Treatment <- "Standard procedure"
+#   
+#   #To create the binomial match/no match column, first a base is created
+#   Base <- DF1[1:2]
+#   colnames(Base) <- c("Well", "ID")
+#   Base$Row <- substring(Base$ID, 1, 1)
+# 
+#   Loci <- cross_join(Loci, Base)
+#   Loci$pair <- paste(Loci$ID, Loci$Loci)
+# 
+#   #Add column with NA values
+#   Detect_NA <- as.data.frame(which(is.na(DF1[3:80]), arr.ind = TRUE))
+#   Detect_NA$row <- DF1$mix1.ID[Detect_NA[,1]]
+#   Detect_NA$col <- Detect_NA[,2]+2
+#   Detect_NA$col <- colnames(DF1[Detect_NA[,2]])
+#   Detect_NA$col <- gsub("mix\\d{1}.|_a.\\d+", "", Detect_NA$col)
+#   Detect_NA$col <- gsub("_b.\\d+", "", Detect_NA$col)
+#   Detect_NA$col <- gsub("_a", "", Detect_NA$col)
+#   Detect_NA$col <- gsub("_b", "", Detect_NA$col)
+#   Detect_NA <- Detect_NA[!duplicated(Detect_NA[1:2]),]
+#   Detect_NA$pair <- paste(Detect_NA$row, Detect_NA$col)
+#   
+#   #Match and Missing data coloum created by matching loci pair with mismatch row+column pair
+#   #If a mismatch or missing data is observed, 0, otherwise 1
+#   Loci$Match <- NA
+#   Loci$Missing <- ifelse(Loci$pair %in% Detect_NA$pair, 0, 1)
+#   
+#   Loci <- Loci[,-grep("pair",colnames(Loci))]
+#   Loci$ID <- substring(Loci$ID, 5, 14)
+#   return(Loci)
+# }
+# 
+# Standard <- rbind(Missing_loci(R154_R1), Missing_loci(R155_R1), Missing_loci(R156_R1))
+# Standard <- left_join(Standard, Nanodrop_SGP, by = "ID")
+# Standard$Nanodrop <- as.numeric(Standard$Nanodrop)
+```
