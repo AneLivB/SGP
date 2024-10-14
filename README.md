@@ -6,7 +6,7 @@ This repo contains the data and code for a project evaluating the reuseability o
 
 ### SGP folder
 
--   **0_Raw_data_processing.qmd**: contains the script for processing the raw data files 
+-   **0_Raw_data_processing.qmd**: contains the script for processing the raw data files
 
 -   **1_SGP.qmd**: contains the script for processing and analysing the data, and producing the tables and figures
 
@@ -16,9 +16,9 @@ This repo contains the data and code for a project evaluating the reuseability o
 
     -   The entire code is written with **R**
 
--   **2_SGP_extra**: contains the script for further exploration of the data and additional figures 
+-   **2_SGP_extra**: contains the script for further exploration of the data and additional figures
 
--   **3_SGP_Gapfilling**: contains the script to locate missing data for manual inspection and a function to detect loci > 20% missing data. 
+-   **3_SGP_Gapfilling**: contains the script to locate missing data for manual inspection and a function to detect loci \> 20% missing data.
 
 -   **Data/Raw**: contains the raw data (*Genemarker* allele reports) from Rack 154-156 for all treatments (**Do not change**)
 
@@ -85,8 +85,10 @@ A dataframe created by the script and later used for the bayesian model **model.
         -   1 = Both alleles were scored for the locus
 
     -   Nanodrop: the DNA concentration in ng/µl
+
 **Mismatches**
-A dataframe created by the script and later used to calcualte per treatment single-locus genotype error rates. 
+
+A dataframe created by the script and later used to calcualte per treatment single-locus genotype error rates.
 
 -   Columns: Rack.1, Rack.2, Treatment, No..of.mistyped.alleles, No..of.mistyped.reactions, No..of.reactions, Allelic.error.rate, Genotype.error.rate
 
@@ -95,17 +97,21 @@ A dataframe created by the script and later used to calcualte per treatment sing
     -   Rack.2: One of three racks (R154, R155, R156) from one of the other treatments (e.g. R154_R2, R154_R3, R154_R4)
 
     -   Treatment: One of three treatments (Internal control, Reused detection plate, Reused PCR plate)
-    
+
     -   No..of.mistyped.alleles: Number of mismatched alleles within one treatment group, within a DNA plate
 
     -   No..of.mistyped.reactions: Number of mismatched single-locus genotypes within one treatment group, within a DNA plate
 
     -   No..of.reactions: Number of single-locus genotypes within one treatment group, within a DNA plate
-    
+
     -   Allelic.error.rate: Error rate per allele
 
     -   Genotype.error.rate: Error rate per single-locus genotypes
-    
+
+**model.mismatch.2.Rdata**
+
+RData file containing the model output.
+
 ### Terminology and annotations used in the script:
 
 -   Standard procedure (SP): The first treatment and standard protocol for microsatellite genotyping
