@@ -1,0 +1,261 @@
+---
+title: "SGP: Gapfilling"
+subtitle: "Script"
+author: "Ane Liv Berthelsen"
+
+format:
+  html: 
+  #pdf: 
+    papersize: "a4paper"
+    toc: true
+    toc-depth: 3
+    toc-title: "Contents"
+    number-sections: FALSE
+    documentclass: article
+    geometry:
+      - inner=3cm
+      - outer=3cm
+      - top=2cm
+      - bottom=3cm
+      - headsep=22pt
+      - headheight=11pt
+      - footskip=33pt
+      - ignorehead
+      - ignorefoot
+      - heightrounded
+    fig-pos: 'h'
+    fig-cap-location: bottom
+    tbl-cap-location: top
+editor: visual
+date: 11/20/2023
+mainfont: Times New Roman
+---
+```{r}
+#| label: packages
+#| echo: FALSE
+#here::here()
+invisible(pacman::p_load(dplyr, tidyverse, here))
+
+#directories
+figs_dir <- file.path("Results", "Figures")
+tabs_dir <- file.path("Results", "Tables")
+working_dir <- file.path("Data", "Working_data", "Processed_data")
+```
+
+```{r}
+#| label: loaddata
+#| echo: FALSE
+#| warning: FALSE
+#| output: FALSE
+#Load in the processed data files
+Processed_data_files <- list.files(path = working_dir, pattern = "*.csv", full.names = T) 
+list2env(
+  lapply(setNames(Processed_data_files, make.names(gsub("Data/Working_data/Processed_data/|.csv", "", Processed_data_files))), read.csv), envir = .GlobalEnv)
+R156_R3$mix3.ZcwDz301_a <- as.integer(R156_R3$mix3.ZcwDz301_a)
+R156_R3$mix3.ZcwDh4.7_a <- as.integer(R156_R3$mix3.ZcwDh4.7_a)
+```
+
+# Locate mismatches
+This function locates the mismatches, so they can be manually inspected
+```{r}
+#| label: Mismatch_locate
+#| echo: FALSE
+
+Mismatch <- function(DF1, DF2){
+  #Name of the plates 
+  Rack_1 <- deparse(substitute(DF1))
+  Rack_2 <- deparse(substitute(DF2))
+  
+  if (Rack_1 == "R154_R1") {
+    #On plate R154 the samples in 4th and 5th row are not part of the analysis
+     DF1 <- DF1[-(4:5),]
+     DF2 <- DF2[-(4:5),]
+  } else if (Rack_1 == "R156_R1"){
+      #The repeats are not consistent across all plates, so we remove them
+      DF1 <- DF1[-(1:2),]
+      DF2 <- DF2[-(1:2),]
+  } else {
+    DF1 <- DF1
+    DF2 <- DF2
+  }
+  
+  #To recognize treatment, simplify the 'name' of the DF to the round number (R*)
+  Round <- gsub("R\\d{3}|_", "", Rack_2)
+  if (Round == "R2"){
+    Treatment <- "Internal control"
+  } else if (Round == "R3") {
+    Treatment <- "Re-used detection plate"
+  } else {
+    Treatment <- "Re-used PCR plate"
+  }
+  
+  #locate the mismatches by comparing the two data frames and count them
+  mismatches <- which(DF1 != DF2, arr.ind = TRUE)
+  Total_mismatches <- length(mismatches[,1])
+  
+  #The allelic error rate is calculated by dividing the number of errors with 
+  #the total number of comparision made between the two dataframes
+  Total_comparisons <- sum(!is.na(DF1[3:80]) & !is.na(DF2[3:80]))
+  #cat("Total mismatches between", Rack_1 ,"and", Rack_2, "=", Total_mismatches)
+  Error_rate <- Total_mismatches/Total_comparisons  
+  
+  #We are also interested in the genotype error rate
+  rowid <- subset(mismatches, mismatches[,1] == mismatches[anyDuplicated(mismatches[,1])])
+  locimatch <- ifelse(rowid[,2] %in% (rowid[,2]+1), 1, 0)
+  Total_genotype_errors <- (length(mismatches[,1])-sum(locimatch))
+  Error_rate_genotype <- Total_genotype_errors/(Total_comparisons/2) 
+  #The Output is a data frame with the results
+  Output <- as.data.frame(cbind(Rack_1, Rack_2, Treatment, Total_mismatches, Error_rate, Error_rate_genotype)) %>%
+         mutate(Total_mismatches = as.numeric(Total_mismatches),
+         Error_rate = as.numeric(Error_rate), Error_rate_genotype = as.numeric(Error_rate_genotype))
+  colnames(Output) <- c("Rack 1", "Rack 2", "Treatment", "No. of mismatches", "Allelic error rate", "Genotype error rate")
+  #return(Output)
+  
+  #Second output element! # out return statement when not in use. 
+  #The ID of the individual with the mismatch and the loci werein the mismatch happend 
+  #is bound together to ease location 
+  ID <- cbind(DF1$mix1.ID[mismatches[, 1]])
+  Loci <- cbind(colnames(DF1)[mismatches[, 2]])
+  Find_mismatch <- cbind(ID, Loci, Rack_2, Treatment)
+  return(Find_mismatch)
+}
+
+#The following applies the mismatch function to the chosen racks and binds the output together
+#The output contains the location of the mismatches
+Find_mismatches <- rbind(
+ Mismatch(R154_R1, R154_R2),
+ Mismatch(R154_R1, R154_R3),
+ Mismatch(R154_R1, R154_R4),
+ Mismatch(R155_R1, R155_R2),
+ Mismatch(R155_R1, R155_R3),
+ Mismatch(R155_R1, R155_R4),
+ Mismatch(R156_R1, R156_R2),
+ Mismatch(R156_R1, R156_R3),
+ Mismatch(R156_R1, R156_R4))
+
+Find_mismatches <- as.data.frame(Find_mismatches)
+write_csv(Find_mismatches, file.path(tabs_dir, "Locate_mismatches.csv"))
+Lociwmismatch <- length(unique(Find_mismatches$V2)) #36
+#Alleles.mismatches was 65
+Find_mismatches$V2 <- gsub("_a", "", Find_mismatches$V2)
+Find_mismatches$V2 <- gsub("_b", "", Find_mismatches$V2)
+Count.loci <- as.data.frame(table(Find_mismatches$V2))
+Count.loci$Mix <- substring(Count.loci$Var1, 1, 4)
+Count.loci$Var1 <- gsub("mix\\d{1}.", "", Count.loci$Var1)
+
+OrangePurple <- c("#FF6600", "#FF9900", "#FF9999", "#CC33FF", "#9900CC")
+Mismatchloci <- Count.loci %>%
+  mutate(Var1 = fct_reorder(Var1, Mix)) %>%
+  ggplot( aes(y=Freq, x = Var1, fill = Mix)) +
+  geom_bar(stat = "identity", position = position_dodge(0.7), width = 0.5, alpha = 0.8) +
+  #scale_fill_brewer(palette = "PuOr") +
+  scale_fill_manual(values=OrangePurple) +
+  scale_x_discrete(guide = guide_axis(angle = 90)) + #turns the x axis label names
+  #guides(fill = F, scale = "none") + #remove the legend
+  ylim(0,65) +
+  ggtitle("Total no. of mismatches per locus") +
+  ylab("Frequency") +
+  xlab("Locus") +
+  theme_bw()
+ggsave(plot = Mismatchloci, filename = file.path(figs_dir, "Mismatchloci.png"), width = 15, height = 10, unit = "cm", dpi = 500)
+```
+![Mismatches per locus](Results/Figures/Mismatchloci.png){#fig-Schematic fig-align="center"}
+
+# Gapfilling
+Explore which loci had more than 20% missing data
+```{r}
+#| label: Gapfilling
+#| echo: FALSE
+
+#This function can be used to locate the plates that needs to be gapfilled
+Failed_loci <- function(DF1){
+  #mix 1
+  Pv9 <- sum(is.na(select(DF1, contains("Pv9"))))
+  Hg.6.3 <- sum(is.na(select(DF1, contains("Hg.6.3"))))
+  Hg.8.10 <- sum(is.na(select(DF1, contains("Hg.8.10"))))
+  Hg.1.3 <- sum(is.na(select(DF1, contains("Hg.1.3"))))
+  M11a <- sum(is.na(select(DF1, contains("M11a"))))
+  PvcA <- sum(is.na(select(DF1, contains("PvcA"))))
+  Zcwb07 <- sum(is.na(select(DF1, contains("Zcwb07"))))
+  Agaz2 <- sum(is.na(select(DF1, contains("Agaz2"))))
+  loci_m1 <- as.data.frame(rbind(Pv9, Hg.6.3, Hg.8.10, Hg.1.3, M11a, PvcA, Zcwb07, Agaz2))
+  loci_m1$Mix <- "Mix1"
+  #mix 2
+  Ag3 <- sum(is.na(select(DF1, contains("Ag3"))))
+  Agaz6 <- sum(is.na(select(DF1, contains("Agaz6"))))
+  OrrFCB7 <- sum(is.na(select(DF1, contains("OrrFCB7"))))
+  Ag2 <- sum(is.na(select(DF1, contains("Ag2"))))
+  OrrFCB2 <- sum(is.na(select(DF1, contains("OrrFCB2"))))
+  Lw10 <- sum(is.na(select(DF1, contains("Lw10"))))
+  ZcwCO1 <- sum(is.na(select(DF1, contains("ZcwCO1"))))
+  Agaz5 <- sum(is.na(select(DF1, contains("Agaz5"))))
+  ZcwDhB <- sum(is.na(select(DF1, contains("ZcwDhB"))))
+  loci_m2 <- as.data.frame(rbind(Ag3, Agaz6, OrrFCB7, Ag2, OrrFCB2, Lw10, ZcwCO1, Agaz5, ZcwDhB))
+  loci_m2$Mix <- "Mix2"
+  #mix 3
+  ZcwDz301 <- sum(is.na(select(DF1, contains("ZcwDz301"))))
+  Ag7 <- sum(is.na(select(DF1, contains("Ag7"))))
+  Ag.10 <- sum(is.na(select(DF1, contains("Ag.10"))))
+  ZcwDh4 <- sum(is.na(select(DF1, contains("ZcwDh4"))))
+  ZcwE05 <- sum(is.na(select(DF1, contains("ZcwE05"))))
+  Ag1 <- sum(is.na(select(DF1, contains("Ag1"))))
+  OrrFCB8 <- sum(is.na(select(DF1, contains("OrrFCB8"))))
+  Agt.47 <- sum(is.na(select(DF1, contains("Agt.47"))))
+  loci_m3 <- as.data.frame(rbind(ZcwDz301, Ag7, Ag.10, ZcwDh4, ZcwE05, Ag1, OrrFCB8, Agt.47))
+  loci_m3$Mix <- "Mix3"
+  #mix 4
+  ZcwF07 <- sum(is.na(select(DF1, contains("ZcwF07"))))
+  ZcwD02 <- sum(is.na(select(DF1, contains("ZcwD02"))))
+  ZcwCgDh1 <- sum(is.na(select(DF1, contains("ZcwCgDh1"))))
+  Aa4 <- sum(is.na(select(DF1, contains("Aa4"))))
+  ZcCgDH5.8 <- sum(is.na(select(DF1, contains("ZcCgDH5.8"))))
+  Agaz3 <- sum(is.na(select(DF1, contains("Agaz3"))))
+  loci_m4 <- as.data.frame(rbind(ZcwF07, ZcwD02, ZcwCgDh1, Aa4, ZcCgDH5.8, Agaz3))
+  loci_m4$Mix <- "Mix4"
+  #mix 5
+  X962.1 <- sum(is.na(select(DF1, contains("X962.1"))))
+  X554.6 <- sum(is.na(select(DF1, contains("X554.6"))))
+  ZcwA12 <- sum(is.na(select(DF1, contains("ZcwA12"))))
+  PvcE <- sum(is.na(select(DF1, contains("PvcE"))))
+  ZcwB09 <- sum(is.na(select(DF1, contains("ZcwB09"))))
+  Agaz10 <- sum(is.na(select(DF1, contains("Agaz10"))))
+  Mang44 <- sum(is.na(select(DF1, contains("Mang44"))))
+  Mang36 <- sum(is.na(select(DF1, contains("Mang36"))))
+  loci_m5 <- as.data.frame(rbind(X962.1, X554.6, ZcwA12, PvcE, ZcwB09, Agaz10, Mang44, Mang36))
+  loci_m5$Mix <- "Mix5"
+  #Create the output
+  Rack <- deparse(substitute(DF1))
+  Samples <- 95
+  Output <- as.data.frame(rbind(loci_m1,loci_m2, loci_m3, loci_m4, loci_m5))
+  colnames(Output) <- c("Unscored", "Mix")
+  Rack <- deparse(substitute(DF1))
+  Output$Rack <- Rack
+  #Calculates the percentage of unscored loci rounded to 2 digits
+  Output$Percent <- as.numeric((as.numeric(Output$Unscored)/Samples*0.5)*100) %>%
+    round(., 2)
+  Output$Loci <- rownames(Output)
+  #return(Output)
+  #alternatively if only interested in failed loci, loci with more than 20% NAs
+  Find_failed_loci <- subset(Output, Output$Percent > 20)
+  rownames(Find_failed_loci) <- NULL
+  return(Find_failed_loci)
+}
+
+#apply failed_loci function to all racks to locate which plates needs gapfilling
+Gapfilling <- rbind(Failed_loci(R154_R1),
+                          Failed_loci(R154_R2),
+                          Failed_loci(R154_R3),
+                          Failed_loci(R154_R4),
+                          Failed_loci(R155_R1),
+                          Failed_loci(R155_R2),
+                          Failed_loci(R155_R3),
+                          Failed_loci(R155_R4),
+                          Failed_loci(R156_R1),
+                          Failed_loci(R156_R2),
+                          Failed_loci(R156_R3),
+                          Failed_loci(R156_R4))
+Gapfilling <- Gapfilling[order(Gapfilling$Rack,Gapfilling$Mix ),]
+Gapfilling
+#saves the table in the correct folder
+write_csv(Gapfilling, file.path(tabs_dir, "Gapfilling.csv"))
+```
