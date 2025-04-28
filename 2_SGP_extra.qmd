@@ -3,6 +3,7 @@ title: "SGP_extra_figures"
 format: html
 editor: visual
 ---
+
 ```{r}
 #| label: packages
 #| echo: FALSE
@@ -31,6 +32,7 @@ R156_R3$mix3.ZcwDh4.7_a <- as.integer(R156_R3$mix3.ZcwDh4.7_a)
 ```
 
 # Mismatches
+
 ```{r}
 #| label: fig-allelicerrors
 #| echo: FALSE
@@ -50,8 +52,9 @@ Mismatchplot <- Mismatches %>%
 
 ggsave(plot = Mismatchplot, filename = file.path(figs_dir, "Mismatchplot.png"), width = 15, height = 10, unit = "cm", dpi = 500)
 ```
-![Number of per allele mismatches](Results/Figures/Mismatchplot.png){#fig-allelemismatch fig-align="center"}
-### Boxplot of single-locus genotypes per treatment
+
+![Number of per allele mismatches](Results/Figures/Mismatchplot.png){#fig-allelemismatch fig-align="center"} \### Boxplot of single-locus genotypes per treatment
+
 ```{r}
 #| label: fig-errorrate
 #| echo: FALSE
@@ -73,11 +76,10 @@ ggplot( aes(x=Treatment, y=`Genotype error rate`, fill = Treatment)) +
 ggsave(plot = Errorrategenotypeplot, filename = file.path(figs_dir, "Errorrategenotypeplot.png"), width = 15, height = 10, unit = "cm", dpi = 500)
 ```
 
-
 The genotyping error rate and per locus was calculated across all treatments (@fig-Errorrates). To further understand where the errors occur in the dataset, the error rate per mix across all racks were calculated.
 
-![Single-locus genotype error rate](Results/Figures/Errorrategenotypeplot.png){#fig-Errorrates fig-align="center"}
-### Per mix single-locus genotype error rate
+![Single-locus genotype error rate](Results/Figures/Errorrategenotypeplot.png){#fig-Errorrates fig-align="center"} \### Per mix single-locus genotype error rate
+
 ```{r}
 #| label: fig-mixmismatch
 #| echo: FALSE
@@ -188,7 +190,9 @@ ggplot( aes(x=Mix, y=`Allelic error rate`)) +
 ![Error rate per mix](Results/Figures/Errorratepermixplot.png){#fig-permixerrorrate}
 
 # Missing data
+
 ### Missing genotypes
+
 ```{r}
 #| label: failed_alleles
 #| echo: FALSE
@@ -244,7 +248,9 @@ Total_Missing <- sum(sum(as.numeric(Failed_samples_R154[6,]), na.rm = T),
 ```
 
 #### Locate missing genotype data
-Visual representation of the missing data on plates for all treatments and all DNA plates. 
+
+Visual representation of the missing data on plates for all treatments and all DNA plates.
+
 ```{r}
 #| label: fig-Heatmap
 #| echo: FALSE
@@ -308,11 +314,13 @@ Visual representation of the missing data on plates for all treatments and all D
 #Heatmap.plot
 #ggsave(plot = Heatmap.plot, filename = file.path(figs_dir, "Heatmap2.png"), width = 30, height = 21, unit = "cm", dpi = 500)
 ```
-A total of `r Total_Missing` alleles could not be scored. In @fig-Heatmap2, the location of the missing data on the plate is visualized. More purple hues correspond to more missing loci for that particular samples, and we can conclude that certain samples seem to have failed almost completely. This could hint at poor DNA quality. The data is arranged in the plot to match the layout of the actual plate.
-![Heatmap of missing data](Results/Figures/Heatmap2.png){#fig-Heatmap2 fig-align="center"}
+
+A total of `r Total_Missing` alleles could not be scored. In @fig-Heatmap2, the location of the missing data on the plate is visualized. More purple hues correspond to more missing loci for that particular samples, and we can conclude that certain samples seem to have failed almost completely. This could hint at poor DNA quality. The data is arranged in the plot to match the layout of the actual plate. ![Heatmap of missing data](Results/Figures/Heatmap2.png){#fig-Heatmap2 fig-align="center"}
 
 ## Model
-### Model exploring the missing data. 
+
+### Model exploring the missing data.
+
 ```{r}
 #| label: Bayes_model_scored
 #| echo: FALSE
@@ -427,6 +435,7 @@ ggsave(plot = Density.scored.plot, filename = file.path(figs_dir, "Density.score
 ```
 
 # Contamination
+
 For the mismatches on the reused plates, we further explored whether the mismatch matched with the "original" genotype. Here "original" refers to the genotype scored during the standard protocol round, before the plate was cleaned and reused. If the genotype matched the original genotype, the mismatch was marked as potential case of contamination.
 
 ```{r}
@@ -496,6 +505,7 @@ cases_meansd
 ```
 
 ### Contamination plot
+
 ```{r}
 #| label: fig-contamination
 #| echo: FALSE
@@ -519,7 +529,9 @@ ggsave(plot = Contaminationplot, filename = file.path(figs_dir, "Contaminationpl
 ```
 
 #### Missing data from standard protocol
-To check if the missing data from the standard protocol was similar to the internal control and reused detection plate treatment, this function identifies the missing data from the standard protocol treatment. 
+
+To check if the missing data from the standard protocol was similar to the internal control and reused detection plate treatment, this function identifies the missing data from the standard protocol treatment.
+
 ```{r}
 #| label: Missing_loci
 #| echo: FALSE

@@ -43,7 +43,7 @@ working_dir <- file.path("Data", "Working_data", "Processed_data")
 #e.g. ggsave(plot = name_of_plot, filename = file.path(figs_dir, "name of figure")), width = 19, height = 19, unit = "cm", dpi = 500)
 ```
 
-This file contains the R code used for the manuscript "*Sustainability in the laboratory: evaluating the reuseability of microtiter plates for PCR and fragment detection*" by Ane Liv Berthelsen, Anneke J. Paijmans, Jaume Forcada and Joseph I. Hoffman. The data files can be downloaded via Zenodo, **link** and additional scripts are available on Github, **link**.
+This file contains the R code used for the manuscript "*Sustainability in the laboratory: evaluating the reuseability of microtiter plates for PCR and fragment detection*" by Ane Liv Berthelsen, Anneke J. Paijmans, Jaume Forcada and Joseph I. Hoffman. The data files can be downloaded via Zenodo, https://doi.org/10.5281/zenodo.13913891 and additional scripts are available on Github, https://github.com/AneLivB/SGP.
 
 # Aims
 
@@ -55,7 +55,7 @@ We designed an experimental setup to assess the re-usability of 96-micro well pl
 
 ![Schematic overview](Results/Figures/SGPsetupfinal.png){#fig-Schematic fig-align="center"}
 
-The first (standard protocol) and the second (internal control) treatment group followed the standard protocol. Afterward, the plates from the standard protocol were cleaned. The cleaned PCR and detection plates were reassigned to treatment groups three and four respectively. We retained information about the samples that were originally processed on each plate and ensured that no plate was reused for the same samples originally processed on it. The genotyping error rate for each treatment was calculated by comparing the scored genotype to the corresponding genotype in the standard protocol treatment. 
+The first (standard protocol) and the second (internal control) treatment group followed the standard protocol. Afterward, the plates from the standard protocol were cleaned. The cleaned PCR and detection plates were reassigned to treatment groups three and four respectively. We retained information about the samples that were originally processed on each plate and ensured that no plate was reused for the same samples originally processed on it. The genotyping error rate for each treatment was calculated by comparing the scored genotype to the corresponding genotype in the standard protocol treatment.
 
 ### PCR Program
 
@@ -63,9 +63,9 @@ The first (standard protocol) and the second (internal control) treatment group 
 |-------|---------------|------------------|------------|--------------|
 | 1     | 1             | 94               | 5 minutes  | Heat up      |
 | 2     | 28            | 94               | 30 seconds | Denaturation |
-|       |               | 60/53            | 90 seconds | Annealing    |
+|       |               | 60/53\*          | 90 seconds | Annealing    |
 |       |               | 72               | 30 seconds | Extension    |
-| 3     | 1             | 60/53            | 30 minutes | Annealing    |
+| 3     | 1             | 60/53\*          | 30 minutes | Annealing    |
 | 4     | 1             | 10               | Hold       | Cool down    |
 
 : PCR program
@@ -80,12 +80,14 @@ The first (standard protocol) and the second (internal control) treatment group 
 #| label: packages
 #| echo: TRUE
 #here::here()
-invisible(pacman::p_load(dplyr, tidyverse, here, stringi, png, knitr, rstatix, kableExtra, 
+invisible(pacman::p_load(dplyr, tidyverse, here, stringi, png, knitr, rstatix, kableExtra,
                          rstan, brms, bayesplot, ggridges, gt, tibble, webshot2))
+#here: file referencing within project
+#png to save png files
 #gt for model output table
-#bayesplot and ggridges for plot
+#bayesplot and ggridges for plot with beta distribution
 #tibble for adding extra rows to table
-#webshot to make table into png
+#webshot2 to make table into png
 #knitr and kableExtra for tables
 #rstan and brms for models and model diagnostics
 ```
@@ -102,7 +104,10 @@ The data for this project are the raw sequencing reads from the ABI 3730xl capil
 #Load in the processed data files
 Processed_data_files <- list.files(path = working_dir, pattern = "*.csv", full.names = T) 
 list2env(
-  lapply(setNames(Processed_data_files, make.names(gsub("Data/Working_data/Processed_data/|.csv", "", Processed_data_files))), read.csv), envir = .GlobalEnv)
+  lapply(setNames(Processed_data_files, 
+                  make.names(gsub("Data/Working_data/Processed_data/|.csv", "", 
+                                  Processed_data_files))), read.csv), 
+  envir = .GlobalEnv)
 R156_R3$mix3.ZcwDz301_a <- as.integer(R156_R3$mix3.ZcwDz301_a)
 R156_R3$mix3.ZcwDh4.7_a <- as.integer(R156_R3$mix3.ZcwDh4.7_a)
 ```
@@ -217,7 +222,9 @@ For each sample we noted whether the genotype matched with the 'standard procedu
 # n_distinct(Analysis.data$ID) #281 individuals
 # write_csv(Analysis.data, file.path(working_dir, "Analysis.data.csv"))
 ```
-To calculate the single-locus genotype error rates, the following function was used to identify and count both mismatched alleles and mismatched single-locus genotypes. It creates the dataset Mismatches.csv, which is later used to calculate per treatment single-genotype error rates. 
+
+To calculate the single-locus genotype error rates, the following function was used to identify and count both mismatched alleles and mismatched single-locus genotypes. It calculates the number of mismatched alleles, mismatched single-locus genotypes and the total number of single-locus genotypes within each comparison between a standard protocol and one of the other treatments, which it uses to calculate an allelic error rate and a single-locus genotyping error rate. It creates the dataset Mismatches.csv, which is later used to calculate per treatment single-locus genotype error rates.
+
 ```{r}
 #| label: allelemismatch
 #| echo: TRUE
@@ -256,7 +263,9 @@ To calculate the single-locus genotype error rates, the following function was u
 #   mismatches <- which(DF1 != DF2, arr.ind = TRUE)
 #   #Some mismatches are caused by NA values, these are excluded
 #   #caused by NA
-#   na_mismatch <- rbind(subset(mismatches, is.na(DF1[mismatches])), subset(mismatches, is.na(DF2[mismatches]))) %>% subset(., !duplicated(.))
+#   na_mismatch <- rbind(subset(mismatches, is.na(DF1[mismatches])), 
+#                        subset(mismatches, is.na(DF2[mismatches]))) %>% 
+#                  subset(., !duplicated(.))
 #   #remove these false mismatches
 #   mismatches <- cbind(mismatches, paste(mismatches[,1],mismatches[,2]))
 #   na_mismatch <- cbind(na_mismatch, paste(na_mismatch[,1],na_mismatch[,2]))
@@ -293,13 +302,17 @@ To calculate the single-locus genotype error rates, the following function was u
 #   No_reactions <- (Total_comparisons/2)
 #   
 #   #The Output is a data frame with the results
-#   Output <- as.data.frame(cbind(Rack_1, Rack_2, Treatment, Total_mismatches,Total_genotype_errors, No_reactions, Error_rate, Error_rate_genotype)) %>% 
+#   Output <- as.data.frame(cbind(Rack_1, Rack_2, Treatment, 
+#                                 Total_mismatches,Total_genotype_errors, 
+#                                 No_reactions, Error_rate, Error_rate_genotype)) %>% 
 #     mutate(Total_mismatches = as.numeric(Total_mismatches),
 #            Total_genotype_errors = as.numeric(Total_genotype_errors),
 #            No_reactions = as.numeric(No_reactions),
 #            Error_rate = as.numeric(Error_rate),
 #            Error_rate_genotype = as.numeric(Error_rate_genotype))
-#   colnames(Output) <- c("Rack 1", "Rack 2", "Treatment", "No. of mistyped alleles",  "No. of mistyped reactions", "No. of reactions", "Allelic error rate", "Genotype error rate")
+#   colnames(Output) <- c("Rack 1", "Rack 2", "Treatment", 
+#                         "No. of mistyped alleles",  "No. of mistyped reactions", 
+#                         "No. of reactions", "Allelic error rate", "Genotype error rate")
 #   return(Output)
 # }
 # 
@@ -314,7 +327,10 @@ To calculate the single-locus genotype error rates, the following function was u
 #   Mismatch(R155_R1, R155_R4),
 #   Mismatch(R156_R1, R156_R2),
 #   Mismatch(R156_R1, R156_R3),
-#   Mismatch(R156_R1, R156_R4)) %>% arrange(factor(Treatment, levels = c("Internal control", "Re-used detection plate", "Re-used PCR plate")))
+#   Mismatch(R156_R1, R156_R4)) %>% 
+#   arrange(factor(Treatment, levels = c("Internal control", 
+#                                       "Re-used detection plate", 
+#                                       "Re-used PCR plate")))
 # 
 # knitr::kable(Mismatches, row.names = F)
 # Total_Mcases <- sum(Mismatches$`No. of mismatches`)
@@ -344,6 +360,7 @@ We ran a Bayesian logistic regression mixed model with treatment included as a t
 # Analysis.data <- read.csv(file.path(working_dir, "Analysis.data.csv"))
 
 #A Bernoulli trial is a random experiment that has two possible outcomes: success or failure.
+#Bernoulli is a special binary case where the number of trials is 1. 
 
 #thin: adjust thinning so you have at least 1000 samples per chain
 #(check: (iter-warmup)/thin)
@@ -365,8 +382,9 @@ We ran a Bayesian logistic regression mixed model with treatment included as a t
 ```
 
 ### Model diagnostics
-In the following, we explore the model diagnostics from the brms package. 
-Plot is used to visually investigate the chains and posterior distributions and pp_check (posterior predictive checking) is used to compare the observed outcome variable to a simulated dataset from the posterior predictive distribution. 
+
+We explore the model diagnostics from the brms package. Plot is used to visually investigate the chains and posterior distributions and pp_check (posterior predictive checking) is used to compare the observed outcome variable to a simulated dataset from the posterior predictive distribution.
+
 ```{r}
 #| label: Bayes_model_diagnostics
 #| echo: TRUE
@@ -375,17 +393,27 @@ Plot is used to visually investigate the chains and posterior distributions and 
 load(file="Data/Working_data/Processed_data/model.mismatch.2.Rdata")
 
 #Check model 
-plot(model.mismatch)
+#Trace plots: explore the trace plots of the chains. 
+#They should be harmonized and bounce up and down. 
+#Fixed effects
+plot(model.mismatch, variable = c("b_Intercept", 
+                                  "b_TreatmentReMuseddetectionplate",
+                                  "b_TreatmentReMusedPCRplate"))
+#Random effects
+plot(model.mismatch, variable = c("sd_ID__Intercept", "sd_Loci__Intercept",
+                                  "sd_Mix__Intercept", "sd_Rack__Intercept"))
 
 #Further tests
+#The 'acf' is an autocorrelation plot used to check for randomness in the dataset. 
+#if the autocorrelation value is close to 0, randomness can be assumed. 
 mcmc_plot(model.mismatch, type = "acf") #autocorrelation is close to 0
-mcmc_plot(model.mismatch, type = "pairs")
+
 pp_check(model.mismatch, type = "bars", ndraws = 1000)
 ```
 
 #### Rhat
 
-Rhat statistics are used to diagnose sampling behaviour and should be close to 1. Rhat values above 1 means the models has not yet converged. 
+Rhat statistics are used to diagnose sampling behaviour and should be close to 1. Rhat values above 1 means the models has not yet converged.
 
 ```{r}
 #| label: Bayes_model_rhat
@@ -394,18 +422,39 @@ Rhat statistics are used to diagnose sampling behaviour and should be close to 1
 mcmc_rhat(brms::rhat(model.mismatch))
 ```
 
+#### Pairs plot
+
+The pairs plot is used to identify collinearity between variables.
+
+```{r}
+#| label: Bayes_model_pair_plot
+#| echo: TRUE
+#To make the pairs plot fit the pdf, we save it and reload it back in. 
+#png(filename = file.path(figs_dir, "pairs.plot.png"), width = 15, 
+#                         height = 15, units = "in", res = 300)
+#mcmc_plot(model.mismatch, type = "pairs")
+#dev.off()
+```
+
+![Pairs plot](Results/Figures/pairs.plot.png){fig-align="center"}
+
 ### Model summary
-The model summary provides general information about the model, group and population level effects. In addition, it provides information on how well the model could estimate the posterior distribution. ESS-bulk and ESS_tail values should be close to 3000 (the total post-warmup draws). 
+
+The model summary provides general information about the model, group and population level effects. In addition, it provides information on how well the model could estimate the posterior distribution. ESS-bulk and ESS_tail values should be close to 3000 (the total post-warmup draws).
+
 ```{r}
 #| label: Bayes_model_output
 #| echo: TRUE
 #Check model output
+#
+#The 'internal control' treatment is included in the intercept
+#The other treatment groups are 'in reference' to the internal control treatment. 
 summary(model.mismatch)
 ```
 
 # Results
 
-281 samples were included in the analysis. On rack 154 the two samples from 2007-2008 were excluded, due to lack of DNA for the last treatment. Likewise for two of the positive controls on R156.
+281 samples were included in the analysis. On rack 154 the two samples from 2007-2008 were excluded, due to lack of DNA for the last treatment. Likewise for two of the positive controls on R156. This resulted in a total of 30.835 observations.
 
 ## Tables
 
@@ -433,11 +482,11 @@ Missing_rate <- rbind(round((Missing[1]/SLG[1])*100,3),
 Treatment <- rbind("Internal control", "Reused detection plate", "Reused PCR plate")
 
 Table_missing_rate <- as.data.frame(cbind(Treatment, SLG, Missing, Missing_rate))
-Table_missing_rate <- Table_missing_rate %>% mutate(., V2 = as.numeric(V2), 
-                                                    V3 = as.numeric(V3), 
-                                                    V4 = as.numeric(V4))
+Table_missing_rate <- Table_missing_rate %>% 
+  mutate(., V2 = as.numeric(V2), V3 = as.numeric(V3), V4 = as.numeric(V4))
+
 colnames(Table_missing_rate) <- c("Treatment", "No. of single-locus genotypes", 
-                                  "No. of missing data","Missing data %")
+                                  "No. of missing data", "Missing data %")
 
 Table_missing_rate <- gt(Table_missing_rate)
 Table_missing_rate <- Table_missing_rate %>% 
@@ -456,7 +505,13 @@ Table_missing_rate %>%
 #gtsave(Table.missing.finished, file.path(tabs_dir, "Missingrates.table.png"))
 ```
 
-![Missing data](Results/Tables/Missingrates.table.png){fig-align="center"}
+| Treatment              | No. of single-locus genotypes | No. of missing data | Missing data (%) |
+|-----------------|---------------------|-----------------|-----------------|
+| Internal control       | 10.959                        | 322                 | 2,938            |
+| Reused detection plate | 10.959                        | 248                 | 2,263            |
+| Reused PCR plate       | 10.959                        | 1.472               | 13,432           |
+
+: Missing data
 
 ### Genotyping error rates
 
@@ -471,19 +526,28 @@ Mismatches <- read.csv(file.path(working_dir, "Mismatches.csv"))
 #Table containing the error rates for each treatment
 Errors <- rbind(sum(Mismatches$`No..of.mistyped.reactions`[1:3]), 
                 sum(Mismatches$`No..of.mistyped.reactions`[4:6]), 
-                sum(Mismatches$`No..of.mistyped.reactions`[7:8]))
+                sum(Mismatches$`No..of.mistyped.reactions`[7:9]))
 Reactions <- rbind(sum(Mismatches$`No..of.reactions`[1:3]), 
                    sum(Mismatches$`No..of.reactions`[4:6]), 
-                   sum(Mismatches$`No..of.reactions`[7:8]))
+                   sum(Mismatches$`No..of.reactions`[7:9]))
 Error_rate <- rbind(round(Errors[1]/Reactions[1],3), 
                     round(Errors[2]/Reactions[2],3), 
                     round(Errors[3]/Reactions[3],3))
+
+SD <- rbind(round(sd(c((Mismatches$`No..of.mistyped.reactions`[1:3]/Mismatches$`No..of.reactions`[1:3]))), 3),
+            round(sd(c((Mismatches$`No..of.mistyped.reactions`[4:6]/Mismatches$`No..of.reactions`[4:6]))), 3),
+            round(sd(c((Mismatches$`No..of.mistyped.reactions`[7:9]/Mismatches$`No..of.reactions`[7:9]))), 3))
+
+
 Treatment <- rbind("Internal control", "Reused detection plate", "Reused PCR plate")
 
-Table_error_rate <- as.data.frame(cbind(Treatment, Reactions, Errors, Error_rate))
+Table_error_rate <- as.data.frame(cbind(Treatment, Reactions, Errors, Error_rate, SD))
 Table_error_rate$V2 <- as.numeric(Table_error_rate$V2)
-colnames(Table_error_rate) <- c("Treatment", "No. of single-locus genotypes",
-                                "No. of mismatches","Genotype error rate")
+colnames(Table_error_rate) <- c("Treatment", 
+                                "No. of single-locus genotypes",
+                                "No. of mismatches",
+                                "Genotype error rate", 
+                                "Standard deviation")
 
 
 Table_error_rate <- gt(Table_error_rate) 
@@ -498,11 +562,19 @@ Table_error_rate %>%
   tab_style(style = cell_fill(color = 'grey90'),
               locations = cells_body(rows = c(1,3))) -> Table.error.finished
 
+#save table as png
+#install.packages("webshot2")
 #library(webshot2)
 #gtsave(Table.error.finished, file.path(tabs_dir, "Errorrates.table.png"))
 ```
 
-![Error rates](Results/Tables/Errorrates.table.png){fig-align="center"}
+| Treatment              | No. of single-locus genotypes | No. of mismatches | Genotyping error rate | Standard deviation |
+|-----------------|--------------|-------------|----------------|-------------|
+| Internal control       | 10.541                        | 57                | 0,005                 | 0.004              |
+| Reused detection plate | 10.599                        | 42                | 0,004                 | 0.002              |
+| Reused PCR plate       | 6.159                         | 210               | 0,034                 | 0.011              |
+
+: Genotyping error rate
 
 ### Model output
 
@@ -511,11 +583,8 @@ Point beta estimates and 95% confidence intervals from the Bayesian logistic mix
 ```{r}
 #| label: tbl:Model_output
 #| echo: TRUE
-
 #make a table for the model output
-models <- list(
-#  "Missing genotypes" = model.scored,
-  "Genotype errors" = model.mismatch)
+models <- list("Genotype errors" = model.mismatch)
 
 #estimates stem from model summary
 rows <- tribble(~term, ~`Genotype errors`, 
@@ -527,27 +596,18 @@ attr(rows, 'position') <- c(1,5)
 cm <- c('b_Intercept'    = 'Internal control',
         'b_TreatmentReMuseddetectionplate' = 'Reused detection plate',
         'b_TreatmentReMusedPCRplate'    = 'Reused PCR plate',
-        'sd_ID__Intercept' = 'Sample ID',
-        'sd_Rack__Intercept' = 'DNA plate',
-        'sd_Mix__Intercept' = 'Multiplexed reaction',
-        'sd_Loci__Intercept' = 'Locus')
+        'sd_ID__Intercept' = 'Sample ID', 'sd_Rack__Intercept' = 'DNA plate',
+        'sd_Mix__Intercept' = 'Multiplexed reaction', 'sd_Loci__Intercept' = 'Locus')
 
 f <- function(x) format(round(x, 3), big.mark=",", decimal.mark=".") 
-gm <- list(
-  list("raw" = "nobs", "clean" = "Number of observations", "fmt" = f),
-  list("raw" = "r.squared", "clean" = "R²", "fmt" = f),
-  list("raw" = "r2.marginal", "clean" = "Marginal R²", "fmt" = f))
+gm <- list(list("raw" = "nobs", "clean" = "Number of observations", "fmt" = f),
+           list("raw" = "r.squared", "clean" = "R²", "fmt" = f),
+           list("raw" = "r2.marginal", "clean" = "Marginal R²", "fmt" = f))
 
 Table <- modelsummary::modelsummary(models,
-                           estimate  = "{estimate} [{conf.low}, {conf.high}]",
-                           statistic = NULL,
-                           conf_level = .95,
-                           metrics = "R2",
-                           add_rows = rows,
-                           fmt = f,
-                           coef_map = cm,
-                           gof_map = gm,
-                           output = "gt")
+                           estimate  = "{estimate} [{conf.low}, {conf.high}]", statistic = NULL,
+                           conf_level = .95, metrics = "R2", add_rows = rows,
+                           fmt = f, coef_map = cm, gof_map = gm, output = "gt")
 
 Table %>% 
   tab_style(style = cell_text(color = 'black', weight = "bold"),
@@ -562,17 +622,34 @@ Table %>%
 #gtsave(Table.finished, file.path(tabs_dir, "Model.output.errorrates.png"))
 ```
 
-![Model output](Results/Tables/Model.output.errorrates.png){fig-align="center" width="60%"}
+|                        | Beta estimates            |
+|------------------------|---------------------------|
+| Fixed effects          |                           |
+| Internal control       | -6,572 \[-7,658, -4,565\] |
+| Reused detection plate | -0,320 \[-0,739, 0,083\]  |
+| Reused PCR plate       | 1,907 \[1,602, 2,209\]    |
+|                        |                           |
+| Random effects         |                           |
+| Sample ID              | 1,302 \[1,100, 1,533\]    |
+| DNA plate              | 0,388 \[0,025, 2,864\]    |
+| Multiplexed reaction   | 0,348 \[0,016, 1,571\]    |
+| Locus                  | 1,273 \[0,970, 1,759\]    |
+|                        |                           |
+| Number of observations | 30.835                    |
+| R^2^                   | 0,117                     |
+| Marginal R^2^          | 0,001                     |
+
+: Model output
 
 ## Figures
 
 ### Posterior beta estimates
 
-Posterior distributions of the beta coefficients of the internal control (blue), reused detection plate (orange) and reused PCR plate (red) treatment groups on genotyping errors. 50% and 90% confidence intervals are represented with thick and thin black lines respectively.
+Posterior distributions of the beta coefficients of the internal control (blue), reused detection plate (orange) and reused PCR plate (red) treatment groups on genotyping errors. Point beta estimate represented with a grey dot. 50% and 90% confidence intervals are represented with thick and thin black lines respectively. Reused detection plate and reused PCR plate treatment group values has been added/subtracted from the intercept to visually represent the 'actuaæ' beta estimates for each group instead of the relative beta estimate to the intercept group 'internal control'.
 
 ```{r}
-#| label: Plot_Bayes_model_mismatch
-#| echo: FALSE 
+#| label: Plot_values_Bayes_model_mismatch
+#| echo: TRUE 
 
 # Plot the model
 #Extract info from model output
@@ -592,8 +669,11 @@ m_mismatch <- model_interval_mismatch %>%
   select(m) 
 
 #Add intercept values to estimates
-Intercept_mismatch <- model_interval_mismatch %>% subset(parameter == "Internal control") 
-Other_mismatch <- model_interval_mismatch  %>% subset(parameter != "Internal control") %>% mutate(.[2:6]+m_mismatch$m)
+Intercept_mismatch <- model_interval_mismatch %>% 
+  subset(parameter == "Internal control") 
+Other_mismatch <- model_interval_mismatch  %>% 
+  subset(parameter != "Internal control") %>%
+  mutate(.[2:6]+m_mismatch$m)
 model_interval_mismatch <- rbind(Intercept_mismatch, Other_mismatch)
 
 #area (for density clouds)
@@ -605,7 +685,10 @@ model_info_mismatch <- model_info_mismatch %>% mutate(parameter = case_when(
   parameter == "b_TreatmentReMuseddetectionplate" ~ "Reused detection plate",
   parameter == "b_TreatmentReMusedPCRplate"  ~ "Reused PCR plate"))
 
-model_info_mismatch$parameter <- factor(model_info_mismatch$parameter, levels = c("Internal control", "Reused detection plate", "Reused PCR plate"))
+model_info_mismatch$parameter <- factor(model_info_mismatch$parameter, 
+                                        levels = c("Internal control", 
+                                                   "Reused detection plate", 
+                                                   "Reused PCR plate"))
 #add median value to other treatments 
 model_info_mismatch_intercept <- model_info_mismatch %>% 
   subset(parameter == "Internal control")
@@ -613,9 +696,13 @@ model_info_mismatch_other <- model_info_mismatch %>%
   subset(parameter != "Internal control") %>% 
   mutate(x = x+m_mismatch$m)
 model_info_mismatch <- rbind(model_info_mismatch_intercept, model_info_mismatch_other)
+```
 
-
-# #Build the plot
+```{r}
+#| label: Plot_Bayes_model_mismatch
+#| echo: FALSE 
+#| warning: FALSE
+#Build the plot
 Density.mismatch.plot <- ggplot(data = subset(model_info_mismatch, 
                                               parameter == c("Internal control", 
                                                              "Reused detection plate", 
